@@ -33,16 +33,6 @@
 				</div>
 			</div>
 
-			<!-- Week names -->
-			<!-- <div class="v2dp-week-names">
-				<span v-for="(name, i) of weeks"
-					:key="i"
-					class="v2dp-week-name"
-				>
-					{{ name }}
-				</span>
-			</div> -->
-
 			<!-- Week -->
 			<V2WeekPicker
 				:weeks="weeks"
@@ -58,11 +48,17 @@
 				@set-switch-date="setSwitchDate"
 			/>
 
-
 			<!-- Month -->
-			<div class="v2dp-month-picker">
-
-			</div>
+			<V2MonthPicker
+				:weeks="weeks"
+				:months="months"
+				:currMonth="currMonth"
+				:sideOffset="sideOffset"
+				:todaysDate="todaysDate"
+				:switchDate="switchDate"
+				:selectedDate="selectedDate"
+				:selectedDates="selectedDates"
+			/>
 
 		</div>
 
@@ -71,11 +67,13 @@
 
 <script>
 import V2WeekPicker from './components/v-week-picker'
+import V2MonthPicker from './components/v-month-picker'
 
 export default {
 	name: 'V2DatePicker',
 	components: {
-		V2WeekPicker
+		V2WeekPicker,
+		V2MonthPicker
 	},
 	props: {
 		dates: {
@@ -120,6 +118,10 @@ export default {
 		}
 	},
 	methods: {
+		resetTimeInDate(date) {
+			date.setHours(0, 0, 0, 0)
+			return date
+		},
 		offset(side, days) {
 			this.sideOffset.side = side
 			this.sideOffset.days = days
@@ -128,10 +130,6 @@ export default {
 			if (!side && !days) {
 				this.selectedDate = this.todaysDate
 			}
-		},
-		resetTimeInDate(date) {
-			date.setHours(0, 0, 0, 0)
-			return date
 		},
 		setSwitchDate({ switchDate, currYear, currMonth }) {
 			this.currYear = currYear
@@ -158,6 +156,7 @@ export default {
 	* {
 		margin: 0;
 		padding: 0;
+		box-sizing: border-box;
 	}
 
 	html {
@@ -193,7 +192,7 @@ export default {
 		margin-bottom: 15px;
 	}
 	.v2dp-controls-date {
-		font-size: 16px;
+		font-size: calc(15px + .5vmin);
 		font-weight: 700;
 	}
 	.v2dp-controls-buttons {
@@ -215,17 +214,5 @@ export default {
 	}
 	.v2dp-controls-prev {
 		margin-right: 16px;
-	}
-
-	// Week names
-	.v2dp-week-names {
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 5px;
-	}
-
-	.v2dp-week-name {
-		flex: 1 1 100%;
-		text-align: center;
 	}
 </style>

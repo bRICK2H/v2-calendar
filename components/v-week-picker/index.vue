@@ -13,7 +13,6 @@
 			}) of getDaysWeek"
 			:key="id"
 			:ref="id"
-			:style="{ height: `${height}px` }"
 			:class="{
 				'v2dp-week-item__slct-day': isSlctDay,
 				'v2dp-week-item__curr-day': isCurrDay,
@@ -75,9 +74,6 @@ export default {
 			require: true
 		}
 	},
-	data: () => ({
-		height: 0,
-	}),
 	computed: {
 		getDaysWeek() {
 			if (!this.switchDate) return []
@@ -143,14 +139,6 @@ export default {
 		calcDayOffset(days) {
 			return 60 * 60 * 24 * days * 1000
 		},
-		setHeightDayWeek() {
-			const heightList = this.getDaysWeek.map(el => {
-				const [node] = this.$refs[el.id]
-				return node?.clientWidth ?? 35
-			})
-
-			this.height = Math.min(...heightList) + 22
-		},
 	},
 	watch: {
 		sideOffset: {
@@ -180,12 +168,6 @@ export default {
 
 		this.$emit('set-switch-date', { switchDate, currYear, currMonth })
 	},
-	async mounted() {
-		await this.$nextTick()
-
-		this.setHeightDayWeek()
-		window.addEventListener('resize', () => this.setHeightDayWeek())
-	}
 }
 </script>
 
@@ -196,15 +178,18 @@ export default {
 	}
 
 	.v2dp-week-item {
-		flex: 0 1 38px;
+		flex: 0 1 calc(100% / 7 - 5px);
+		height: 0;
+		padding-top: calc(100% / 7 - 7px + 18px);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		border-radius: 24px;
 		border: 2px solid transparent;
-		cursor: pointer;
 		transition: box-shadow .2s;
 		color: #b7b7cc;
+		position: relative;
+		cursor: pointer;
 		
 		&:not(:last-of-type) {
 			margin-right: 5px;
@@ -240,23 +225,24 @@ export default {
 	.v2dp-week-item-content {
 		width: 100%;
 		height: 100%;
-		// height: calc(100% - 4px);
 		display: flex;
 		flex-direction: column;
 		justify-content: space-evenly;
 		align-items: center;
+		position: absolute;
+		top: 0;
+		left: 0;
 		border-radius: 24px;
-		border: 2px solid transparent;
 		
 		&__slctd-days {
 			border: 2px solid #fff;
 		}
 	}
 	.v2dp-week-item-name {
-		font-size: 12px;
+		font-size: calc(9px + .5vmin);
 		color: #b7b7cc;
 	}
 	.v2dp-week-item-day {
-		font-size: 18px;
+		font-size: calc(15px + .5vmin);
 	}
 </style>
