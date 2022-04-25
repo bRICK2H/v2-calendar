@@ -7,12 +7,30 @@
 
 			<!-- Controls -->
 			<div class="v2dp-controls">
-				<button @click="offset(-1)">left</button>
-				<div>
-					{{ months[currMonth] }}
-					<button @click="offsetToday">curr</button>
+				<p class="v2dp-controls-date">
+					{{ getMonth }} {{ currYear }}
+				</p>
+
+				<div class="v2dp-controls-buttons">
+					<button @click="offset(0, 0)"
+						class="v2dp-controls-curr"
+					>
+						<img src="./assets/img/svg/curr-day.svg"
+							alt="curr-day"
+							:style="{ opacity: isTodaysDate ? .2 : 1 }"
+						>
+					</button>
+					<button @click="offset(-1, 7)"
+						class="v2dp-controls-prev"
+					>
+						<img src="./assets/img/svg/prev-day.svg" alt="prev-day">
+					</button>
+					<button @click="offset(1, 7)"
+						class="v2dp-controls-next"
+					>
+						<img src="./assets/img/svg/next-day.svg" alt="next-day">
+					</button>
 				</div>
-				<button @click="offset(1)">right</button>
 			</div>
 
 			<!-- Week names -->
@@ -26,43 +44,20 @@
 			</div> -->
 
 			<!-- Week -->
-			<div class="v2dp-week-picker">
-				<div v-for="({
-						id,
-						day,
-						date,
-						name,
-						isSlctDay,
-						isCurrDay,
-						isCurrWeek,
-						isDblSlctd,
-						isSlctdDays,
-					}) of getDaysWeek"
-					:key="id"
-					:ref="id"
-					:class="{
-						'v2dp-week-item__slct-day': isSlctDay,
-						'v2dp-week-item__curr-day': isCurrDay,
-						'v2dp-week-item__curr-week': isCurrWeek,
-						'v2dp-week-item__slctd-dbl': isDblSlctd,
-						'v2dp-week-item__slctd-days': isSlctdDays,
-					}"
-					:style="{ height: `${heightDayWeek}px` }"
-					class="v2dp-week-item"
-					@click="selectDate(date)"
-				>
-					<div class="v2dp-week-item-content"
-						:class="{'v2dp-week-item-content__slctd-days': isSlctdDays,}"
-					>
-						<span class="v2dp-week-item-name">
-							{{ name }}
-						</span>
-						<span class="v2dp-week-item-day">
-							{{ day }}
-						</span>
-					</div>
-				</div>
-			</div>
+			<V2WeekPicker
+				:weeks="weeks"
+				:months="months"
+				:currMonth="currMonth"
+				:sideOffset="sideOffset"
+				:todaysDate="todaysDate"
+				:switchDate="switchDate"
+				:selectedDate="selectedDate"
+				:selectedDates="selectedDates"
+
+				@select-date="selectDate"
+				@set-switch-date="setSwitchDate"
+			/>
+
 
 			<!-- Month -->
 			<div class="v2dp-month-picker">
@@ -75,143 +70,86 @@
 </template>
 
 <script>
-	export default {
-		name: 'V2DatePicker',
-		props: {
-			width: {
-				type: [Number, String],
-				default: 375
-			},
-			dates: {
-				type: Array,
-				default: () => ([])
-			}
-		},
-		data: () => ({
-			today: null,
-			currYear: null,
-			currMonth: null,
-			switchDate: null,
-			selectedDate: null,
-			selectedDates: [],
-			heightDayWeek: 0,
-			weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-			months: [
-				'Январь', 'Февраль', 'Март',
-				'Апрель', 'Май', 'Июнь',
-				'Июль', 'Август', 'Сентябрь',
-				'Окрябрь', 'Ноябрь', 'Декабрь'
-			],
-		}),
-		computed: {
-			getMonth() {
-				return this.switchDate.getMonth()
-			},
-			getDaysWeek() {
-				const array = new Array(7).fill(null)
+import V2WeekPicker from './components/v-week-picker'
 
-				return array.map((_, i) => {
-					const selectedDates = this.dates.map(date => date.toLocaleDateString())
-					const date = new Date(
-						Date.parse(this.switchDate) + this.calcDayOffset(i)
-					)
-					const currDate 	= this.today
-						,	currDay 		= currDate.getDate()
-						,	currMonth 	= currDate.getMonth()
-						,	slctDay		= this.selectedDate?.getDate()
-						,	name			= this.weeks[i]
-						,	day 			= date.getDate()
-						,	month 		= date.getMonth()
-						,	year 			= date.getFullYear()
-						,	localeDate	= date.toLocaleDateString()
-						,	id 			= `week-${localeDate}`
-						,	isCurrWeek 	= this.currMonth === month
-						,	isCurrDay 	= currDay === day && currMonth === month
-						,	isSlctDay	= slctDay === day
-						,	isSlctdDays = selectedDates.includes(localeDate)
-						,	isDblSlctd	= isSlctDay && isSlctdDays
-
-					return {
-						id,
-						day,
-						date,
-						year,
-						name,
-						month,
-						isSlctDay,
-						isCurrDay,
-						isDblSlctd,
-						isCurrWeek,
-						isSlctdDays
-					}
-				})
-			}
+export default {
+	name: 'V2DatePicker',
+	components: {
+		V2WeekPicker
+	},
+	props: {
+		dates: {
+			type: Array,
+			default: () => ([])
 		},
-		methods: {
-			offset(n) {
-				this.switchDate = new Date(
-					Date.parse(this.switchDate) + (this.calcDayOffset(7) * n)
-				)
-
-				const currDayWeek = n > 0
-					? this.getDayWeekFirst(this.switchDate)
-					: this.getDayWeekLast(this.switchDate)
-				
-				this.currMonth = currDayWeek.getMonth()
-				this.currYear = currDayWeek.getFullYear()
-			},
-			offsetToday() {
-				this.switchDate = this.getDayWeekFirst(this.today)
-				this.currMonth = this.switchDate.getMonth()
-				this.currYear = this.switchDate.getFullYear()
-			},
-			selectDate(date) {
-				this.selectedDate = date
-				this.currMonth = date.getMonth()
-				console.log(this.getDayWeekFirst(date))
-			},
-			resetTime(date) {
-				date.setHours(0, 0, 0, 0)
-				return date
-			},
-			calcDayOffset(days) {
-				return 60 * 60 * 24 * days * 1000
-			},
-			getDayWeek(date) {
-				const nativeDay = date.getDay()
-				return nativeDay === 0 ? 6 : nativeDay - 1
-			},
-			getDayWeekFirst(date) {
-				return new Date(
-					Date.parse(date) - this.calcDayOffset(this.getDayWeek(date))
-				)
-			},
-			getDayWeekLast(date) {
-				return new Date(
-					Date.parse(date) + this.calcDayOffset(6 - this.getDayWeek(date))
-				)
-			},
-			setHeightDayWeek() {
-				const heightList = this.getDaysWeek.map(el => {
-					const [node] = this.$refs[el.id]
-					return node.clientWidth
-				})
-
-				this.heightDayWeek = Math.min(...heightList) + 20
-			}
+		width: {
+			type: [Number, String],
+			default: 375
 		},
-		created() {
-			this.today = this.resetTime(new Date)
-			this.switchDate = this.getDayWeekFirst(this.today)
-			this.selectedDates = this.dates
-			this.currMonth = this.switchDate.getMonth()
-			this.currYear = this.switchDate.getFullYear()
+	},
+	data: () => ({
+		mode: 'week',
+		sideOffset: {
+			days: 0,
+			side: null,
+			toggle: false
 		},
-		mounted() {
-			this.setHeightDayWeek()
-			window.addEventListener('resize', () => this.setHeightDayWeek())
+		todaysDate: null,
+		currYear: null,
+		currMonth: null,
+		switchDate: null,
+		selectedDate: null,
+		selectedDates: [],
+		weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+		months: [
+			'Январь', 'Февраль', 'Март',
+			'Апрель', 'Май', 'Июнь',
+			'Июль', 'Август', 'Сентябрь',
+			'Окрябрь', 'Ноябрь', 'Декабрь'
+		],
+	}),
+	computed: {
+		getMonth() {
+			return this.months[this.currMonth]
+		},
+		isWeekMode() {
+			return this.mode === 'week'
+		},
+		isTodaysDate() {
+			return this.todaysDate?.toLocaleDateString() === this.selectedDate?.toLocaleDateString()
 		}
-	}
+	},
+	methods: {
+		offset(side, days) {
+			this.sideOffset.side = side
+			this.sideOffset.days = days
+			this.sideOffset.toggle = !this.sideOffset.toggle
+
+			if (!side && !days) {
+				this.selectedDate = this.todaysDate
+			}
+		},
+		resetTimeInDate(date) {
+			date.setHours(0, 0, 0, 0)
+			return date
+		},
+		setSwitchDate({ switchDate, currYear, currMonth }) {
+			this.currYear = currYear
+			this.currMonth = currMonth
+			this.switchDate = switchDate
+		},
+		selectDate(date) {
+			this.selectedDate = date
+			this.currMonth = date.getMonth()
+			this.currYear = date.getFullYear()
+		}
+	},
+	created() {
+		this.todaysDate = this.selectedDate = this.resetTimeInDate(new Date)
+		this.selectedDates = this.dates
+	},
+
+}
 </script>
 
 <style lang="scss">
@@ -238,6 +176,7 @@
 			color: #1f1f33;
 			font-weight: 600;
 			box-sizing: border-box;
+			background: #fff;
 		}
 		
 		min-width: 240px;
@@ -248,10 +187,34 @@
 
 	// Controls
 	.v2dp-controls {
-		border: 1px solid #000;
 		display: flex;
 		justify-content: space-between;
-		margin-bottom: 10px;
+		align-items: center;
+		margin-bottom: 15px;
+	}
+	.v2dp-controls-date {
+		font-size: 16px;
+		font-weight: 700;
+	}
+	.v2dp-controls-buttons {
+		display: flex;
+		align-items: center;
+	}
+	.v2dp-controls-prev,
+	.v2dp-controls-curr,
+	.v2dp-controls-next {
+		border: none;
+		outline: none;
+		background: none;
+		display: flex;
+		align-items: center;
+		cursor: pointer;
+	}
+	.v2dp-controls-curr {
+		margin-right: 19px;
+	}
+	.v2dp-controls-prev {
+		margin-right: 16px;
 	}
 
 	// Week names
@@ -264,70 +227,5 @@
 	.v2dp-week-name {
 		flex: 1 1 100%;
 		text-align: center;
-	}
-
-	// Week picker
-	.v2dp-week-picker {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.v2dp-week-item {
-		flex: 0 1 38px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		border-radius: 24px;
-		border: 2px solid transparent;
-		cursor: pointer;
-		transition: box-shadow .2s;
-		
-		&:not(:last-of-type) {
-			margin-right: 5px;
-		}
-		&:hover {
-			box-shadow: 0 0 8px 0 #1f1f33;
-		}
-
-		&__curr-week {
-			color: #000;
-		}
-		&__curr-day {
-			background: #f6f6fb;
-		}
-		&__slct-day {
-			background: #1f1f33;
-
-			.v2dp-week-item-name,
-			.v2dp-week-item-day {
-				color: #fff;
-			}
-		}
-		&__slctd-days {
-			border: 2px solid #eeedf7;
-		}
-		&__slctd-dbl {
-			border: 2px solid #1f1f33;
-		}
-	}
-	.v2dp-week-item-content {
-		width: 100%;
-		height: calc(100% - 4px);
-		display: flex;
-		flex-direction: column;
-		justify-content: space-evenly;
-		align-items: center;
-		border-radius: 24px;
-		
-		&__slctd-days {
-			border: 2px solid #fff;
-		}
-	}
-	.v2dp-week-item-name {
-		font-size: 12px;
-		color: #b7b7cc;
-	}
-	.v2dp-week-item-day {
-		font-size: 18px;
 	}
 </style>
