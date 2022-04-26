@@ -1,36 +1,25 @@
 <template>
 	<div class="v2dp-week-picker">
-		<div v-for="({
-				id,
-				day,
-				date,
-				name,
-				isSlctDay,
-				isCurrDay,
-				isCurrWeek,
-				isDblSlctd,
-				isSlctdDays,
-			}) of getDaysWeek"
-			:key="id"
-			:ref="id"
+		<div v-for="date of getDates"
+			:key="date.id"
 			:class="{
-				'v2dp-week-item__slct-day': isSlctDay,
-				'v2dp-week-item__curr-day': isCurrDay,
-				'v2dp-week-item__curr-week': isCurrWeek,
-				'v2dp-week-item__slctd-dbl': isDblSlctd,
-				'v2dp-week-item__slctd-days': isSlctdDays,
+				'v2dp-week-item__slct-day': date.isSlctDay,
+				'v2dp-week-item__curr-day': date.isCurrDay,
+				'v2dp-week-item__curr-week': date.isCurrWeek,
+				'v2dp-week-item__slctd-dbl': date.isDblSlctd,
+				'v2dp-week-item__slctd-days': date.isSlctdDays,
 			}"
 			class="v2dp-week-item"
 			@click="selectDate(date)"
 		>
 			<div class="v2dp-week-item-content"
-				:class="{'v2dp-week-item-content__slctd-days': isSlctdDays,}"
+				:class="{ 'v2dp-week-item-content__slctd-days': date.isSlctdDays }"
 			>
 				<span class="v2dp-week-item-name">
-					{{ name }}
+					{{ date.name }}
 				</span>
 				<span class="v2dp-week-item-day">
-					{{ day }}
+					{{ date.day }}
 				</span>
 			</div>
 		</div>
@@ -53,7 +42,7 @@ export default {
 			type: Date,
 			default: new Date
 		},
-		switchDate: {
+		switchedDate: {
 			type: null,
 			default: new Date
 		},
@@ -75,29 +64,32 @@ export default {
 		}
 	},
 	computed: {
-		getDaysWeek() {
-			if (!this.switchDate) return []
+		getDates() {
+			if (!this.switchedDate) return []
 			
 			const array = new Array(7).fill(null)
 
 			return array.map((_, i) => {
 				const selectedDates = this.selectedDates.map(date => date.toLocaleDateString())
 				const date = new Date(
-					Date.parse(this.switchDate) + this.calcDayOffset(i)
+					Date.parse(this.switchedDate) + this.calcDayOffset(i)
 				)
 				const currDate 	= this.todaysDate
 					,	currDay 		= currDate.getDate()
 					,	currMonth 	= currDate.getMonth()
+					,	currYear 	= currDate.getFullYear()
 					,	slctDay		= this.selectedDate?.getDate()
+					,	slctMonth	= this.selectedDate?.getMonth()
+					,	slctYear		= this.selectedDate?.getFullYear()
 					,	name			= this.weeks[i]
 					,	day 			= date.getDate()
 					,	month 		= date.getMonth()
 					,	year 			= date.getFullYear()
 					,	localeDate	= date.toLocaleDateString()
-					,	id 			= `week-${localeDate}`
+					,	id 			= `week:${localeDate}`
 					,	isCurrWeek 	= this.currMonth === month
-					,	isCurrDay 	= currDay === day && currMonth === month
-					,	isSlctDay	= slctDay === day
+					,	isCurrDay 	= currDay === day && currMonth === month && currYear === year
+					,	isSlctDay	= slctDay === day && slctMonth === month && slctYear === year
 					,	isSlctdDays = selectedDates.includes(localeDate)
 					,	isDblSlctd	= isSlctDay && isSlctdDays
 
@@ -117,8 +109,12 @@ export default {
 			})
 		}
 	},
+	data: () => ({
+		date: null,
+		month: null
+	}),
 	methods: {
-		selectDate(date) {
+		selectDate({ date }) {
 			this.$emit('select-date', date)
 		},
 
@@ -144,29 +140,33 @@ export default {
 		sideOffset: {
 			deep: true,
 			handler({ side, days }) {
-				const switchDate = days == 0
+				const switchedDate = days === 0
 					? this.getDayWeekFirst(this.todaysDate)
-					: new Date(Date.parse(this.switchDate) + (this.calcDayOffset(days) * side))
+					: new Date(Date.parse(this.switchedDate) + (this.calcDayOffset(days) * side))
 
 				const currDayWeek = side === 0
 					? this.todaysDate
 					: side > 0
-						? this.getDayWeekFirst(switchDate)
-						: this.getDayWeekLast(switchDate)
+						? this.getDayWeekFirst(switchedDate)
+						: this.getDayWeekLast(switchedDate)
 
 				const currMonth = currDayWeek.getMonth()
 				const currYear = currDayWeek.getFullYear()
 
-				this.$emit('set-switch-date', { switchDate, currYear, currMonth })
+				this.$emit('switch-date', { switchedDate, currYear, currMonth })
 			}
 		}
 	},
 	created() {
-		const switchDate  = this.getDayWeekFirst(this.todaysDate)
-			,	currYear		= this.todaysDate.getFullYear()
-			,	currMonth	= this.todaysDate.getMonth()
+		const date 	= this.selectedDate
+			,	month = date.getMonth()
+			,	year 	= date.getFullYear()
 
-		this.$emit('set-switch-date', { switchDate, currYear, currMonth })
+		this.$emit('switch-date', {
+			currYear: year,
+			currMonth: month,
+			switchedDate: this.getDayWeekFirst(date),
+		})
 	},
 }
 </script>

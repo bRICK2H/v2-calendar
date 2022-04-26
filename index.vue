@@ -34,31 +34,36 @@
 			</div>
 
 			<!-- Week -->
-			<V2WeekPicker
+			<V2WeekPicker v-if="isWeekMode"
 				:weeks="weeks"
 				:months="months"
 				:currMonth="currMonth"
 				:sideOffset="sideOffset"
 				:todaysDate="todaysDate"
-				:switchDate="switchDate"
+				:switchedDate="switchedDate"
 				:selectedDate="selectedDate"
 				:selectedDates="selectedDates"
-
 				@select-date="selectDate"
-				@set-switch-date="setSwitchDate"
+				@switch-date="switchDate"
 			/>
 
 			<!-- Month -->
-			<V2MonthPicker
+			<V2MonthPicker v-else
 				:weeks="weeks"
 				:months="months"
 				:currMonth="currMonth"
 				:sideOffset="sideOffset"
 				:todaysDate="todaysDate"
-				:switchDate="switchDate"
+				:switchedDate="switchedDate"
 				:selectedDate="selectedDate"
 				:selectedDates="selectedDates"
+				@select-date="selectDate"
+				@switch-date="switchDate"
 			/>
+
+			<button
+				@click="toggleMode"
+			>toggle</button>
 
 		</div>
 
@@ -95,7 +100,7 @@ export default {
 		todaysDate: null,
 		currYear: null,
 		currMonth: null,
-		switchDate: null,
+		switchedDate: null,
 		selectedDate: null,
 		selectedDates: [],
 		weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
@@ -131,15 +136,18 @@ export default {
 				this.selectedDate = this.todaysDate
 			}
 		},
-		setSwitchDate({ switchDate, currYear, currMonth }) {
+		switchDate({ switchedDate, currYear, currMonth }) {
 			this.currYear = currYear
 			this.currMonth = currMonth
-			this.switchDate = switchDate
+			this.switchedDate = switchedDate
 		},
 		selectDate(date) {
 			this.selectedDate = date
 			this.currMonth = date.getMonth()
 			this.currYear = date.getFullYear()
+		},
+		toggleMode() {
+			this.mode = this.mode === 'week' ? 'month' : 'week'
 		}
 	},
 	created() {
@@ -163,18 +171,12 @@ export default {
 		font-family: 'Inter',
 		sans-serif;
 	}
-	.wrapper {
-		width: 100vw;
-		height: 100vh;
-		display: flex;
-	}
 
 	.v2dp-container {
 
 		& > * {
 			color: #1f1f33;
 			font-weight: 600;
-			box-sizing: border-box;
 			background: #fff;
 		}
 		
@@ -190,6 +192,7 @@ export default {
 		justify-content: space-between;
 		align-items: center;
 		margin-bottom: 15px;
+		padding: 0 10px;
 	}
 	.v2dp-controls-date {
 		font-size: calc(15px + .5vmin);
