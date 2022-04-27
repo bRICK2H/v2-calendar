@@ -184,7 +184,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border-radius: 24px;
+		border-radius: 34px;
 		border: 2px solid transparent;
 		transition: box-shadow .2s;
 		color: #b7b7cc;
@@ -232,7 +232,7 @@ export default {
 		position: absolute;
 		top: 0;
 		left: 0;
-		border-radius: 24px;
+		border-radius: 34px;
 		
 		&__slctd-days {
 			border: 2px solid #fff;

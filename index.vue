@@ -2,7 +2,7 @@
 	<div class="wrapper">
 
 		<div class="v2dp-container"
-			:style="{ width: `${width}px` }"
+			:style="{ maxWidth: `${width}px` }"
 		>
 
 			<!-- Controls -->
@@ -191,11 +191,11 @@ export default {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 15px;
+		margin-bottom: 4vmin;
 		padding: 0 10px;
 	}
 	.v2dp-controls-date {
-		font-size: calc(15px + .5vmin);
+		font-size: calc(14px + .5vmin);
 		font-weight: 700;
 	}
 	.v2dp-controls-buttons {
