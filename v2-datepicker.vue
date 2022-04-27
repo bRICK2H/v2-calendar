@@ -1,72 +1,70 @@
 <template>
-	<div class="wrapper">
+	<div class="v2dp-container"
+		ref="v2dp-container"
+		:style="{ maxWidth: `${width}px` }"
+	>
 
-		<div class="v2dp-container"
-			:style="{ maxWidth: `${width}px` }"
-		>
+		<!-- Controls -->
+		<div class="v2dp-controls">
+			<p class="v2dp-controls-date"
+				:style="{ '--containerWidth': containerWidth  }"
+			>
+				{{ getMonth }} {{ currYear }}
+			</p>
 
-			<!-- Controls -->
-			<div class="v2dp-controls">
-				<p class="v2dp-controls-date">
-					{{ getMonth }} {{ currYear }}
-				</p>
-
-				<div class="v2dp-controls-buttons">
-					<button @click="offset(0, 0)"
-						class="v2dp-controls-curr"
+			<div class="v2dp-controls-buttons">
+				<button @click="offset(0, 0)"
+					class="v2dp-controls-curr"
+				>
+					<img src="./assets/img/svg/curr-day.svg"
+						alt="curr-day"
+						:style="{ opacity: isTodaysDate ? .2 : 1 }"
 					>
-						<img src="./assets/img/svg/curr-day.svg"
-							alt="curr-day"
-							:style="{ opacity: isTodaysDate ? .2 : 1 }"
-						>
-					</button>
-					<button @click="offset(-1, 7)"
-						class="v2dp-controls-prev"
-					>
-						<img src="./assets/img/svg/prev-day.svg" alt="prev-day">
-					</button>
-					<button @click="offset(1, 7)"
-						class="v2dp-controls-next"
-					>
-						<img src="./assets/img/svg/next-day.svg" alt="next-day">
-					</button>
-				</div>
+				</button>
+				<button @click="offset(-1, 7)"
+					class="v2dp-controls-prev"
+				>
+					<img src="./assets/img/svg/prev-day.svg" alt="prev-day">
+				</button>
+				<button @click="offset(1, 7)"
+					class="v2dp-controls-next"
+				>
+					<img src="./assets/img/svg/next-day.svg" alt="next-day">
+				</button>
 			</div>
-
-			<!-- Week -->
-			<V2WeekPicker v-if="isWeekMode"
-				:weeks="weeks"
-				:months="months"
-				:currMonth="currMonth"
-				:sideOffset="sideOffset"
-				:todaysDate="todaysDate"
-				:switchedDate="switchedDate"
-				:selectedDate="selectedDate"
-				:selectedDates="selectedDates"
-				@select-date="selectDate"
-				@switch-date="switchDate"
-			/>
-
-			<!-- Month -->
-			<V2MonthPicker v-else
-				:weeks="weeks"
-				:months="months"
-				:currYear="currYear"
-				:currMonth="currMonth"
-				:sideOffset="sideOffset"
-				:todaysDate="todaysDate"
-				:switchedDate="switchedDate"
-				:selectedDate="selectedDate"
-				:selectedDates="selectedDates"
-				@select-date="selectDate"
-				@switch-date="switchDate"
-			/>
-
-			<button
-				@click="toggleMode"
-			>toggle</button>
-
 		</div>
+
+		<!-- Week -->
+		<!-- v-if="isWeekMode" -->
+		<V2WeekPicker
+			:width="width"
+			:weeks="weeks"
+			:currMonth="currMonth"
+			:selectedDates="dates"
+			:todaysDate="todaysDate"
+			:switchedDate="switchedDate"
+			:selectedDate="selectedDate"
+			@select-date="date => updateDate(date)"
+		/>
+
+		<!-- Month -->
+		<!-- v-else -->
+		<V2MonthPicker
+			:width="width"
+			:weeks="weeks"
+			:months="months"
+			:currYear="currYear"
+			:currMonth="currMonth"
+			:selectedDates="dates"
+			:todaysDate="todaysDate"
+			:switchedDate="switchedDate"
+			:selectedDate="selectedDate"
+			@select-date="date => updateDate(date)"
+		/>
+
+		<button
+			@click="toggleMode"
+		>toggle</button>
 
 	</div>
 </template>
@@ -82,28 +80,24 @@ export default {
 		V2MonthPicker
 	},
 	props: {
-		dates: {
-			type: Array,
-			default: () => ([])
-		},
 		width: {
 			type: [Number, String],
 			default: 375
 		},
+		dates: {
+			type: Array,
+			default: () => ([])
+		},
 	},
 	data: () => ({
 		mode: 'month',
-		sideOffset: {
-			days: 0,
-			side: null,
-			toggle: false
-		},
-		todaysDate: null,
+		currDay: null,
 		currYear: null,
 		currMonth: null,
+		todaysDate: null,
 		switchedDate: null,
 		selectedDate: null,
-		selectedDates: [],
+		containerWidth: null,
 		weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
 		months: [
 			'Январь', 'Февраль', 'Март',
@@ -124,37 +118,83 @@ export default {
 		}
 	},
 	methods: {
-		resetTimeInDate(date) {
-			date.setHours(0, 0, 0, 0)
-			return date
+		initDate() {
+			this.todaysDate = this.resetDateTime(new Date)
+			this.updateDate(this.todaysDate)
 		},
 		offset(side, days) {
-			this.sideOffset.side = side
-			this.sideOffset.days = days
-			this.sideOffset.toggle = !this.sideOffset.toggle
+			let date = null
 
 			if (!side && !days) {
 				this.selectedDate = this.todaysDate
 			}
+
+			switch (this.mode) {
+				case 'month': {
+					const month = side === 0 ? this.todaysDate.getMonth() : this.currMonth + side
+						,	day 	= side === 0 ? this.todaysDate.getDate() : 1
+
+					date 	= new Date(this.currYear, month, day)
+				}
+					break
+			
+				case 'week': {
+					const offsetDate = new Date(
+						Date.parse(this.switchedDate) + (this.calcDayOffset(days) * side)
+					)
+
+					date = side === 0 && days === 0
+						? this.getDayWeekFirst(this.todaysDate)
+						: side > 0
+							? this.getDayWeekFirst(offsetDate)
+							: this.getDayWeekLast(offsetDate)
+				}
+					break
+			}
+
+			this.updateDate(date, false)
 		},
-		switchDate({ switchedDate, currYear, currMonth }) {
-			this.currYear = currYear
-			this.currMonth = currMonth
-			this.switchedDate = switchedDate
-		},
-		selectDate(date) {
-			this.selectedDate = date
-			this.currMonth = date.getMonth()
-			this.currYear = date.getFullYear()
+		updateDate(date, isUpdateSelected = true) {
+			if (isUpdateSelected) {
+				this.selectedDate = date
+			}
+
+			this.currDay 		= date.getDate()
+			this.currMonth 	= date.getMonth()
+			this.currYear 		= date.getFullYear()
+			this.switchedDate = this.getDayWeekFirst(date)
 		},
 		toggleMode() {
 			this.mode = this.mode === 'week' ? 'month' : 'week'
+		},
+		setContainerWidth() {
+			const container = this.$refs['v2dp-container']
+			const containerWidth = container?.firstChild.offsetWidth
+
+			if (containerWidth !== undefined) {
+				this.containerWidth = `${containerWidth}px`
+			}
 		}
 	},
-	created() {
-		this.todaysDate = this.selectedDate = this.resetTimeInDate(new Date)
-		this.selectedDates = this.dates
+	watch: {
+		width() {
+			this.setContainerWidth()
+		},
 	},
+	created() {
+		this.initDate()
+	},
+	mounted() {
+		this.setContainerWidth()
+		window.addEventListener('resize', this.setContainerWidth)
+
+		/**
+		 * 1. Возможно передать дальше ширину ресайза и на основе него высчытвать
+		 * 2. Адаптив svg
+		 * 3. Сделать решимы week, month, range
+		 * 4. Иконка переключения режиков
+		 */
+	}
 
 }
 </script>
@@ -196,7 +236,7 @@ export default {
 		padding: 0 10px;
 	}
 	.v2dp-controls-date {
-		font-size: calc(14px + .5vmin);
+		font-size: calc((var(--containerWidth) / 2) * .15);
 		font-weight: 700;
 	}
 	.v2dp-controls-buttons {

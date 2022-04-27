@@ -1,6 +1,9 @@
 <template>
-	<div class="v2dp-week-picker">
-		<div v-for="date of getDates"
+	<div class="v2dp-week-picker"
+		ref="v2dp-week-list"
+		:style="{ '--width': itemWidth }"
+	>
+		<div v-for="date of getWeeks"
 			:key="date.id"
 			:class="{
 				'v2dp-week-item__slct-day': date.isSlctDay,
@@ -8,6 +11,7 @@
 				'v2dp-week-item__curr-week': date.isCurrWeek,
 				'v2dp-week-item__slctd-dbl': date.isDblSlctd,
 				'v2dp-week-item__slctd-days': date.isSlctdDays,
+				'v2dp-week-item__slct-day-prev':  !date.isCurrWeek && date.isSlctDay,
 			}"
 			class="v2dp-week-item"
 			@click="selectDate(date)"
@@ -30,11 +34,11 @@
 export default {
 	name: 'VWeekPicker',
 	props: {
-		weeks: {
-			type: Array,
-			require: true
+		width: {
+			type: Number,
+			default: 0
 		},
-		months: {
+		weeks: {
 			type: Array,
 			require: true
 		},
@@ -58,29 +62,23 @@ export default {
 			type: Number,
 			default: 0
 		},
-		sideOffset: {
-			type: Object,
-			require: true
-		}
 	},
+	data: () => ({
+		itemWidth: null
+	}),
 	computed: {
-		getDates() {
-			if (!this.switchedDate) return []
-			
-			const array = new Array(7).fill(null)
+		getWeeks() {
+			const weeks = this.createWeek(7, this.switchedDate)
+			const selectedDates = this.selectedDates.map(date => date.toLocaleDateString())
 
-			return array.map((_, i) => {
-				const selectedDates = this.selectedDates.map(date => date.toLocaleDateString())
-				const date = new Date(
-					Date.parse(this.switchedDate) + this.calcDayOffset(i)
-				)
+			return weeks.map((date, i) => {
 				const currDate 	= this.todaysDate
 					,	currDay 		= currDate.getDate()
 					,	currMonth 	= currDate.getMonth()
 					,	currYear 	= currDate.getFullYear()
-					,	slctDay		= this.selectedDate?.getDate()
-					,	slctMonth	= this.selectedDate?.getMonth()
-					,	slctYear		= this.selectedDate?.getFullYear()
+					,	slctDay		= this.selectedDate.getDate()
+					,	slctMonth	= this.selectedDate.getMonth()
+					,	slctYear		= this.selectedDate.getFullYear()
 					,	name			= this.weeks[i]
 					,	day 			= date.getDate()
 					,	month 		= date.getMonth()
@@ -109,65 +107,39 @@ export default {
 			})
 		}
 	},
-	data: () => ({
-		date: null,
-		month: null
-	}),
 	methods: {
 		selectDate({ date }) {
 			this.$emit('select-date', date)
 		},
+		createWeek(size, start) {
+			const array = new Array(size).fill(null)
 
-		getDayWeekFirst(date) {
-			return new Date(
-				Date.parse(date) - this.calcDayOffset(this.calcDayWeek(date))
-			)
+			return array.map((_, i) => {
+				const date = new Date(
+					Date.parse(start) + this.calcDayOffset(i)
+				)
+
+				return date
+			})
 		},
-		getDayWeekLast(date) {
-			return new Date(
-				Date.parse(date) + this.calcDayOffset(6 - this.calcDayWeek(date))
-			)
-		},
-		// getDayWeek(date) {
-		// 	const nativeDay = date.getDay()
-		// 	return nativeDay === 0 ? 6 : nativeDay - 1
-		// },
-		// calcDayOffset(days) {
-		// 	return 60 * 60 * 24 * days * 1000
-		// },
-	},
-	watch: {
-		sideOffset: {
-			deep: true,
-			handler({ side, days }) {
-				const switchedDate = days === 0
-					? this.getDayWeekFirst(this.todaysDate)
-					: new Date(Date.parse(this.switchedDate) + (this.calcDayOffset(days) * side))
+		setItemWidth() {
+			const container = this.$refs['v2dp-week-list']
+			const itemWidth = container?.firstChild.offsetWidth
 
-				const currDayWeek = side === 0
-					? this.todaysDate
-					: side > 0
-						? this.getDayWeekFirst(switchedDate)
-						: this.getDayWeekLast(switchedDate)
-
-				const currMonth = currDayWeek.getMonth()
-				const currYear = currDayWeek.getFullYear()
-
-				this.$emit('switch-date', { switchedDate, currYear, currMonth })
+			if (itemWidth !== undefined) {
+				this.itemWidth = `${itemWidth}px`
 			}
 		}
 	},
-	created() {
-		const date 	= this.selectedDate
-			,	month = date.getMonth()
-			,	year 	= date.getFullYear()
-
-		this.$emit('switch-date', {
-			currYear: year,
-			currMonth: month,
-			switchedDate: this.getDayWeekFirst(date),
-		})
+	watch: {
+		width() {
+			this.setItemWidth()
+		},
 	},
+	mounted() {
+		this.setItemWidth()
+		window.addEventListener('resize', this.setItemWidth)
+	}
 }
 </script>
 
@@ -178,21 +150,22 @@ export default {
 	}
 
 	.v2dp-week-item {
-		flex: 0 1 calc(100% / 7 - 5px);
-		height: 0;
-		padding-top: calc(100% / 7 - 7px + 18px);
+		flex: 0 1 calc(100% / 7 - 7px);
+		height: calc(var(--width) + (var(--width) * .4));
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		border-radius: 34px;
-		border: 2px solid transparent;
+		border-radius: calc(var(--width) * .35);
+		// border: calc(var(--width) * .07) solid transparent;
+		border: 1px solid #fafafa;
 		transition: box-shadow .2s;
 		color: #b7b7cc;
 		position: relative;
 		cursor: pointer;
 		
+		
 		&:not(:last-of-type) {
-			margin-right: 5px;
+			margin-right: 7px;
 		}
 		&:hover {
 			box-shadow: 0 0 8px 0 #1f1f33;
@@ -216,10 +189,13 @@ export default {
 			}
 		}
 		&__slctd-days {
-			border: 2px solid #eeedf7;
+			border: calc(var(--width) * .07) solid #eeedf7;
 		}
 		&__slctd-dbl {
-			border: 2px solid #1f1f33;
+			border: calc(var(--width) * .07) solid #1f1f33;
+		}
+		&__slct-day-prev {
+			opacity: .4;
 		}
 	}
 	.v2dp-week-item-content {
@@ -232,17 +208,17 @@ export default {
 		position: absolute;
 		top: 0;
 		left: 0;
-		border-radius: 34px;
+		border-radius: calc(var(--width) * .30);
 		
 		&__slctd-days {
-			border: 2px solid #fff;
+			border: calc(var(--width) * .07) solid #fff;
 		}
 	}
 	.v2dp-week-item-name {
-		font-size: calc(9px + .5vmin);
+		font-size: calc(var(--width) * .25);
 		color: #b7b7cc;
 	}
 	.v2dp-week-item-day {
-		font-size: calc(15px + .5vmin);
+		font-size: calc(var(--width) * .45);
 	}
 </style>

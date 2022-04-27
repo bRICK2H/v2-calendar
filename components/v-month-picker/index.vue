@@ -1,5 +1,7 @@
 <template>
-	<div class="v2dp-month-picker">
+	<div class="v2dp-month-picker"
+		:style="{ '--width': itemWidth }"
+	>
 		
 		<div class="v2dp-week-names">
 			<span v-for="(name, i) of weeks"
@@ -10,8 +12,10 @@
 			</span>
 		</div>
 
-		<div class="v2dp-month-list">
-			<div v-for="date of getDates"
+		<div class="v2dp-month-list"
+			ref="v2dp-month-list"
+		>
+			<div v-for="date of getMonths"
 				:key="date.id"
 				:class="{
 					'v2dp-month-item__slct-day': date.isSlctDay,
@@ -19,7 +23,9 @@
 					'v2dp-month-item__curr-month': date.isCurrMonth,
 					'v2dp-month-item__slctd-dbl': date.isDblSlctd,
 					'v2dp-month-item__slctd-days': date.isSlctdDays,
+					'v2dp-month-item__slct-day-prev':  !date.isCurrMonth && date.isSlctDay,
 				}"
+				
 				class="v2dp-month-item"
 				@click="selectDate(date)"
 			>
@@ -37,6 +43,10 @@
 export default {
 	name: 'VMonthPicker',
 	props: {
+		width: {
+			type: Number,
+			default: 0
+		},
 		weeks: {
 			type: Array,
 			require: true
@@ -47,10 +57,6 @@ export default {
 		},
 		todaysDate: {
 			type: Date,
-			default: new Date
-		},
-		switchedDate: {
-			type: null,
 			default: new Date
 		},
 		selectedDate: {
@@ -69,14 +75,9 @@ export default {
 			type: Number,
 			default: 0
 		},
-		sideOffset: {
-			type: Object,
-			require: true
-		}
 	},
 	computed: {
-		getDates() {
-			console.log('getDates')
+		getMonths() {
 			const firstDateOfCurr 		= new Date(this.currYear, this.currMonth, 1)
 				,	lastDateOfCurr 		= new Date(this.currYear, this.currMonth + 1, 0)
 				,	firstDayWeekOfCurr 	= this.calcDayWeek(firstDateOfCurr)
@@ -108,16 +109,16 @@ export default {
 				
 
 			const result = [...prev, ...curr, ...next]
+			const selectedDates = this.selectedDates.map(date => date.toLocaleDateString())
 
 			return result.map(date => {
-				const selectedDates = this.selectedDates.map(date => date.toLocaleDateString())
 				const currDate 	= this.todaysDate
 					,	currDay 		= currDate.getDate()
 					,	currMonth 	= currDate.getMonth()
 					,	currYear 	= currDate.getFullYear()
-					,	slctDay		= this.selectedDate?.getDate()
-					,	slctMonth	= this.selectedDate?.getMonth()
-					,	slctYear		= this.selectedDate?.getFullYear()
+					,	slctDay		= this.selectedDate.getDate()
+					,	slctMonth	= this.selectedDate.getMonth()
+					,	slctYear		= this.selectedDate.getFullYear()
 					,	name			= this.weeks[this.calcDayWeek(date)]
 					,	day 			= date.getDate()
 					,	month 		= date.getMonth()
@@ -147,12 +148,10 @@ export default {
 		}
 	},
 	data: () => ({
-		date: null,
-		month: null
+		itemWidth: null
 	}),
 	methods: {
 		selectDate({ date }) {
-			this.date = date
 			this.$emit('select-date', date)
 		},
 		createMonth(size, start) {
@@ -166,43 +165,23 @@ export default {
 				return date
 			})
 		},
-	},
-	watch: {
-		sideOffset: {
-			deep: true,
-			handler({ side }) {
-				new Promise(resolve => {
-					const day = side === 0
-						? this.todaysDate.getDate() : 1
-					const month = side === 0
-						? this.todaysDate.getMonth() : this.currMonth + side
-					const year = this.currYear
-					const date = new Date(year, month, day)
+		setItemWidth() {
+			const container = this.$refs['v2dp-month-list']
+			const itemWidth = container?.firstChild.offsetWidth
 
-					resolve(date)
-				}).then(date => {
-					console.warn(date)
-	
-					this.$emit('switch-date', {
-						switchedDate: date,
-						currYear: date.getFullYear(),
-						currMonth: date.getMonth()
-					})
-				})
-
+			if (itemWidth !== undefined) {
+				this.itemWidth = `${itemWidth}px`
 			}
 		}
 	},
-	created() {
-		const date 	= this.selectedDate
-			,	month = date.getMonth()
-			,	year 	= date.getFullYear()
-
-		this.$emit('switch-date', {
-			currYear: year,
-			currMonth: month,
-			switchedDate: date,
-		})
+	watch: {
+		width() {
+			this.setItemWidth()
+		},
+	},
+	mounted() {
+		this.setItemWidth()
+		window.addEventListener('resize', this.setItemWidth)
 	}
 }
 </script>
@@ -215,7 +194,7 @@ export default {
 	}
 	.v2dp-week-name {
 		flex: 0 1 calc(100% / 7 - 5px);
-		font-size: calc(9px + .5vmin);
+		font-size: calc(var(--width) * .25);
 		text-align: center;
 		color: #b7b7cc;
 
@@ -229,21 +208,27 @@ export default {
 		flex-wrap: wrap;
 	}
 	.v2dp-month-item {
-		flex: 0 1 calc(100% / 7 - 5px);
-		height: 0;
-		padding-top: calc(100% / 7 - 7px);
+		flex: 0 1 calc(100% / 7 - 7px);
+		height: var(--width);
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		border-radius: 50%;
-		border: 2px solid transparent;
+		// border: calc(var(--width) * .07) solid transparent;
+		border: 1px solid #fafafa;
 		transition: box-shadow .2s;
 		color: #b7b7cc;
 		position: relative;
 		cursor: pointer;
 
 		&:not(:nth-child(7n + 7)) {
-			margin: 0 5px 5px 0;
+			margin: 0 7px 7px 0;
+		}
+		&:hover {
+			box-shadow: 0 0 8px 0 #1f1f33;
+		}
+		&:active {
+			box-shadow: 0 0 4px 0 #1f1f33;
 		}
 
 		&__curr-month {
@@ -260,10 +245,13 @@ export default {
 			}
 		}
 		&__slctd-days {
-			border: 2px solid #eeedf7;
+			border: calc(var(--width) * .07) solid #eeedf7;
 		}
 		&__slctd-dbl {
-			border: 2px solid #1f1f33;
+			border: calc(var(--width) * .07) solid #1f1f33;
+		}
+		&__slct-day-prev {
+			opacity: .4;
 		}
 	}
 	.v2dp-month-day {
@@ -276,10 +264,10 @@ export default {
 		border-radius: 50%;
 		top: 0;
 		left: 0;
-		font-size: calc(15px + .5vmin);
+		font-size: calc(var(--width) * .45);
 
 		&__slctd-days {
-			border: 2px solid #fff;
+			border: calc(var(--width) * .07) solid #fff;
 		}
 	}
 
