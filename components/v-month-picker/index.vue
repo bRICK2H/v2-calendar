@@ -65,6 +65,10 @@ export default {
 			type: Number,
 			default: 0
 		},
+		currYear: {
+			type: Number,
+			default: 0
+		},
 		sideOffset: {
 			type: Object,
 			require: true
@@ -72,15 +76,12 @@ export default {
 	},
 	computed: {
 		getDates() {
-			const date 	= this.date
-				,	month = date.getMonth()
-				,	year 	= date.getFullYear()
-			
-			const firstDateOfCurr 		= new Date(year, month, 1)
-				,	lastDateOfCurr 		= new Date(year, month + 1, 0)
-				,	firstDayWeekOfCurr 	= this.getDayWeek(firstDateOfCurr)
-				,	lastDayWeekOfCurr 	= this.getDayWeek(lastDateOfCurr)
-				,	firstDateOfNext 		= new Date(year, month + 1, 1)
+			console.log('getDates')
+			const firstDateOfCurr 		= new Date(this.currYear, this.currMonth, 1)
+				,	lastDateOfCurr 		= new Date(this.currYear, this.currMonth + 1, 0)
+				,	firstDayWeekOfCurr 	= this.calcDayWeek(firstDateOfCurr)
+				,	lastDayWeekOfCurr 	= this.calcDayWeek(lastDateOfCurr)
+				,	firstDateOfNext 		= new Date(this.currYear, this.currMonth + 1, 1)
 				,	firstDateOfPrev 		= new Date(
 						Date.parse(firstDateOfCurr) - this.calcDayOffset(firstDayWeekOfCurr)
 					)
@@ -117,7 +118,7 @@ export default {
 					,	slctDay		= this.selectedDate?.getDate()
 					,	slctMonth	= this.selectedDate?.getMonth()
 					,	slctYear		= this.selectedDate?.getFullYear()
-					,	name			= this.weeks[this.getDayWeek(date)]
+					,	name			= this.weeks[this.calcDayWeek(date)]
 					,	day 			= date.getDate()
 					,	month 		= date.getMonth()
 					,	year 			= date.getFullYear()
@@ -154,13 +155,6 @@ export default {
 			this.date = date
 			this.$emit('select-date', date)
 		},
-		calcDayOffset(days) {
-			return 60 * 60 * 24 * days * 1000
-		},
-		getDayWeek(date) {
-			const nativeDay = date.getDay()
-			return nativeDay === 0 ? 6 : nativeDay - 1
-		},
 		createMonth(size, start) {
 			const array = new Array(size).fill(null)
 
@@ -177,26 +171,31 @@ export default {
 		sideOffset: {
 			deep: true,
 			handler({ side }) {
-				const day = side === 0
-					? this.todaysDate.getDate()
-					: 1
-				this.month = side === 0
-					? this.todaysDate.getMonth()
-					: this.month + side
-				
-				this.date = new Date(2022, this.month, day)
+				new Promise(resolve => {
+					const day = side === 0
+						? this.todaysDate.getDate() : 1
+					const month = side === 0
+						? this.todaysDate.getMonth() : this.currMonth + side
+					const year = this.currYear
+					const date = new Date(year, month, day)
 
-				this.$emit('switch-date', {
-					switchedDate: this.date,
-					currYear: this.date.getFullYear(),
-					currMonth: this.date.getMonth()
+					resolve(date)
+				}).then(date => {
+					console.warn(date)
+	
+					this.$emit('switch-date', {
+						switchedDate: date,
+						currYear: date.getFullYear(),
+						currMonth: date.getMonth()
+					})
 				})
+
 			}
 		}
 	},
 	created() {
-		const date 	= this.date = this.selectedDate
-			,	month = this.month = date.getMonth()
+		const date 	= this.selectedDate
+			,	month = date.getMonth()
 			,	year 	= date.getFullYear()
 
 		this.$emit('switch-date', {

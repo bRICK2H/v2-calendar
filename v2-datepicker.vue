@@ -51,6 +51,7 @@
 			<V2MonthPicker v-else
 				:weeks="weeks"
 				:months="months"
+				:currYear="currYear"
 				:currMonth="currMonth"
 				:sideOffset="sideOffset"
 				:todaysDate="todaysDate"
@@ -91,7 +92,7 @@ export default {
 		},
 	},
 	data: () => ({
-		mode: 'week',
+		mode: 'month',
 		sideOffset: {
 			days: 0,
 			side: null,

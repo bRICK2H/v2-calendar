@@ -120,21 +120,21 @@ export default {
 
 		getDayWeekFirst(date) {
 			return new Date(
-				Date.parse(date) - this.calcDayOffset(this.getDayWeek(date))
+				Date.parse(date) - this.calcDayOffset(this.calcDayWeek(date))
 			)
 		},
 		getDayWeekLast(date) {
 			return new Date(
-				Date.parse(date) + this.calcDayOffset(6 - this.getDayWeek(date))
+				Date.parse(date) + this.calcDayOffset(6 - this.calcDayWeek(date))
 			)
 		},
-		getDayWeek(date) {
-			const nativeDay = date.getDay()
-			return nativeDay === 0 ? 6 : nativeDay - 1
-		},
-		calcDayOffset(days) {
-			return 60 * 60 * 24 * days * 1000
-		},
+		// getDayWeek(date) {
+		// 	const nativeDay = date.getDay()
+		// 	return nativeDay === 0 ? 6 : nativeDay - 1
+		// },
+		// calcDayOffset(days) {
+		// 	return 60 * 60 * 24 * days * 1000
+		// },
 	},
 	watch: {
 		sideOffset: {
