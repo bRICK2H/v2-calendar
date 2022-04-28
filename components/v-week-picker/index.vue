@@ -1,7 +1,14 @@
 <template>
 	<div class="v2dp-week-picker"
 		ref="v2dp-week-list"
-		:style="{ '--width': itemWidth }"
+		:style="{
+			'--height': height,
+			'--border-width': borderWidth,
+			'--font-size-day': fontSizeDay,
+			'--font-size-day-week': fontSizeDayWeek,
+			'--border-radius-outer': borderRadiusOuter,
+			'--border-radius-inner': borderRadiusInner,
+		}"
 	>
 		<div v-for="date of getWeeks"
 			:key="date.id"
@@ -10,6 +17,7 @@
 				'v2dp-week-item__curr-day': date.isCurrDay,
 				'v2dp-week-item__curr-week': date.isCurrWeek,
 				'v2dp-week-item__slctd-dbl': date.isDblSlctd,
+				'v2dp-week-item__empty-day': date.isEmptyDay,
 				'v2dp-week-item__slctd-days': date.isSlctdDays,
 				'v2dp-week-item__slct-day-prev':  !date.isCurrWeek && date.isSlctDay,
 			}"
@@ -64,7 +72,12 @@ export default {
 		},
 	},
 	data: () => ({
-		itemWidth: null
+		height: 0,
+		borderWidth: 0,
+		fontSizeDay: 0,
+		fontSizeDayWeek: 0,
+		borderRadiusOuter: 0,
+		borderRadiusInner: 0
 	}),
 	computed: {
 		getWeeks() {
@@ -90,6 +103,7 @@ export default {
 					,	isSlctDay	= slctDay === day && slctMonth === month && slctYear === year
 					,	isSlctdDays = selectedDates.includes(localeDate)
 					,	isDblSlctd	= isSlctDay && isSlctdDays
+					,	isEmptyDay	= !isSlctDay && !isSlctdDays && !isDblSlctd
 
 				return {
 					id,
@@ -100,6 +114,7 @@ export default {
 					month,
 					isSlctDay,
 					isCurrDay,
+					isEmptyDay,
 					isDblSlctd,
 					isCurrWeek,
 					isSlctdDays
@@ -122,23 +137,30 @@ export default {
 				return date
 			})
 		},
-		setItemWidth() {
+		setComputedSize() {
 			const container = this.$refs['v2dp-week-list']
-			const itemWidth = container?.firstChild.offsetWidth
+			const DOMRect = container?.firstChild?.getBoundingClientRect()
 
-			if (itemWidth !== undefined) {
-				this.itemWidth = `${itemWidth}px`
+			if (DOMRect !== undefined) {
+				const { width } = DOMRect
+
+				this.fontSizeDay = `${width * .4}px`
+				this.height = `${width + (width / 2)}px`
+				this.fontSizeDayWeek = `${width * .25}px`
+				this.borderRadiusInner = `${width * .3}px`
+				this.borderRadiusOuter = `${width * .35}px`
+				this.borderWidth = `${Math.floor(width * .06)}px`
 			}
 		}
 	},
 	watch: {
 		width() {
-			this.setItemWidth()
+			this.setComputedSize()
 		},
 	},
 	mounted() {
-		this.setItemWidth()
-		window.addEventListener('resize', this.setItemWidth)
+		this.setComputedSize()
+		window.addEventListener('resize', this.setComputedSize)
 	}
 }
 </script>
@@ -151,13 +173,8 @@ export default {
 
 	.v2dp-week-item {
 		flex: 0 1 calc(100% / 7 - 7px);
-		height: calc(var(--width) + (var(--width) * .4));
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		border-radius: calc(var(--width) * .35);
-		// border: calc(var(--width) * .07) solid transparent;
-		border: 1px solid #fafafa;
+		height: var(--height);
+		border-radius: var(--border-radius-outer);
 		transition: box-shadow .2s;
 		color: #b7b7cc;
 		position: relative;
@@ -178,7 +195,7 @@ export default {
 			color: #000;
 		}
 		&__curr-day {
-			background: #f6f6fb;
+			background: #eeedf7;
 		}
 		&__slct-day {
 			background: #1f1f33;
@@ -188,11 +205,14 @@ export default {
 				color: #fff;
 			}
 		}
+		&__empty-day {
+			border: 1px solid #fafafa;
+		}
 		&__slctd-days {
-			border: calc(var(--width) * .07) solid #eeedf7;
+			border: var(--border-width) solid #e6e6ee;
 		}
 		&__slctd-dbl {
-			border: calc(var(--width) * .07) solid #1f1f33;
+			border: var(--border-width) solid #1f1f33;
 		}
 		&__slct-day-prev {
 			opacity: .4;
@@ -208,17 +228,17 @@ export default {
 		position: absolute;
 		top: 0;
 		left: 0;
-		border-radius: calc(var(--width) * .30);
+		border-radius: var(--border-radius-inner);
 		
 		&__slctd-days {
-			border: calc(var(--width) * .07) solid #fff;
+			border: var(--border-width) solid #fff;
 		}
 	}
 	.v2dp-week-item-name {
-		font-size: calc(var(--width) * .25);
+		font-size: var(--font-size-day-week);
 		color: #b7b7cc;
 	}
 	.v2dp-week-item-day {
-		font-size: calc(var(--width) * .45);
+		font-size: var(--font-size-day);
 	}
 </style>

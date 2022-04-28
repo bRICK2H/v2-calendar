@@ -1,6 +1,11 @@
 <template>
 	<div class="v2dp-month-picker"
-		:style="{ '--width': itemWidth }"
+		:style="{
+			'--height': height,
+			'--border-width': borderWidth,
+			'--font-size-day': fontSizeDay,
+			'--font-size-day-week': fontSizeDayWeek
+		}"
 	>
 		
 		<div class="v2dp-week-names">
@@ -22,6 +27,7 @@
 					'v2dp-month-item__curr-day': date.isCurrDay,
 					'v2dp-month-item__curr-month': date.isCurrMonth,
 					'v2dp-month-item__slctd-dbl': date.isDblSlctd,
+					'v2dp-month-item__empty-day': date.isEmptyDay,
 					'v2dp-month-item__slctd-days': date.isSlctdDays,
 					'v2dp-month-item__slct-day-prev':  !date.isCurrMonth && date.isSlctDay,
 				}"
@@ -130,6 +136,7 @@ export default {
 					,	isSlctDay	= slctDay === day && slctMonth === month && slctYear === year
 					,	isSlctdDays = selectedDates.includes(localeDate)
 					,	isDblSlctd	= isSlctDay && isSlctdDays
+					,	isEmptyDay	= !isSlctDay && !isSlctdDays && !isDblSlctd
 				
 				return {
 					id,
@@ -140,6 +147,7 @@ export default {
 					month,
 					isSlctDay,
 					isCurrDay,
+					isEmptyDay,
 					isDblSlctd,
 					isSlctdDays,
 					isCurrMonth
@@ -148,7 +156,10 @@ export default {
 		}
 	},
 	data: () => ({
-		itemWidth: null
+		height: 0,
+		borderWidth: 0,
+		fontSizeDay: 0,
+		fontSizeDayWeek: 0
 	}),
 	methods: {
 		selectDate({ date }) {
@@ -165,23 +176,28 @@ export default {
 				return date
 			})
 		},
-		setItemWidth() {
+		setComputedSize() {
 			const container = this.$refs['v2dp-month-list']
-			const itemWidth = container?.firstChild.offsetWidth
+			const DOMRect = container?.firstChild?.getBoundingClientRect()
 
-			if (itemWidth !== undefined) {
-				this.itemWidth = `${itemWidth}px`
+			if (DOMRect !== undefined) {
+				const { width } = DOMRect
+
+				this.height = `${width}px`
+				this.fontSizeDay = `${width * .4}px`
+				this.fontSizeDayWeek = `${width * .25}px`
+				this.borderWidth = `${Math.floor(width * .06)}px`
 			}
 		}
 	},
 	watch: {
 		width() {
-			this.setItemWidth()
+			this.setComputedSize()
 		},
 	},
 	mounted() {
-		this.setItemWidth()
-		window.addEventListener('resize', this.setItemWidth)
+		this.setComputedSize()
+		window.addEventListener('resize', this.setComputedSize)
 	}
 }
 </script>
@@ -194,7 +210,7 @@ export default {
 	}
 	.v2dp-week-name {
 		flex: 0 1 calc(100% / 7 - 5px);
-		font-size: calc(var(--width) * .25);
+		font-size: var(--font-size-day-week);
 		text-align: center;
 		color: #b7b7cc;
 
@@ -209,13 +225,8 @@ export default {
 	}
 	.v2dp-month-item {
 		flex: 0 1 calc(100% / 7 - 7px);
-		height: var(--width);
-		display: flex;
-		justify-content: center;
-		align-items: center;
+		height: var(--height);
 		border-radius: 50%;
-		// border: calc(var(--width) * .07) solid transparent;
-		border: 1px solid #fafafa;
 		transition: box-shadow .2s;
 		color: #b7b7cc;
 		position: relative;
@@ -235,20 +246,24 @@ export default {
 			color: #000;
 		}
 		&__curr-day {
-			background: #f6f6fb;
+			background: #eeedf7;
 		}
 		&__slct-day {
 			background: #1f1f33;
+			box-shadow: 0 0 4px 0 #1f1f33;
 
 			.v2dp-month-day {
 				color: #fff;
 			}
 		}
+		&__empty-day {
+			border: 1px solid #fafafa;
+		}
 		&__slctd-days {
-			border: calc(var(--width) * .07) solid #eeedf7;
+			border: var(--border-width) solid #e6e6ee;
 		}
 		&__slctd-dbl {
-			border: calc(var(--width) * .07) solid #1f1f33;
+			border: var(--border-width) solid #1f1f33;
 		}
 		&__slct-day-prev {
 			opacity: .4;
@@ -264,10 +279,10 @@ export default {
 		border-radius: 50%;
 		top: 0;
 		left: 0;
-		font-size: calc(var(--width) * .45);
+		font-size: var(--font-size-day);
 
 		&__slctd-days {
-			border: calc(var(--width) * .07) solid #fff;
+			border: var(--border-width) solid #fff;
 		}
 	}
 

@@ -1,42 +1,63 @@
 <template>
 	<div class="v2dp-container"
 		ref="v2dp-container"
-		:style="{ maxWidth: `${width}px` }"
+		:style="{
+			maxWidth: `${width}px`,
+			'--margin': margin,
+			'--font-size': fontSize,
+			'--size-circle-toggle': sizeCircleToggle,
+			'--size-circle-current': sizeCircleCurrent,
+		}"
 	>
+
+		<div class="v2dp-toggle-mode">
+			<button class="v2dp-toggle-mode-button"
+				@click="toggleMode"
+			>
+				<img :src="getIconMode"
+					alt="mode-toggle"
+					class="v2dp-controls-icon-mode-toggle"
+				>
+			</button>
+		</div>
 
 		<!-- Controls -->
 		<div class="v2dp-controls">
-			<p class="v2dp-controls-date"
-				:style="{ '--containerWidth': containerWidth  }"
-			>
+			<p class="v2dp-controls-date">
 				{{ getMonth }} {{ currYear }}
 			</p>
 
 			<div class="v2dp-controls-buttons">
 				<button @click="offset(0, 0)"
-					class="v2dp-controls-curr"
+					class="v2dp-controls-current"
 				>
 					<img src="./assets/img/svg/curr-day.svg"
 						alt="curr-day"
+						class="v2dp-controls-icon-current"
 						:style="{ opacity: isTodaysDate ? .2 : 1 }"
 					>
 				</button>
 				<button @click="offset(-1, 7)"
-					class="v2dp-controls-prev"
+					class="v2dp-controls-prevent"
 				>
-					<img src="./assets/img/svg/prev-day.svg" alt="prev-day">
+					<img src="./assets/img/svg/prev-day.svg"
+						alt="prev-day"
+						class="v2dp-controls-icon-toggle"
+					>
 				</button>
 				<button @click="offset(1, 7)"
 					class="v2dp-controls-next"
 				>
-					<img src="./assets/img/svg/next-day.svg" alt="next-day">
+					<img src="./assets/img/svg/next-day.svg"
+						alt="next-day"
+						class="v2dp-controls-icon-toggle"
+					>
 				</button>
 			</div>
 		</div>
 
 		<!-- Week -->
-		<!-- v-if="isWeekMode" -->
-		<V2WeekPicker
+		<V2WeekPicker v-if="isWeekMode"
 			:width="width"
 			:weeks="weeks"
 			:currMonth="currMonth"
@@ -48,8 +69,7 @@
 		/>
 
 		<!-- Month -->
-		<!-- v-else -->
-		<V2MonthPicker
+		<V2MonthPicker v-else
 			:width="width"
 			:weeks="weeks"
 			:months="months"
@@ -61,10 +81,6 @@
 			:selectedDate="selectedDate"
 			@select-date="date => updateDate(date)"
 		/>
-
-		<button
-			@click="toggleMode"
-		>toggle</button>
 
 	</div>
 </template>
@@ -90,14 +106,20 @@ export default {
 		},
 	},
 	data: () => ({
-		mode: 'month',
+		mode: 'week',
+
+		margin: 0,
+		fontSize: 0,
+		sizeCircleToggle: 0,
+		sizeCircleCurrent: 0,
+
 		currDay: null,
 		currYear: null,
 		currMonth: null,
 		todaysDate: null,
 		switchedDate: null,
 		selectedDate: null,
-		containerWidth: null,
+		
 		weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
 		months: [
 			'Январь', 'Февраль', 'Март',
@@ -112,6 +134,11 @@ export default {
 		},
 		isWeekMode() {
 			return this.mode === 'week'
+		},
+		getIconMode() {
+			const mode = this.isWeekMode ? 'mode-close' : 'mode-open'
+
+			return require(`./assets/img/svg/${mode}.svg`)
 		},
 		isTodaysDate() {
 			return this.todaysDate?.toLocaleDateString() === this.selectedDate?.toLocaleDateString()
@@ -167,32 +194,36 @@ export default {
 		toggleMode() {
 			this.mode = this.mode === 'week' ? 'month' : 'week'
 		},
-		setContainerWidth() {
+		setComputedSize() {
 			const container = this.$refs['v2dp-container']
-			const containerWidth = container?.firstChild.offsetWidth
+			const DOMRect = container?.getBoundingClientRect()
 
-			if (containerWidth !== undefined) {
-				this.containerWidth = `${containerWidth}px`
+			if (DOMRect !== undefined) {
+				const { width } = DOMRect
+
+				this.margin = `${(width / 2) * .1}px`
+				this.fontSize = `${(width / 2) * .15}px`
+				this.sizeCircleToggle = `${(width / 2) * .14}px`
+				this.sizeCircleCurrent = `${(width / 2) * .12}px`
 			}
 		}
 	},
 	watch: {
-		width() {
-			this.setContainerWidth()
+		async width() {
+			await this.$nextTick()
+			this.setComputedSize()
 		},
 	},
 	created() {
 		this.initDate()
 	},
 	mounted() {
-		this.setContainerWidth()
-		window.addEventListener('resize', this.setContainerWidth)
+		this.setComputedSize()
+		window.addEventListener('resize', this.setComputedSize)
 
 		/**
-		 * 1. Возможно передать дальше ширину ресайза и на основе него высчытвать
-		 * 2. Адаптив svg
-		 * 3. Сделать решимы week, month, range
-		 * 4. Иконка переключения режиков
+		 * 1. Реализация режимов типа single, range, multi
+		 * 2. Продумать сопоставление чисел и дней недели при смене режимов
 		 */
 	}
 
@@ -227,25 +258,43 @@ export default {
 		user-select: none;
 	}
 
+	// Toggle mode
+	.v2dp-toggle-mode {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		margin: calc(var(--margin) / 2) 0;
+	}
+	.v2dp-controls-icon-mode-toggle {
+		width: var(--size-circle-toggle);
+		height: var(--size-circle-toggle);
+		transition: filter .2s;
+
+		&:hover {
+			filter: brightness(.5);
+		}
+	}
+
 	// Controls
 	.v2dp-controls {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 4vmin;
+		margin-bottom: var(--margin);
 		padding: 0 10px;
 	}
 	.v2dp-controls-date {
-		font-size: calc((var(--containerWidth) / 2) * .15);
+		font-size: var(--font-size);
 		font-weight: 700;
 	}
 	.v2dp-controls-buttons {
 		display: flex;
 		align-items: center;
 	}
-	.v2dp-controls-prev,
-	.v2dp-controls-curr,
-	.v2dp-controls-next {
+	.v2dp-controls-prevent,
+	.v2dp-controls-current,
+	.v2dp-controls-next,
+	.v2dp-toggle-mode-button {
 		border: none;
 		outline: none;
 		background: none;
@@ -253,10 +302,27 @@ export default {
 		align-items: center;
 		cursor: pointer;
 	}
-	.v2dp-controls-curr {
-		margin-right: 19px;
+	.v2dp-controls-current {
+		margin-right: calc(var(--margin) - 3px);
 	}
-	.v2dp-controls-prev {
-		margin-right: 16px;
+	.v2dp-controls-prevent {
+		margin-right: var(--margin);
+	}
+	.v2dp-controls-icon-current {
+		width: var(--size-circle-current);
+		height: var(--size-circle-current);
+	}
+	.v2dp-controls-icon-toggle {
+		width: var(--size-circle-toggle);
+		height: var(--size-circle-toggle);
+	}
+	.v2dp-controls-icon-current,
+	.v2dp-controls-icon-toggle {
+		border-radius: 50%;
+		transition: box-shadow .2s;
+
+		&:hover {
+			box-shadow: 0 0 8px 0 #1f1f33;
+		}
 	}
 </style>
