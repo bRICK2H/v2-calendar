@@ -4,7 +4,8 @@
 			'--height': height,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
-			'--font-size-day-week': fontSizeDayWeek
+			'--font-size-day-week': fontSizeDayWeek,
+			'--offset-bottom-day-week': offsetBottomDayWeek
 		}"
 	>
 		
@@ -159,7 +160,8 @@ export default {
 		height: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
-		fontSizeDayWeek: 0
+		fontSizeDayWeek: 0,
+		offsetBottomDayWeek: 0,
 	}),
 	methods: {
 		selectDate({ date }) {
@@ -187,6 +189,7 @@ export default {
 				this.fontSizeDay = `${width * .4}px`
 				this.fontSizeDayWeek = `${width * .25}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`
+				this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
 			}
 		}
 	},
@@ -204,15 +207,20 @@ export default {
 
 <style lang="scss">
 	.v2dp-week-names {
+		height: calc(var(--height) / 1.5);
 		display: flex;
 		justify-content: space-between;
-		margin: 10px 0;
+		align-items: center;
 	}
 	.v2dp-week-name {
-		flex: 0 1 calc(100% / 7 - 5px);
+		flex: 0 1 calc(100% / 7 - 7px);
 		font-size: var(--font-size-day-week);
 		text-align: center;
 		color: #b7b7cc;
+		display: flex;
+		justify-content: center;
+		align-items: flex-end;
+		position: relative;
 
 		&:not(:last-of-type) {
 			margin-right: 5px;
@@ -234,6 +242,9 @@ export default {
 
 		&:not(:nth-child(7n + 7)) {
 			margin: 0 7px 7px 0;
+		}
+		&:nth-last-child(-n + 7) {
+			margin-bottom: 0;
 		}
 		&:hover {
 			box-shadow: 0 0 8px 0 #1f1f33;

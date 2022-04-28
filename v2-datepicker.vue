@@ -34,7 +34,7 @@
 					<img src="./assets/img/svg/curr-day.svg"
 						alt="curr-day"
 						class="v2dp-controls-icon-current"
-						:style="{ opacity: isTodaysDate ? .2 : 1 }"
+						:style="{ opacity: isOffsetCurrentSpace ? 1 : .2 }"
 					>
 				</button>
 				<button @click="offset(-1, 7)"
@@ -56,31 +56,35 @@
 			</div>
 		</div>
 
-		<!-- Week -->
-		<V2WeekPicker v-if="isWeekMode"
-			:width="width"
-			:weeks="weeks"
-			:currMonth="currMonth"
-			:selectedDates="dates"
-			:todaysDate="todaysDate"
-			:switchedDate="switchedDate"
-			:selectedDate="selectedDate"
-			@select-date="date => updateDate(date)"
-		/>
+		<transition name="toggle-mode" mode="out-in">
 
-		<!-- Month -->
-		<V2MonthPicker v-else
-			:width="width"
-			:weeks="weeks"
-			:months="months"
-			:currYear="currYear"
-			:currMonth="currMonth"
-			:selectedDates="dates"
-			:todaysDate="todaysDate"
-			:switchedDate="switchedDate"
-			:selectedDate="selectedDate"
-			@select-date="date => updateDate(date)"
-		/>
+		<!-- Week -->
+			<V2WeekPicker v-if="isWeekMode"
+				:width="width"
+				:weeks="weeks"
+				:currMonth="currMonth"
+				:selectedDates="dates"
+				:todaysDate="todaysDate"
+				:switchedDate="switchedDate"
+				:selectedDate="selectedDate"
+				@select-date="date => updateDate(date)"
+			/>
+
+			<!-- Month -->
+			<V2MonthPicker v-else
+				:width="width"
+				:weeks="weeks"
+				:months="months"
+				:currYear="currYear"
+				:currMonth="currMonth"
+				:selectedDates="dates"
+				:todaysDate="todaysDate"
+				:switchedDate="switchedDate"
+				:selectedDate="selectedDate"
+				@select-date="date => updateDate(date)"
+			/>
+
+		</transition>
 
 	</div>
 </template>
@@ -140,8 +144,11 @@ export default {
 
 			return require(`./assets/img/svg/${mode}.svg`)
 		},
-		isTodaysDate() {
-			return this.todaysDate?.toLocaleDateString() === this.selectedDate?.toLocaleDateString()
+		isOffsetCurrentSpace() {
+			const todayMonth = this.todaysDate.getMonth()
+
+			return todayMonth !== this.currMonth
+				|| this.todaysDate.toLocaleDateString() !== this.selectedDate.toLocaleDateString()
 		}
 	},
 	methods: {
@@ -222,8 +229,8 @@ export default {
 		window.addEventListener('resize', this.setComputedSize)
 
 		/**
-		 * 1. Реализация режимов типа single, range, multi
-		 * 2. Продумать сопоставление чисел и дней недели при смене режимов
+		 * 1. Поджеть индикатор для недели, что мы ушли за рамки видимости сегодняшнего дня
+		 * 2. Реализация режимов типа single, range, multi
 		 */
 	}
 
@@ -323,6 +330,20 @@ export default {
 
 		&:hover {
 			box-shadow: 0 0 8px 0 #1f1f33;
+		}
+	}
+
+	// Animation toggle mode
+	.toggle-mode-enter-active {
+		animation: toggle-mode-enter .2s;
+		@keyframes toggle-mode-enter {
+			0% { opacity: 0; transform: translateY(var(--margin)) }
+		}
+	}
+	.toggle-mode-leave-active {
+		animation: toggle-mode-leave .2s;
+		@keyframes toggle-mode-leave {
+			100% { opacity: 0; transform: translateY(calc(0px - var(--margin))) }
 		}
 	}
 </style>

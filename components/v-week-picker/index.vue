@@ -145,10 +145,10 @@ export default {
 				const { width } = DOMRect
 
 				this.fontSizeDay = `${width * .4}px`
-				this.height = `${width + (width / 2)}px`
 				this.fontSizeDayWeek = `${width * .25}px`
-				this.borderRadiusInner = `${width * .3}px`
-				this.borderRadiusOuter = `${width * .35}px`
+				this.height = `${width + (width / 1.5)}px`
+				this.borderRadiusInner = `${width * .5}px`
+				this.borderRadiusOuter = `${width * .55}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`
 			}
 		}
