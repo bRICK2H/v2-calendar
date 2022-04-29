@@ -1,5 +1,20 @@
+const resetDateTime = date => {
+	console.log('reset', date)
+	date.setHours(0, 0, 0, 0)
+	return date
+}
+
 const calcDayOffset = days => {
 	return 60 * 60 * 24 * days * 1000
+}
+
+const splitDate = date => {
+	return {
+		_day: date.getDate(),
+		_month: date.getMonth(),
+		_year: date.getFullYear(),
+		_dateString: date.toLocaleDateString()
+	}
 }
 
 const calcDayWeek = date => {
@@ -19,12 +34,8 @@ const getDayWeekLast = date => {
 	)
 }
 
-const resetDateTime = date => {
-	date.setHours(0, 0, 0, 0)
-	return date
-}
-
-export default {
+export {
+	splitDate,
 	calcDayWeek,
 	resetDateTime,
 	calcDayOffset,

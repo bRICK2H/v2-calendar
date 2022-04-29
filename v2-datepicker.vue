@@ -59,7 +59,7 @@
 		<transition name="toggle-mode" mode="out-in">
 
 		<!-- Week -->
-			<V2WeekPicker v-if="isWeekMode"
+			<V2WeekList v-if="isWeekMode"
 				:width="width"
 				:weeks="weeks"
 				:currMonth="currMonth"
@@ -68,10 +68,16 @@
 				:switchedDate="switchedDate"
 				:selectedDate="selectedDate"
 				@select-date="date => updateDate(date)"
-			/>
+			>
+
+				<template v-slot="date">
+					<slot v-bind="date" />
+				</template>
+				
+			</V2WeekList>
 
 			<!-- Month -->
-			<V2MonthPicker v-else
+			<V2MonthList v-else
 				:width="width"
 				:weeks="weeks"
 				:months="months"
@@ -82,7 +88,13 @@
 				:switchedDate="switchedDate"
 				:selectedDate="selectedDate"
 				@select-date="date => updateDate(date)"
-			/>
+			>
+
+				<template v-slot="date">
+					<slot v-bind="date" />
+				</template>
+			
+			</V2MonthList>
 
 		</transition>
 
@@ -90,14 +102,22 @@
 </template>
 
 <script>
-import V2WeekPicker from './components/v-week-picker'
-import V2MonthPicker from './components/v-month-picker'
+import {
+	splitDate,
+	resetDateTime,
+	calcDayOffset,
+	getDayWeekLast,
+	getDayWeekFirst
+} from './functions'
+
+import V2WeekList from './components/v-week-list'
+import V2MonthList from './components/v-month-list'
 
 export default {
 	name: 'V2DatePicker',
 	components: {
-		V2WeekPicker,
-		V2MonthPicker
+		V2WeekList,
+		V2MonthList
 	},
 	props: {
 		width: {
@@ -145,43 +165,62 @@ export default {
 			return require(`./assets/img/svg/${mode}.svg`)
 		},
 		isOffsetCurrentSpace() {
-			const todayMonth = this.todaysDate.getMonth()
+			const {
+					_year: todayYear,
+					_month: todayMonth,
+					_dateString: todayDateString
+				} = splitDate(this.todaysDate)
+				, {
+					_day: firstOfWeekDay
+				} = splitDate(getDayWeekFirst(this.todaysDate))
+				, {
+					_day: finstSwitchOfWeekDay
+				} = splitDate(this.switchedDate)
+				, {
+					_dateString: selectedDateString
+				} = splitDate(this.selectedDate)
 
-			return todayMonth !== this.currMonth
-				|| this.todaysDate.toLocaleDateString() !== this.selectedDate.toLocaleDateString()
+			return todayYear !== this.currYear
+				||	todayMonth !== this.currMonth
+				|| todayDateString !== selectedDateString
+				|| (this.mode === 'week' && firstOfWeekDay !== finstSwitchOfWeekDay)
 		}
 	},
 	methods: {
 		initDate() {
-			this.todaysDate = this.resetDateTime(new Date)
+			this.todaysDate = resetDateTime(new Date)
 			this.updateDate(this.todaysDate)
 		},
 		offset(side, days) {
 			let date = null
 
 			if (!side && !days) {
-				this.selectedDate = this.todaysDate
+				this.updateDate(this.todaysDate)
 			}
 
 			switch (this.mode) {
 				case 'month': {
-					const month = side === 0 ? this.todaysDate.getMonth() : this.currMonth + side
-						,	day 	= side === 0 ? this.todaysDate.getDate() : 1
+					const {
+						_day,
+						_month
+					} = splitDate(this.todaysDate)
+					,	day 	= side === 0 ? _day: 1
+					,	month = side === 0 ? _month : this.currMonth + side
 
-					date 	= new Date(this.currYear, month, day)
+					date = new Date(this.currYear, month, day)
 				}
 					break
 			
 				case 'week': {
 					const offsetDate = new Date(
-						Date.parse(this.switchedDate) + (this.calcDayOffset(days) * side)
+						Date.parse(this.switchedDate) + (calcDayOffset(days) * side)
 					)
 
 					date = side === 0 && days === 0
-						? this.getDayWeekFirst(this.todaysDate)
+						? getDayWeekFirst(this.todaysDate)
 						: side > 0
-							? this.getDayWeekFirst(offsetDate)
-							: this.getDayWeekLast(offsetDate)
+							? getDayWeekFirst(offsetDate)
+							: getDayWeekLast(offsetDate)
 				}
 					break
 			}
@@ -189,16 +228,24 @@ export default {
 			this.updateDate(date, false)
 		},
 		updateDate(date, isUpdateSelected = true) {
+			const {
+				_day,
+				_year,
+				_month
+			} = splitDate(date)
+
 			if (isUpdateSelected) {
 				this.selectedDate = date
 			}
 
-			this.currDay 		= date.getDate()
-			this.currMonth 	= date.getMonth()
-			this.currYear 		= date.getFullYear()
-			this.switchedDate = this.getDayWeekFirst(date)
+			this.currDay 		= _day
+			this.currMonth 	= _month
+			this.currYear 		= _year
+			this.switchedDate = getDayWeekFirst(date)
 		},
 		toggleMode() {
+			this.updateDate(this.selectedDate)
+
 			this.mode = this.mode === 'week' ? 'month' : 'week'
 		},
 		setComputedSize() {
@@ -213,7 +260,7 @@ export default {
 				this.sizeCircleToggle = `${(width / 2) * .14}px`
 				this.sizeCircleCurrent = `${(width / 2) * .12}px`
 			}
-		}
+		},
 	},
 	watch: {
 		async width() {
@@ -229,7 +276,7 @@ export default {
 		window.addEventListener('resize', this.setComputedSize)
 
 		/**
-		 * 1. Поджеть индикатор для недели, что мы ушли за рамки видимости сегодняшнего дня
+		 * 1. Продумать слотовую систему
 		 * 2. Реализация режимов типа single, range, multi
 		 */
 	}
