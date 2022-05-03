@@ -13,8 +13,9 @@
 		
 
 		<VWeekItem v-for="date of getWeeks"
-			:key="date.id"
 			:date="date"
+			:key="date.id"
+			:isMarkedDay="isMarkedDay"
 			@select-date="selectDate(date)"
 		>
 
@@ -68,6 +69,10 @@ export default {
 			type: Number,
 			default: 0
 		},
+		isMarkedDay: {
+			type: Boolean,
+			default: true
+		}
 	},
 	data: () => ({
 		height: 0,

@@ -1,19 +1,21 @@
 <template>
 	<div class="v2dp-week-item"
-		:class="setClassItem"
+		:class="[setClassItem, setClassCurrentWeek]"
 		@click="$emit('select-date')"
 	>
 		<div class="v2dp-week-item-content"
 			:class="{ 'v2dp-week-item-content__pre-selected-days': date.isPreSelectedDays }"
 		>
-			<slot>
-				<span class="v2dp-week-item-name">
-					{{ date.name }}
-				</span>
-				<span class="v2dp-week-item-day">
-					{{ date.day }}
-				</span>
-			</slot>
+			<span class="v2dp-week-item-name">
+				{{ date.name }}
+			</span>
+			<span class="v2dp-week-item-day">
+				{{ date.day }}
+			</span>
+		</div>
+
+		<div class="v2dp-week-slot-area">
+			<slot></slot>
 		</div>
 	</div>
 </template>
@@ -25,10 +27,20 @@ export default {
 		date: {
 			type: Object,
 			default: () => ({})
+		},
+		isMarkedDay: {
+			type: Boolean,
+			default: true
 		}
 	},
 	computed: {
+		setClassCurrentWeek() {
+			return {
+				'v2dp-week-item__visible-current-week': this.date.isVisibleCurrentWeek
+			}
+		},
 		setClassItem() {
+			if (!this.isMarkedDay) return null
 			const ITEM = 'v2dp-week-item'
 			
 			return {
@@ -115,5 +127,14 @@ export default {
 	}
 	.v2dp-week-item-day {
 		font-size: var(--font-size-day);
+	}
+
+	.v2dp-week-slot-area {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+		border-radius: var(--border-radius-inner);
 	}
 </style>

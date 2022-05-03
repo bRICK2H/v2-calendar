@@ -1,6 +1,6 @@
 <template>
-	<div class="v2dp-container"
-		ref="v2dp-container"
+	<div class="v2dp-wrapper"
+		ref="v2dp-wrapper"
 		:style="{
 			maxWidth: `${width}px`,
 			'--margin': margin,
@@ -9,94 +9,114 @@
 			'--size-circle-current': sizeCircleCurrent,
 		}"
 	>
-
-		<div class="v2dp-toggle-mode">
-			<button class="v2dp-toggle-mode-button"
-				@click="toggleMode"
-			>
-				<img :src="getIconMode"
-					alt="mode-toggle"
-					class="v2dp-controls-icon-mode-toggle"
-				>
-			</button>
+		<!-- Input -->
+		<div v-show="isInput"
+			class="v2dp-input-container"
+		>
+			<input class="v2dp-input-item" type="text">
+			<span class="v2dp-input-icon"
+				@click="isShowCalendar = true"
+			></span>
 		</div>
 
-		<!-- Controls -->
-		<div class="v2dp-controls">
-			<p class="v2dp-controls-date">
-				{{ getMonth }} {{ currYear }}
-			</p>
+		<div v-if="isShowCalendar"
+			class="v2dp-container"
+			:class="{ 'v2dp-container--absolute': isInput }"
+		>
 
-			<div class="v2dp-controls-buttons">
-				<button @click="offset(0, 0)"
-					class="v2dp-controls-current"
+			<!-- Toggle button week/month -->
+			<div class="v2dp-toggle-mode">
+				<button class="v2dp-toggle-mode-button"
+					@click="toggleMode"
 				>
-					<img src="./assets/img/svg/curr-day.svg"
-						alt="curr-day"
-						class="v2dp-controls-icon-current"
-						:style="{ opacity: isOffsetCurrentSpace ? 1 : .2 }"
-					>
-				</button>
-				<button @click="offset(-1, 7)"
-					class="v2dp-controls-prevent"
-				>
-					<img src="./assets/img/svg/prev-day.svg"
-						alt="prev-day"
-						class="v2dp-controls-icon-toggle"
-					>
-				</button>
-				<button @click="offset(1, 7)"
-					class="v2dp-controls-next"
-				>
-					<img src="./assets/img/svg/next-day.svg"
-						alt="next-day"
-						class="v2dp-controls-icon-toggle"
+					<img :src="getIconMode"
+						alt="mode-toggle"
+						class="v2dp-controls-icon-mode-toggle"
 					>
 				</button>
 			</div>
+
+			<!-- Controls -->
+			<div class="v2dp-controls">
+				<p class="v2dp-controls-date">
+					{{ getMonth }} {{ currYear }}
+				</p>
+
+				<div class="v2dp-controls-buttons">
+					<button @click="offset(0, 0)"
+						class="v2dp-controls-current"
+					>
+						<img src="./assets/img/svg/curr-day.svg"
+							alt="curr-day"
+							class="v2dp-controls-icon-current"
+							:style="{ opacity: isOffsetCurrentSpace ? 1 : .2 }"
+						>
+					</button>
+					<button @click="offset(-1, 7)"
+						class="v2dp-controls-prevent"
+					>
+						<img src="./assets/img/svg/prev-day.svg"
+							alt="prev-day"
+							class="v2dp-controls-icon-toggle"
+						>
+					</button>
+					<button @click="offset(1, 7)"
+						class="v2dp-controls-next"
+					>
+						<img src="./assets/img/svg/next-day.svg"
+							alt="next-day"
+							class="v2dp-controls-icon-toggle"
+						>
+					</button>
+				</div>
+			</div>
+
+			<transition name="toggle-mode" mode="out-in">
+
+			<!-- Week -->
+				<V2WeekList v-if="isWeekMode"
+					:width="width"
+					:weeks="weeks"
+					:currMonth="currMonth"
+					:selectedDates="dates"
+					:todaysDate="todaysDate"
+					:isMarkedDay="isMarkedDay"
+					:switchedDate="switchedDate"
+					:selectedDate="selectedDate"
+					@select-date="date => updateDate(date)"
+				>
+
+					<template v-slot="date">
+						<slot v-bind="date" />
+					</template>
+					
+				</V2WeekList>
+
+				<!-- Month -->
+				<V2MonthList v-else
+					:width="width"
+					:weeks="weeks"
+					:months="months"
+					:currYear="currYear"
+					:currMonth="currMonth"
+					:selectedDates="dates"
+					:todaysDate="todaysDate"
+					:isMarkedDay="isMarkedDay"
+					:switchedDate="switchedDate"
+					:selectedDate="selectedDate"
+					@select-date="date => updateDate(date)"
+				>
+
+					<template v-slot="date">
+						<slot v-bind="date" />
+					</template>
+				
+				</V2MonthList>
+
+			</transition>
+
 		</div>
 
-		<transition name="toggle-mode" mode="out-in">
-
-		<!-- Week -->
-			<V2WeekList v-if="isWeekMode"
-				:width="width"
-				:weeks="weeks"
-				:currMonth="currMonth"
-				:selectedDates="dates"
-				:todaysDate="todaysDate"
-				:switchedDate="switchedDate"
-				:selectedDate="selectedDate"
-				@select-date="date => updateDate(date)"
-			>
-
-				<template v-slot="date">
-					<slot v-bind="date" />
-				</template>
-				
-			</V2WeekList>
-
-			<!-- Month -->
-			<V2MonthList v-else
-				:width="width"
-				:weeks="weeks"
-				:months="months"
-				:currYear="currYear"
-				:currMonth="currMonth"
-				:selectedDates="dates"
-				:todaysDate="todaysDate"
-				:switchedDate="switchedDate"
-				:selectedDate="selectedDate"
-				@select-date="date => updateDate(date)"
-			>
-
-				<template v-slot="date">
-					<slot v-bind="date" />
-				</template>
-			
-			</V2MonthList>
-
-		</transition>
 
 	</div>
 </template>
@@ -120,14 +140,41 @@ export default {
 		V2MonthList
 	},
 	props: {
+		/**
+		 * Максимальная ширина календаря
+		 */
+			
 		width: {
 			type: [Number, String],
 			default: 375
 		},
+
+		/**
+		 * Список дат, несущие за собой какое-либо событие
+		 */
+		
 		dates: {
 			type: Array,
 			default: () => ([])
 		},
+
+		/**
+		 * Отменить день. Включает в себя текущий, выбранный или событийный день
+		 */
+		
+		isMarkedDay: {
+			type: Boolean,
+			default: true
+		},
+
+		/**
+		 * Показать инпут. Видимость календаря зависит от инпута. 
+		 */
+
+		isInput: {
+			type: Boolean,
+			default: true
+		}
 	},
 	data: () => ({
 		mode: 'week',
@@ -143,6 +190,8 @@ export default {
 		todaysDate: null,
 		switchedDate: null,
 		selectedDate: null,
+
+		isShowCalendar: false,
 		
 		weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
 		months: [
@@ -174,7 +223,7 @@ export default {
 					_day: firstOfWeekDay
 				} = splitDate(getDayWeekFirst(this.todaysDate))
 				, {
-					_day: finstSwitchOfWeekDay
+					_day: firstSwitchOfWeekDay
 				} = splitDate(this.switchedDate)
 				, {
 					_dateString: selectedDateString
@@ -183,7 +232,7 @@ export default {
 			return todayYear !== this.currYear
 				||	todayMonth !== this.currMonth
 				|| todayDateString !== selectedDateString
-				|| (this.mode === 'week' && firstOfWeekDay !== finstSwitchOfWeekDay)
+				|| (this.mode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
 		}
 	},
 	methods: {
@@ -249,7 +298,7 @@ export default {
 			this.mode = this.mode === 'week' ? 'month' : 'week'
 		},
 		setComputedSize() {
-			const container = this.$refs['v2dp-container']
+			const container = this.$refs['v2dp-wrapper']
 			const DOMRect = container?.getBoundingClientRect()
 
 			if (DOMRect !== undefined) {
@@ -267,18 +316,29 @@ export default {
 			await this.$nextTick()
 			this.setComputedSize()
 		},
+		isInput: {
+			immediate: true,
+			handler(isInput) {
+				this.isShowCalendar = !isInput
+			}
+		},
 	},
 	created() {
 		this.initDate()
+
+		/**
+		 * 1. Упростить переменные на isEvent и isEventSelected
+		 * 2. Баг на откритые недели, непосредственно с шириной и размерами
+		 * 3. Логика работы инпута и открытие календарей
+		 * 4. Определение модов [multiple, range, single]
+		 * 5. Стилизация инпута + иконка
+		 * 6. Позиционирование абсолютное (определить позицию)
+		 */
+		
 	},
 	mounted() {
 		this.setComputedSize()
 		window.addEventListener('resize', this.setComputedSize)
-
-		/**
-		 * 1. Продумать слотовую систему
-		 * 2. Реализация режимов типа single, range, multi
-		 */
 	}
 
 }
@@ -298,7 +358,8 @@ export default {
 		sans-serif;
 	}
 
-	.v2dp-container {
+	.v2dp-wrapper {
+		position: relative;
 
 		& > * {
 			color: #1f1f33;
@@ -310,6 +371,37 @@ export default {
 		padding: 5px;
 		margin: auto;
 		user-select: none;
+	}
+
+	// Input
+	.v2dp-input-container {
+		position: relative;
+		max-width: 300px;
+		display: flex;
+		align-items: center;
+	}
+	.v2dp-input-item {
+		width: 100%;
+		height: 42px;
+		border-radius: 8px;
+	}
+	.v2dp-input-icon {
+		display: inline-block;
+		width: 10px;
+		height: 10px;
+		background: blue;
+		position: absolute;
+		right: 5px;
+	}
+
+	.v2dp-container {
+		position: relative;
+
+		&--absolute {
+			position: absolute;
+			top: 50px;
+			left: 0;
+		}
 	}
 
 	// Toggle mode

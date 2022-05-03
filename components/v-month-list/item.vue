@@ -1,15 +1,17 @@
 <template>
 	<div class="v2dp-month-item"
-		:class="setClassItem"
+		:class="[setClassItem, setClassCurrentMonth]"
 		@click="$emit('select-date')"
 	>
-		<slot>
 			<span class="v2dp-month-day"
 				:class="{ 'v2dp-month-day__pre-selected-days': date.isPreSelectedDays }"
 			>
 				{{ date.day }}
 			</span>
-		</slot>
+
+			<span class="v2dp-month-slot-area">
+				<slot></slot>
+			</span>
 	</div>
 </template>
 
@@ -20,10 +22,20 @@ export default {
 		date: {
 			type: Object,
 			default: () => ({})
+		},
+		isMarkedDay: {
+			type: Boolean,
+			default: true
 		}
 	},
 	computed: {
+		setClassCurrentMonth() {
+			return {
+				'v2dp-month-item__visible-current-month': this.date.isVisibleCurrentMonth
+			}
+		},
 		setClassItem() {
+			if (!this.isMarkedDay) return null
 			const ITEM = 'v2dp-month-item'
 
 			return {
@@ -105,5 +117,14 @@ export default {
 	&__pre-selected-days {
 		border: var(--border-width) solid #fff;
 	}
+}
+
+.v2dp-month-slot-area {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-radius: var(--border-radius-inner);
 }
 </style>

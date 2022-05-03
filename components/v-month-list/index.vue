@@ -23,8 +23,9 @@
 		>
 		
 			<VMonthItem v-for="date of getMonths"
-				:key="date.id"
 				:date="date"
+				:key="date.id"
+				:isMarkedDay="isMarkedDay"
 				@select-date="selectDate(date)"
 			>
 			
@@ -84,6 +85,10 @@ export default {
 			type: Number,
 			default: 0
 		},
+		isMarkedDay: {
+			type: Boolean,
+			default: true
+		}
 	},
 	computed: {
 		firstCurrentDate() {
