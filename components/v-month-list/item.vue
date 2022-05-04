@@ -4,7 +4,7 @@
 		@click="$emit('select-date')"
 	>
 			<span class="v2dp-month-day"
-				:class="{ 'v2dp-month-day__pre-selected-days': date.isPreSelectedDays }"
+				:class="{ 'v2dp-month-day__event-day': date.isEventDay }"
 			>
 				{{ date.day }}
 			</span>
@@ -40,10 +40,10 @@ export default {
 
 			return {
 				[`${ITEM}__empty-day`]: this.date.isEmptyDay,
+				[`${ITEM}__event-day`]: this.date.isEventDay,
 				[`${ITEM}__current-day`]: this.date.isCurrentDay,
 				[`${ITEM}__selected-day`]: this.date.isSelectedDay,
-				[`${ITEM}__pre-selected-day`]: this.date.isPreSelectedDay,
-				[`${ITEM}__pre-selected-days`]: this.date.isPreSelectedDays,
+				[`${ITEM}__event-selected-day`]: this.date.isEventSelectedDay,
 				[`${ITEM}__visible-current-month`]: this.date.isVisibleCurrentMonth,
 				[`${ITEM}__selected-offset-day`]: !this.date.isVisibleCurrentMonth && this.date.isSelectedDay,
 			}
@@ -92,10 +92,10 @@ export default {
 	&__empty-day {
 		border: 1px solid #fafafa;
 	}
-	&__pre-selected-days {
+	&__event-day {
 		border: var(--border-width) solid #e6e6ee;
 	}
-	&__pre-selected-day {
+	&__event-selected-day {
 		border: var(--border-width) solid #1f1f33;
 	}
 	&__selected-offset-day {
@@ -114,7 +114,7 @@ export default {
 	left: 0;
 	font-size: var(--font-size-day);
 
-	&__pre-selected-days {
+	&__event-day {
 		border: var(--border-width) solid #fff;
 	}
 }

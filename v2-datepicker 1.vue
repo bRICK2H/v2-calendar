@@ -1,8 +1,9 @@
 <template>
 	<div v-if="isShowDatePicker"
 		class="v2dp-wrapper"
+		ref="v2dp-wrapper"
 		:style="{
-			maxWidth: `${isRangeMode ? (width * 2) + 12 : width}px`,
+			maxWidth: `${width}px`,
 			'--margin': margin,
 			'--font-size': fontSize,
 			'--size-circle-toggle': sizeCircleToggle,
@@ -27,116 +28,103 @@
 		<!-- Calendar -->
 		<transition name="toggle-calendar">
 			<div v-if="isShowCalendar"
-				class="test"
-				:class="{
-					'test--absolute': isInput,
-				}"
+				class="v2dp-container"
+				:class="{ 'v2dp-container--absolute': isInput }"
 			>
 
-				<div class="v2dp-container"
-					v-for="type of dateTypes"
-					:key="type"
-					:style="{
-						maxWidth: `${width}px`
-					}"
-					ref="v2dp-container"
+				<!-- Toggle button week/month -->
+				<div v-show="isEnableToggleMultiple"
+					class="v2dp-toggle-sub-mode"
 				>
-
-					<!-- Toggle button week/month -->
-					<div v-show="isMultipleMode"
-						class="v2dp-toggle-sub-mode"
+					<button class="v2dp-toggle-sub-mode-button"
+						@click="toggleSubMode"
 					>
-						<button class="v2dp-toggle-sub-mode-button"
-							@click="toggleSubMode"
+						<img class="v2dp-controls-icon-mode-toggle"
+							:src="getIconSubMode"
+							alt="mode-toggle" 
 						>
-							<img class="v2dp-controls-icon-mode-toggle"
-								:src="getIconSubMode"
-								alt="mode-toggle" 
+					</button>
+				</div>
+
+				<!-- Controls -->
+				<div class="v2dp-controls">
+					<p class="v2dp-controls-date">
+						{{ getMonth }} {{ currYear }}
+					</p>
+
+					<div class="v2dp-controls-buttons">
+						<button class="v2dp-controls-current"
+							@click="offset(0, 0)" 
+						>
+							<img class="v2dp-controls-icon-current"
+								:style="{ opacity: isOffsetCurrentSpace ? 1 : .2 }"
+								src="./assets/img/svg/curr-day.svg"
+								alt="curr-day" 
+							>
+						</button>
+						<button class="v2dp-controls-prevent"
+							@click="offset(-1, 7)"
+						>
+							<img class="v2dp-controls-icon-toggle"
+								src="./assets/img/svg/prev-day.svg"
+								alt="prev-day"
+							>
+						</button>
+						<button class="v2dp-controls-next"
+							@click="offset(1, 7)"
+						>
+							<img class="v2dp-controls-icon-toggle"
+								src="./assets/img/svg/next-day.svg"
+								alt="next-day"
 							>
 						</button>
 					</div>
-
-					<!-- Controls -->
-					<div class="v2dp-controls">
-						<p class="v2dp-controls-date">
-							<!-- {{ getMonth[type] }} {{ currYear[type] }} -->
-						</p>
-
-						<div class="v2dp-controls-buttons">
-							<button class="v2dp-controls-current"
-								@click="offset(0, 0)" 
-							>
-								<img class="v2dp-controls-icon-current"
-									:style="{ opacity: isOffsetCurrentSpace ? 1 : .2 }"
-									src="./assets/img/svg/curr-day.svg"
-									alt="curr-day" 
-								>
-							</button>
-							<button class="v2dp-controls-prevent"
-								@click="offset(-1, 7)"
-							>
-								<img class="v2dp-controls-icon-toggle"
-									src="./assets/img/svg/prev-day.svg"
-									alt="prev-day"
-								>
-							</button>
-							<button class="v2dp-controls-next"
-								@click="offset(1, 7)"
-							>
-								<img class="v2dp-controls-icon-toggle"
-									src="./assets/img/svg/next-day.svg"
-									alt="next-day"
-								>
-							</button>
-						</div>
-					</div>
-
-					<transition name="toggle-multiple" mode="out-in">
-
-						<!-- Week -->
-						<V2WeekList v-if="isWeekSubMode"
-							:width="width"
-							:weeks="weeks"
-							:currMonth="currMonth.start"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate.start"
-							:selectedDate="selectedDate.start"
-							@select-date="date => updateDate(date)"
-						>
-
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
-
-						</V2WeekList>
-
-						<!-- Month -->
-						<V2MonthList v-else
-							:width="width"
-							:weeks="weeks"
-							:months="months"
-							:currYear="currYear[type]"
-							:currMonth="currMonth[type]"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate[type]"
-							:selectedDate="selectedDate[type]"
-							@select-date="date => updateDate(date)"
-						>
-
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
-
-						</V2MonthList>
-
-					</transition>
-
 				</div>
-				
+
+				<transition name="toggle-multiple" mode="out-in">
+
+					<!-- Week -->
+					<V2WeekList v-if="isWeekSubMode"
+						:width="width"
+						:weeks="weeks"
+						:currMonth="currMonth"
+						:selectedDates="dates"
+						:todaysDate="todaysDate"
+						:isMarkedDay="isMarkedDay"
+						:switchedDate="switchedDate"
+						:selectedDate="selectedDate"
+						@select-date="date => updateDate(date)"
+					>
+
+						<template v-slot="date">
+							<slot v-bind="date" />
+						</template>
+
+					</V2WeekList>
+
+					<!-- Month -->
+					<V2MonthList v-else
+						:width="width"
+						:weeks="weeks"
+						:months="months"
+						:currYear="currYear"
+						:currMonth="currMonth"
+						:selectedDates="dates"
+						:todaysDate="todaysDate"
+						:isMarkedDay="isMarkedDay"
+						:switchedDate="switchedDate"
+						:selectedDate="selectedDate"
+						@select-date="date => updateDate(date)"
+					>
+
+						<template v-slot="date">
+							<slot v-bind="date" />
+						</template>
+
+					</V2MonthList>
+
+				</transition>
+
 			</div>
 		</transition>
 	</div>
@@ -180,7 +168,7 @@
 			 */
 
 			value: {
-				type: [Date, Array],
+				type: Date,
 				default: () => new Date
 			},
 
@@ -245,14 +233,12 @@
 			sizeCircleToggle: 0,
 			sizeCircleCurrent: 0,
 
-			dateValue: [],
-			dateTypes: [],
+			currDay: null,
+			currYear: null,
+			currMonth: null,
 			todaysDate: null,
-			currDay: { start: null, end: null },
-			currYear: { start: null, end: null },
-			currMonth: { start: null, end: null },
-			switchedDate: { start: null, end: null },
-			selectedDate: { start: null, end: null },
+			switchedDate: null,
+			selectedDate: null,
 			inputDateValue: null,
 
 			isShowCalendar: false,
@@ -275,11 +261,8 @@
 			isShowDatePicker() {
 				return this.subMods.includes(this.subMode)
 			},
-			isMultipleMode() {
+			isEnableToggleMultiple() {
 				return this.commonMode === 'multiple'
-			},
-			isRangeMode() {
-				return this.commonMode === 'range'
 			},
 			getIconSubMode() {
 				const subMode = this.isWeekSubMode ? 'mode-close' : 'mode-open'
@@ -287,75 +270,34 @@
 				return require(`./assets/img/svg/${subMode}.svg`)
 			},
 			isOffsetCurrentSpace() {
-				return false
-			},
-			// isOffsetCurrentSpace() {
-			// 	const {
-			// 		_year: todayYear,
-			// 		_month: todayMonth,
-			// 		_dateString: todayDateString
-			// 	} = splitDate(this.todaysDate)
-			// 	, {
-			// 		_day: firstOfWeekDay
-			// 	} = splitDate(getDayWeekFirst(this.todaysDate))
-			// 	, {
-			// 		_day: firstSwitchOfWeekDay
-			// 	} = splitDate(this.switchedDate)
-			// 	, {
-			// 		_dateString: selectedDateString
-			// 	} = splitDate(this.selectedDate)
+				const {
+					_year: todayYear,
+					_month: todayMonth,
+					_dateString: todayDateString
+				} = splitDate(this.todaysDate)
+					, {
+						_day: firstOfWeekDay
+					} = splitDate(getDayWeekFirst(this.todaysDate))
+					, {
+						_day: firstSwitchOfWeekDay
+					} = splitDate(this.switchedDate)
+					, {
+						_dateString: selectedDateString
+					} = splitDate(this.selectedDate)
 
-			// 	return todayYear !== this.currYear
-			// 		|| todayMonth !== this.currMonth
-			// 		|| todayDateString !== selectedDateString
-			// 		|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
-			// }
+				return todayYear !== this.currYear
+					|| todayMonth !== this.currMonth
+					|| todayDateString !== selectedDateString
+					|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
+			}
 		},
 		methods: {
 			initDate() {
-				this.defineCalendarMode()
-
-				// this.dateValue = Array.isArray(this.value)
-				// 	? { start: this.value[0], end: this.value[1] }
-				// 	: { start: this.value }
-				// const { start, end } = this.dateValue
-
 				this.todaysDate = resetDateTime(new Date)
+				this.selectedDate = resetDateTime(this.value)
 
-				if (this.isRangeMode) {
-					this.dateTypes = ['start', 'end']
-				} else {
-					this.dateTypes = ['start']
-					this.selectedDate.start = resetDateTime(start)
-					this.updateDate(this.todaysDate, false)
-				}
-
-				// if (Array.isArray(this.value) && this.value.length > 1) {
-				// 	this.dateTypes = ['start', 'end']
-				// 	this.dateValue = this.value
-				// } else {
-				// 	this.dateTypes = ['start']
-				// 	this.dateValue = [this.value]
-				// }
-
-				// const [start, end] = this.dateValue
-
-				
-				// this.selectedDate.start = resetDateTime(start)
-				// this.updateDate(this.todaysDate, false)
-
-				console.log(this.isRangeMode)
-				if (this.isRangeMode) {
-					const endDate = end
-						? resetDateTime(end)
-						: this.todaysDate
-
-					this.selectedDate.end = new Date(
-						Date.parse(endDate) + calcDayOffset(7)
-					)
-
-					this.updateDate(this.selectedDate.end , false, 'end')
-				}
+				this.defineCalendarMode()
+				this.updateDate(this.todaysDate, false)
 			},
 			offset(side, days) {
 				let date = null
@@ -393,7 +335,7 @@
 
 				this.updateDate(date, false)
 			},
-			updateDate(date, isUpdateSelected = true, range = 'start') {
+			updateDate(date, isUpdateSelected = true) {
 				const {
 					_day,
 					_year,
@@ -401,13 +343,13 @@
 				} = splitDate(date)
 
 				if (isUpdateSelected) {
-					this.selectedDate[range] = date
+					this.selectedDate = date
 				}
 
-				this.currDay[range] = _day
-				this.currMonth[range] = _month
-				this.currYear[range] = _year
-				this.switchedDate[range] = getDayWeekFirst(date)
+				this.currDay = _day
+				this.currMonth = _month
+				this.currYear = _year
+				this.switchedDate = getDayWeekFirst(date)
 			},
 			toggleSubMode() {
 				this.updateDate(this.selectedDate)
@@ -469,21 +411,17 @@
 
 			},
 			setComputedSize() {
-				const containers = this.$refs['v2dp-container']
+				const container = this.$refs['v2dp-wrapper']
+				const DOMRect = container?.getBoundingClientRect()
 
-				if (containers) {
-					const DOMRect = containers[0]?.getBoundingClientRect()
-	
-					if (DOMRect !== undefined) {
-						const { width } = DOMRect
-	
-						this.margin = `${(width / 2) * .1}px`
-						this.fontSize = `${(width / 2) * .11}px`
-						this.sizeCircleToggle = `${(width / 2) * .14}px`
-						this.sizeCircleCurrent = `${(width / 2) * .12}px`
-					}
+				if (DOMRect !== undefined) {
+					const { width } = DOMRect
+
+					this.margin = `${(width / 2) * .1}px`
+					this.fontSize = `${(width / 2) * .11}px`
+					this.sizeCircleToggle = `${(width / 2) * .14}px`
+					this.sizeCircleCurrent = `${(width / 2) * .12}px`
 				}
-
 			},
 		},
 		watch: {
@@ -499,10 +437,6 @@
 			},
 			format() {
 				if (this.isInput) this.setInputDate(this.selectedDate)
-			},
-			async isShowCalendar() {
-				await this.$nextTick()
-				this.setComputedSize()
 			},
 			isInput: {
 				immediate: true,
@@ -564,7 +498,7 @@
 		user-select: none;
 		position: relative;
 
-		& > * {
+		&>* {
 			color: #1f1f33;
 			font-weight: 600;
 			background: #fff;
@@ -612,28 +546,20 @@
 	}
 
 	// Calendar
-	.test {
-		width: 100%;
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		
-		margin: 5px;
+	.v2dp-container {
+		width: calc(100% - 10px);
+		padding: 16px;
+		margin: 5px 0 5px 5px;
 		position: relative;
+		border-radius: 12px;
+		box-shadow: 0px 0px 4px rgba(31, 31, 51, .06),
+			0px -4px 10px -1px rgba(31, 31, 51, .06);
 
-		
 		&--absolute {
 			position: absolute;
 			top: 50px;
 			left: 0;
 		}
-	}
-	.v2dp-container {
-		width: 100%;
-		padding: 16px;
-				border-radius: 12px;
-		box-shadow: 0px 0px 4px rgba(31, 31, 51, .06),
-			0px -4px 10px -1px rgba(31, 31, 51, .06);
 	}
 
 	// Toggle mode

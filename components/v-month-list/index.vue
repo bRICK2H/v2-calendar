@@ -151,10 +151,10 @@ export default {
 				,	id = `month:${_dateString}`
 				,	name = this.weeks[calcDayWeek(date)]
 				,	isVisibleCurrentMonth = this.currMonth === month
-				,	isPreSelectedDays = preSelectedStringDates.includes(_dateString)
+				,	isEventDay = preSelectedStringDates.includes(_dateString)
 				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
-				,	isPreSelectedDay = isSelectedDay && isPreSelectedDays
-				,	isEmptyDay = !isSelectedDay && !isPreSelectedDays && !isPreSelectedDay
+				,	isEventSelectedDay = isSelectedDay && isEventDay
+				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
 				,	isCurrentDay = currentDay === day && currenMonth === month && currenYear === year
 
 				return {
@@ -164,11 +164,11 @@ export default {
 					year,
 					name,
 					month,
-					isSelectedDay,
-					isCurrentDay,
 					isEmptyDay,
-					isPreSelectedDay,
-					isPreSelectedDays,
+					isEventDay,
+					isCurrentDay,
+					isSelectedDay,
+					isEventSelectedDay,
 					isVisibleCurrentMonth
 				}
 			})
@@ -205,7 +205,7 @@ export default {
 
 				this.height = `${width}px`
 				this.fontSizeDay = `${width * .4}px`
-				this.fontSizeDayWeek = `${width * .25}px`
+				this.fontSizeDayWeek = `${width * .26}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`
 				this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
 			}

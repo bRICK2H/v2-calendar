@@ -1,5 +1,4 @@
 const resetDateTime = date => {
-	console.log('reset', date)
 	date.setHours(0, 0, 0, 0)
 	return date
 }
@@ -13,6 +12,7 @@ const splitDate = date => {
 		_day: date.getDate(),
 		_month: date.getMonth(),
 		_year: date.getFullYear(),
+		_shortYear: String(date.getFullYear()).slice(2),
 		_dateString: date.toLocaleDateString()
 	}
 }

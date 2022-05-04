@@ -2,13 +2,14 @@
 	<div v-if="isShowDatePicker"
 		class="v2dp-wrapper"
 		:style="{
-			maxWidth: `${isRangeMode ? (width * 2) + 12 : width}px`,
+			maxWidth: `${isEnagleModeRange ? (width * 2) + 12 : width}px`,
 			'--margin': margin,
 			'--font-size': fontSize,
 			'--size-circle-toggle': sizeCircleToggle,
 			'--size-circle-current': sizeCircleCurrent,
 		}"
 	>
+			<!-- maxWidth: isEnagleModeRange ? `${width * 2}px` : `${width}px`, -->
 
 		<!-- Input -->
 		<div v-show="isInput" class="v2dp-input-container">
@@ -34,8 +35,8 @@
 			>
 
 				<div class="v2dp-container"
-					v-for="type of dateTypes"
-					:key="type"
+					v-for="n of 2"
+					:key="n"
 					:style="{
 						maxWidth: `${width}px`
 					}"
@@ -43,7 +44,7 @@
 				>
 
 					<!-- Toggle button week/month -->
-					<div v-show="isMultipleMode"
+					<div v-show="isEnableModeMultiple"
 						class="v2dp-toggle-sub-mode"
 					>
 						<button class="v2dp-toggle-sub-mode-button"
@@ -59,7 +60,7 @@
 					<!-- Controls -->
 					<div class="v2dp-controls">
 						<p class="v2dp-controls-date">
-							<!-- {{ getMonth[type] }} {{ currYear[type] }} -->
+							{{ getMonth }} {{ currYear }}
 						</p>
 
 						<div class="v2dp-controls-buttons">
@@ -97,12 +98,12 @@
 						<V2WeekList v-if="isWeekSubMode"
 							:width="width"
 							:weeks="weeks"
-							:currMonth="currMonth.start"
+							:currMonth="currMonth"
 							:selectedDates="dates"
 							:todaysDate="todaysDate"
 							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate.start"
-							:selectedDate="selectedDate.start"
+							:switchedDate="switchedDate"
+							:selectedDate="selectedDate"
 							@select-date="date => updateDate(date)"
 						>
 
@@ -117,13 +118,13 @@
 							:width="width"
 							:weeks="weeks"
 							:months="months"
-							:currYear="currYear[type]"
-							:currMonth="currMonth[type]"
+							:currYear="currYear"
+							:currMonth="currMonth"
 							:selectedDates="dates"
 							:todaysDate="todaysDate"
 							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate[type]"
-							:selectedDate="selectedDate[type]"
+							:switchedDate="switchedDate"
+							:selectedDate="selectedDate"
 							@select-date="date => updateDate(date)"
 						>
 
@@ -180,7 +181,7 @@
 			 */
 
 			value: {
-				type: [Date, Array],
+				type: Date,
 				default: () => new Date
 			},
 
@@ -245,14 +246,12 @@
 			sizeCircleToggle: 0,
 			sizeCircleCurrent: 0,
 
-			dateValue: [],
-			dateTypes: [],
+			currDay: null,
+			currYear: null,
+			currMonth: null,
 			todaysDate: null,
-			currDay: { start: null, end: null },
-			currYear: { start: null, end: null },
-			currMonth: { start: null, end: null },
-			switchedDate: { start: null, end: null },
-			selectedDate: { start: null, end: null },
+			switchedDate: null,
+			selectedDate: null,
 			inputDateValue: null,
 
 			isShowCalendar: false,
@@ -275,10 +274,10 @@
 			isShowDatePicker() {
 				return this.subMods.includes(this.subMode)
 			},
-			isMultipleMode() {
+			isEnableModeMultiple() {
 				return this.commonMode === 'multiple'
 			},
-			isRangeMode() {
+			isEnagleModeRange() {
 				return this.commonMode === 'range'
 			},
 			getIconSubMode() {
@@ -287,75 +286,34 @@
 				return require(`./assets/img/svg/${subMode}.svg`)
 			},
 			isOffsetCurrentSpace() {
-				return false
-			},
-			// isOffsetCurrentSpace() {
-			// 	const {
-			// 		_year: todayYear,
-			// 		_month: todayMonth,
-			// 		_dateString: todayDateString
-			// 	} = splitDate(this.todaysDate)
-			// 	, {
-			// 		_day: firstOfWeekDay
-			// 	} = splitDate(getDayWeekFirst(this.todaysDate))
-			// 	, {
-			// 		_day: firstSwitchOfWeekDay
-			// 	} = splitDate(this.switchedDate)
-			// 	, {
-			// 		_dateString: selectedDateString
-			// 	} = splitDate(this.selectedDate)
+				const {
+					_year: todayYear,
+					_month: todayMonth,
+					_dateString: todayDateString
+				} = splitDate(this.todaysDate)
+					, {
+						_day: firstOfWeekDay
+					} = splitDate(getDayWeekFirst(this.todaysDate))
+					, {
+						_day: firstSwitchOfWeekDay
+					} = splitDate(this.switchedDate)
+					, {
+						_dateString: selectedDateString
+					} = splitDate(this.selectedDate)
 
-			// 	return todayYear !== this.currYear
-			// 		|| todayMonth !== this.currMonth
-			// 		|| todayDateString !== selectedDateString
-			// 		|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
-			// }
+				return todayYear !== this.currYear
+					|| todayMonth !== this.currMonth
+					|| todayDateString !== selectedDateString
+					|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
+			}
 		},
 		methods: {
 			initDate() {
-				this.defineCalendarMode()
-
-				// this.dateValue = Array.isArray(this.value)
-				// 	? { start: this.value[0], end: this.value[1] }
-				// 	: { start: this.value }
-				// const { start, end } = this.dateValue
-
 				this.todaysDate = resetDateTime(new Date)
+				this.selectedDate = resetDateTime(this.value)
 
-				if (this.isRangeMode) {
-					this.dateTypes = ['start', 'end']
-				} else {
-					this.dateTypes = ['start']
-					this.selectedDate.start = resetDateTime(start)
-					this.updateDate(this.todaysDate, false)
-				}
-
-				// if (Array.isArray(this.value) && this.value.length > 1) {
-				// 	this.dateTypes = ['start', 'end']
-				// 	this.dateValue = this.value
-				// } else {
-				// 	this.dateTypes = ['start']
-				// 	this.dateValue = [this.value]
-				// }
-
-				// const [start, end] = this.dateValue
-
-				
-				// this.selectedDate.start = resetDateTime(start)
-				// this.updateDate(this.todaysDate, false)
-
-				console.log(this.isRangeMode)
-				if (this.isRangeMode) {
-					const endDate = end
-						? resetDateTime(end)
-						: this.todaysDate
-
-					this.selectedDate.end = new Date(
-						Date.parse(endDate) + calcDayOffset(7)
-					)
-
-					this.updateDate(this.selectedDate.end , false, 'end')
-				}
+				this.defineCalendarMode()
+				this.updateDate(this.todaysDate, false)
 			},
 			offset(side, days) {
 				let date = null
@@ -393,7 +351,7 @@
 
 				this.updateDate(date, false)
 			},
-			updateDate(date, isUpdateSelected = true, range = 'start') {
+			updateDate(date, isUpdateSelected = true) {
 				const {
 					_day,
 					_year,
@@ -401,13 +359,13 @@
 				} = splitDate(date)
 
 				if (isUpdateSelected) {
-					this.selectedDate[range] = date
+					this.selectedDate = date
 				}
 
-				this.currDay[range] = _day
-				this.currMonth[range] = _month
-				this.currYear[range] = _year
-				this.switchedDate[range] = getDayWeekFirst(date)
+				this.currDay = _day
+				this.currMonth = _month
+				this.currYear = _year
+				this.switchedDate = getDayWeekFirst(date)
 			},
 			toggleSubMode() {
 				this.updateDate(this.selectedDate)

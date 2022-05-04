@@ -107,10 +107,10 @@ export default {
 				,	id = `week:${_dateString}`
 				,	name = this.weeks[i]
 				,	isVisibleCurrentWeek = this.currMonth === month
-				,	isPreSelectedDays = preSelectedStringDates.includes(_dateString)
+				,	isEventDay = preSelectedStringDates.includes(_dateString)
 				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
-				,	isPreSelectedDay = isSelectedDay && isPreSelectedDays
-				,	isEmptyDay = !isSelectedDay && !isPreSelectedDays && !isPreSelectedDay
+				,	isEventSelectedDay = isSelectedDay && isEventDay
+				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
 				,	isCurrentDay = currentDay === day && currenMonth === month && currenYear === year
 
 				return {
@@ -120,11 +120,11 @@ export default {
 					year,
 					name,
 					month,
-					isSelectedDay,
-					isCurrentDay,
+					isEventDay,
 					isEmptyDay,
-					isPreSelectedDay,
-					isPreSelectedDays,
+					isCurrentDay,
+					isSelectedDay,
+					isEventSelectedDay,
 					isVisibleCurrentWeek
 				}
 			})

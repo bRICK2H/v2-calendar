@@ -4,7 +4,7 @@
 		@click="$emit('select-date')"
 	>
 		<div class="v2dp-week-item-content"
-			:class="{ 'v2dp-week-item-content__pre-selected-days': date.isPreSelectedDays }"
+			:class="{ 'v2dp-week-item-content__event-day': date.isEventDay }"
 		>
 			<span class="v2dp-week-item-name">
 				{{ date.name }}
@@ -45,10 +45,10 @@ export default {
 			
 			return {
 				[`${ITEM}__empty-day`]: this.date.isEmptyDay,
+				[`${ITEM}__event-day`]: this.date.isEventDay,
 				[`${ITEM}__current-day`]: this.date.isCurrentDay,
 				[`${ITEM}__selected-day`]: this.date.isSelectedDay,
-				[`${ITEM}__pre-selected-day`]: this.date.isPreSelectedDay,
-				[`${ITEM}__pre-selected-days`]: this.date.isPreSelectedDays,
+				[`${ITEM}__event-selected-day`]: this.date.isEventSelectedDay,
 				[`${ITEM}__visible-current-week`]: this.date.isVisibleCurrentWeek,
 				[`${ITEM}__selected-offset-day`]: !this.date.isVisibleCurrentWeek && this.date.isSelectedDay,
 			}
@@ -66,7 +66,6 @@ export default {
 		color: #b7b7cc;
 		position: relative;
 		cursor: pointer;
-		
 		
 		&:not(:last-of-type) {
 			margin-right: 7px;
@@ -95,10 +94,10 @@ export default {
 		&__empty-day {
 			border: 1px solid #fafafa;
 		}
-		&__pre-selected-days {
+		&__event-day {
 			border: var(--border-width) solid #e6e6ee;
 		}
-		&__pre-selected-day {
+		&__event-selected-day {
 			border: var(--border-width) solid #1f1f33;
 		}
 		&__selected-offset-day {
@@ -117,7 +116,7 @@ export default {
 		left: 0;
 		border-radius: var(--border-radius-inner);
 		
-		&__pre-selected-days {
+		&__event-day {
 			border: var(--border-width) solid #fff;
 		}
 	}
