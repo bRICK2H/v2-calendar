@@ -1,7 +1,9 @@
 <template>
 	<div v-if="isOpenDatePicker"
 		class="v2dp-wrapper"
+		ref="v2dp-wrapper"
 		:style="{
+			maxWidth: `${width}px`,
 			'--margin': margin,
 			'--font-size': fontSize,
 			'--size-circle-toggle': sizeCircleToggle,
@@ -18,87 +20,68 @@
 		<!-- Calendar -->
 		<transition name="toggle-calendar">
 			<div v-if="isShowCalendar"
-				ref="v2dp-calendar-container"
-				class="v2dp-calendar-container"
-				:class="{ 'v2dp-calendar-container--absolute': isInput }"
-				:style="setStyleMaxWidth"
+				class="v2dp-container"
+				:class="{ 'v2dp-container--absolute': isInput }"
 			>
 
-				<div v-for="(options, key) in cList"
-					:key="key"
-					class="v2dp-calendar-list"
-					:style="{ maxWidth: `${width}px` }"
-				>
-					<!-- Multiple toggle mode -->
-					<V2MultipleToggleMode v-if="isMultipleMode"
-						:icon="getIconMultipleMode"
-						@multiple-toggle="multipleToggle"
-					/>
+				<!-- Multiple toggle mode -->
+				<V2MultipleToggleMode v-if="isMultipleMode"
+					:icon="getIconMultipleMode"
+					@multiple-toggle="multipleToggle"
+				/>
 
-					<!-- Controls -->
-					<V2Controls
-						v-bind="options"
-						:months="months"
-						:todaysDate="todaysDate"
-						@offset="offset"
-					/>
+				<!-- Controls -->
+				<V2Controls
+					:getMonth="getMonth"
+					:currYear="currYear"
+					:isOffsetCurrentSpace="isOffsetCurrentSpace"
+					@offset="offset"
+				/>
 
-					<!-- <transition name="toggle-multiple" mode="out-in">
+				<transition name="toggle-multiple" mode="out-in">
 
-						<V2WeekList v-if="isWeekSubMode"
-							:width="width"
-							:weeks="weeks"
-							:currMonth="currMonth"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate"
-							:selectedDate="selectedDate"
-							@select-date="date => updateDate(date)"
-						>
-
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
-
-						</V2WeekList>
-
-						<V2MonthList v-else
-							:width="width"
-							:weeks="weeks"
-							:months="months"
-							:currYear="currYear"
-							:currMonth="currMonth"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							:switchedDate="switchedDate"
-							:selectedDate="selectedDate"
-							@select-date="date => updateDate(date)"
-						>
-
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
-
-						</V2MonthList>
-
-					</transition> -->
-
-				
-					<V2MonthList
-						v-bind="options"
+					<!-- Week -->
+					<V2WeekList v-if="isWeekSubMode"
 						:width="width"
 						:weeks="weeks"
-						:months="months"
+						:currMonth="currMonth"
 						:selectedDates="dates"
 						:todaysDate="todaysDate"
 						:isMarkedDay="isMarkedDay"
-						@select-date="updateDate"
-					/>
-				
+						:switchedDate="switchedDate"
+						:selectedDate="selectedDate"
+						@select-date="date => updateDate(date)"
+					>
 
-				</div>
+						<template v-slot="date">
+							<slot v-bind="date" />
+						</template>
+
+					</V2WeekList>
+
+					<!-- Month -->
+					<V2MonthList v-else
+						:width="width"
+						:weeks="weeks"
+						:months="months"
+						:currYear="currYear"
+						:currMonth="currMonth"
+						:selectedDates="dates"
+						:todaysDate="todaysDate"
+						:isMarkedDay="isMarkedDay"
+						:switchedDate="switchedDate"
+						:selectedDate="selectedDate"
+						@select-date="date => updateDate(date)"
+					>
+
+						<template v-slot="date">
+							<slot v-bind="date" />
+						</template>
+
+					</V2MonthList>
+
+				</transition>
+
 			</div>
 		</transition>
 	</div>
@@ -148,7 +131,7 @@
 			 */
 
 			value: {
-				type: [Date, Array],
+				type: Date,
 				default: () => new Date
 			},
 
@@ -169,16 +152,6 @@
 				type: String,
 				default: 'dd-mm-yyyy'
 			},
-
-			/**
-			 * Разделитель между датами для инпута
-			 */
-
-			betweenRange: {
-				type: String,
-				default: '-'
-			},
-
 			/**
 			 * Максимальная ширина календаря
 			 */
@@ -217,15 +190,6 @@
 			subMode: '',
 			commonMode: '',
 			subMods: ['month', 'week'],
-			cList: {
-				from: {
-					currDay: null,
-					currYear: null,
-					currMonth: null,
-					switchedDate: null,
-					selectedDate: null,
-				},
-			},
 
 			margin: 0,
 			fontSize: 0,
@@ -233,11 +197,10 @@
 			sizeCircleCurrent: 0,
 
 			inputValue: '',
-			todaysDate: null,
-
 			currDay: null,
 			currYear: null,
 			currMonth: null,
+			todaysDate: null,
 			switchedDate: null,
 			selectedDate: null,
 
@@ -252,12 +215,8 @@
 			],
 		}),
 		computed: {
-			getIconMultipleMode() {
-				const subMode = this.isWeekSubMode ? 'mode-close' : 'mode-open'
-				return require(`./assets/img/svg/${subMode}.svg`)
-			},
-			getSelectedDays() {
-				return this.getFields('selectedDate')
+			getMonth() {
+				return this.months[this.currMonth]
 			},
 			isWeekSubMode() {
 				return this.subMode === 'week'
@@ -268,85 +227,40 @@
 			isMultipleMode() {
 				return this.commonMode === 'multiple'
 			},
-			isRangeMode() {
-				return this.commonMode === 'range'
+			getIconMultipleMode() {
+				const subMode = this.isWeekSubMode ? 'mode-close' : 'mode-open'
+
+				return require(`./assets/img/svg/${subMode}.svg`)
 			},
-			setStyleMaxWidth() {
-				return {
-					maxWidth: `${this.isRangeMode ? (this.width * 2) + 20 : this.width}px`,
-				}
+			isOffsetCurrentSpace() {
+				const {
+					_year: todayYear,
+					_month: todayMonth,
+					_dateString: todayDateString
+				} = splitDate(this.todaysDate)
+					, {
+						_day: firstOfWeekDay
+					} = splitDate(getDayWeekFirst(this.todaysDate))
+					, {
+						_day: firstSwitchOfWeekDay
+					} = splitDate(this.switchedDate)
+					, {
+						_dateString: selectedDateString
+					} = splitDate(this.selectedDate)
+
+				return todayYear !== this.currYear
+					|| todayMonth !== this.currMonth
+					|| todayDateString !== selectedDateString
+					|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
 			}
 		},
 		methods: {
 			initDate() {
-				this.defineCalendarMode()
 				this.todaysDate = resetDateTime(new Date)
+				this.selectedDate = resetDateTime(this.value)
 
-				const { from } = this.cList
-
-				if (this.isRangeMode) {
-					this.$set(this.cList, 'to', {
-						currDay: null,
-						currYear: null,
-						currMonth: null,
-						switchedDate: null,
-						selectedDate: null,
-					})
-					
-					const { to } = this.cList
-					
-					if (Array.isArray(this.value)) {
-						const [start, end] = this.value
-						
-						switch (this.value.length) {
-							case 0: {
-								from.selectedDate = resetDateTime(this.todaysDate)
-								to.selectedDate = new Date(
-									Date.parse(from.selectedDate) + calcDayOffset(7)
-								)
-							}
-								break
-
-							case 1: {
-								from.selectedDate = resetDateTime(start)
-								to.selectedDate = new Date(
-									Date.parse(from.selectedDate) + calcDayOffset(7)
-								)
-							}
-								break
-								
-							case 2: {
-								from.selectedDate = resetDateTime(start)
-								to.selectedDate = resetDateTime(end)
-							}
-								break
-						}
-
-					} else {
-						from.selectedDate = resetDateTime(this.todaysDate)
-						to.selectedDate = new Date(
-							Date.parse(from.selectedDate) + calcDayOffset(7)
-						)
-					}
-				} else {
-					if (Array.isArray(this.value)) {
-						if (this.value.length) {
-							from.selectedDate = resetDateTime(this.value[0])
-						} else {
-							from.selectedDate = resetDateTime(this.todaysDate)
-						}
-					} else {
-						from.selectedDate = resetDateTime(this.value)
-					}
-				}
-
-				for (const type in this.cList) {
-					const date = this.cList[type].selectedDate
-					
-					if (date) {
-						this.updateDate(date, false, type)
-					}
-				}
+				this.defineCalendarMode()
+				this.updateDate(this.todaysDate, false)
 			},
 			offset({ side, days }) {
 				let date = null
@@ -384,7 +298,7 @@
 
 				this.updateDate(date, false)
 			},
-			updateDate(date, isUpdateSelected = true, type) {
+			updateDate(date, isUpdateSelected = true) {
 				const {
 					_day,
 					_year,
@@ -395,10 +309,10 @@
 					this.selectedDate = date
 				}
 
-				this.cList[type].currDay = _day
-				this.cList[type].currMonth = _month
-				this.cList[type].currYear = _year
-				this.cList[type].switchedDate = getDayWeekFirst(date)
+				this.currDay = _day
+				this.currMonth = _month
+				this.currYear = _year
+				this.switchedDate = getDayWeekFirst(date)
 			},
 			multipleToggle() {
 				this.updateDate(this.selectedDate)
@@ -432,41 +346,35 @@
 					console.warn(`[v2-datepicker]: Вы допустили ошибку в названии выбранного режима - "${commonMode}", уточните допустимое имя в документации.`)
 				}
 			},
-			setInputDate(dates) {
-				const formatDate = dates.map(date => {
-					const splitedDate = splitDate(date)
-						, formatMap = {
-							dd: '_day',
-							mm: '_month',
-							yyyy: '_year',
-							yy: '_shortYear',
-						}
-					const separator = this.format.match('_') ?? this.format.match(/\W/)
-	
-					if (separator) {
-						const formatArray = this.format.split(separator[0])
-							, formatResult = formatArray.map(name => {
-								const type = formatMap[name.toLowerCase()]
-									, value = type === '_month'
-										? splitedDate[type] + 1
-										: splitedDate[type]
-	
-								return value < 10 ? `0${value}` : `${value}`
-							})
-	
-						return formatResult.join(separator)
-					} else {
-						console.warn(`[v2-datepicker]: Выбранный вами разделитель не найден. Предлагаемые варианты для даты ['-', '.'] или другие символы не схожие с числами или буквами.`)
-						return null
+			setInputDate(date) {
+				const splitedDate = splitDate(date)
+					, formatMap = {
+						dd: '_day',
+						mm: '_month',
+						yyyy: '_year',
+						yy: '_shortYear',
 					}
+				const separator = this.format.match('_') ?? this.format.match(/\W/)
 
-				})
+				if (separator) {
+					const formatArray = this.format.split(separator[0])
+						, formatResult = formatArray.map(name => {
+							const type = formatMap[name.toLowerCase()]
+								, value = type === '_month'
+									? splitedDate[type] + 1
+									: splitedDate[type]
 
-				this.inputValue = formatDate.join(` ${this.betweenRange} `)
+							return value < 10 ? `0${value}` : `${value}`
+						})
+
+					this.inputValue = formatResult.join(separator)
+				} else {
+					console.warn(`[v2-datepicker]: Выбранный вами разделитель не найден. Предлагаемые варианты для даты ['-', '.'] или другие символы не схожие с числами или буквами.`)
+				}
 
 			},
 			setComputedSize() {
-				const container = this.$refs['v2dp-calendar-container']
+				const container = this.$refs['v2dp-wrapper']
 				const DOMRect = container?.getBoundingClientRect()
 
 				if (DOMRect !== undefined) {
@@ -477,17 +385,6 @@
 					this.sizeCircleToggle = `${(width / 2) * .14}px`
 					this.sizeCircleCurrent = `${(width / 2) * .12}px`
 				}
-			},
-			getFields(field) {
-				const fields = []
-				const from = this.cList.from?.[field]
-				const to = this.cList?.to?.[field]
-
-				if (from) fields.push(from)
-				if (to) fields.push(to)
-
-
-				return fields
 			},
 		},
 		watch: {
@@ -502,20 +399,18 @@
 				this.setComputedSize()
 			},
 			format() {
-				if (this.isInput) this.setInputDate(this.getSelectedDays)
+				if (this.isInput) this.setInputDate(this.selectedDate)
 			},
-			// isShowCalendar(isShow) {
-			// 	if (this.isInput && isShow) this.setInputDate(this.getSelectedDays)
-			// },
-			isRangeMode: {
-				immediate: true,
-				handler(isRange) {
-					if (isRange) {
-						if (!this.cList.to) this.initDate()
-					} else {
-						this.$delete(this.cList, 'to')
-					}
-				}
+			isShowCalendar(isShow) {
+				if (this.isInput && isShow) this.setInputDate(this.selectedDate)
+			}, 
+			selectedDate(date) {
+				const defaultListeners = ['input', 'select']
+					, listeners = Object.keys(this.$listeners)
+					, findedListener = defaultListeners.find(name => listeners.includes(name))
+
+				if (this.isInput) this.setInputDate(date)
+				this.$emit(findedListener ?? 'input', date)
 			},
 			isInput: {
 				immediate: true,
@@ -523,14 +418,6 @@
 					this.isShowCalendar = !isShowCalendar
 				}
 			},
-			getSelectedDays(date) {
-				const defaultListeners = ['input', 'select']
-					, listeners = Object.keys(this.$listeners)
-					, findedListener = defaultListeners.find(name => listeners.includes(name))
-
-				if (this.isInput) this.setInputDate(date)
-				this.$emit(findedListener ?? 'input', date)
-			}
 		},
 		created() {
 			this.initDate()
@@ -577,7 +464,7 @@
 		user-select: none;
 		position: relative;
 
-		& > * {
+		&>* {
 			color: #1f1f33;
 			font-weight: 600;
 			background: #fff;
@@ -585,25 +472,20 @@
 	}
 
 	// Calendar
-	.v2dp-calendar-container {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
-
-		&--absolute {
-			position: absolute;
-			top: 48px;
-			left: 0;
-		}
-	}
-	.v2dp-calendar-list {
+	.v2dp-container {
 		width: calc(100% - 10px);
-		margin: 5px;
 		padding: 16px;
+		margin: 5px 0 5px 5px;
 		position: relative;
 		border-radius: 12px;
 		box-shadow: 0px 0px 4px rgba(31, 31, 51, .06),
 			0px -4px 10px -1px rgba(31, 31, 51, .06);
+
+		&--absolute {
+			position: absolute;
+			top: 50px;
+			left: 0;
+		}
 	}
 
 	// Animations
