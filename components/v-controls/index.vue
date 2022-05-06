@@ -6,7 +6,7 @@
 
 		<div class="v2dp-controls-buttons">
 			<button class="v2dp-controls-current"
-				@click="$emit('offset', { side: 0, days: 0 })"
+				@click="$emit('offset', { side: 0, days: 0, name })"
 			>
 				<img class="v2dp-controls-icon-current"
 					:style="setStyleOffsetSpace"
@@ -15,7 +15,7 @@
 				>
 			</button>
 			<button class="v2dp-controls-prevent"
-				@click="$emit('offset', { side: -1, days: 7 })"
+				@click="$emit('offset', { side: -1, days: 7, name })"
 			>
 				<img class="v2dp-controls-icon-toggle"
 					src="../../assets/img/svg/prev-day.svg"
@@ -23,7 +23,7 @@
 				>
 			</button>
 			<button class="v2dp-controls-next"
-				@click="$emit('offset', { side: 1, days: 7 })"
+				@click="$emit('offset', { side: 1, days: 7, name })"
 			>
 				<img class="v2dp-controls-icon-toggle"
 					src="../../assets/img/svg/next-day.svg"
@@ -43,6 +43,12 @@ import {
 export default {
 	name: 'VControls',
 	props: {
+		selectedDate: null,
+		switchedDate: null,
+		name: {
+			type: String,
+			default: 'from'
+		},
 		currMonth: {
 			type: Number,
 			default: ''
@@ -55,16 +61,10 @@ export default {
 			type: Date,
 			default: new Date()
 		},
-		switchedDate: null,
-		selectedDate: null,
 		months: {
 			type: Array,
 			default: () => ([])
 		},
-		// isOffsetCurrentSpace: {
-		// 	type: Boolean,
-		// 	default: false
-		// },
 	},
 	computed: {
 		getMonth() {

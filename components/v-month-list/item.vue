@@ -108,11 +108,12 @@ export default {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	position: absolute;
 	border-radius: 50%;
+	font-size: var(--font-size-day);
+	font-weight: 500;
+	position: absolute;
 	top: 0;
 	left: 0;
-	font-size: var(--font-size-day);
 
 	&__event-day {
 		border: var(--border-width) solid #fff;

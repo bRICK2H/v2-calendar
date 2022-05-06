@@ -53,6 +53,10 @@ export default {
 		VMonthItem
 	},
 	props: {
+		name: {
+			type: String,
+			default: 'from'
+		},
 		width: {
 			type: Number,
 			default: 0
@@ -183,7 +187,7 @@ export default {
 	}),
 	methods: {
 		selectDate({ date }) {
-			this.$emit('select-date', date)
+			this.$emit('select-date', date, this.name)
 		},
 		createMonth(size, start) {
 			const array = new Array(size).fill(null)
@@ -196,29 +200,34 @@ export default {
 				return date
 			})
 		},
-		setComputedSize() {
-			const container = this.$refs['v2dp-month-list']
-			const DOMRect = container?.firstChild?.getBoundingClientRect()
+		сalculatedSizes() {
+			const monthList = this.$refs['v2dp-month-list']
 
-			if (DOMRect !== undefined) {
-				const { width } = DOMRect
+			if (monthList) {
+				const item = monthList.firstChild
+					,	DOMRect = item.getBoundingClientRect()
+					
+				if (DOMRect !== undefined) {
+					const { width } = DOMRect
 
-				this.height = `${width}px`
-				this.fontSizeDay = `${width * .4}px`
-				this.fontSizeDayWeek = `${width * .26}px`
-				this.borderWidth = `${Math.floor(width * .06)}px`
-				this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
+					this.height = `${width}px`
+					this.fontSizeDay = `${Math.floor(width * .42)}px`
+					this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
+					this.borderWidth = `${Math.floor(width * .07)}px`
+					this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
+				}
 			}
+
 		}
 	},
 	watch: {
 		width() {
-			this.setComputedSize()
+			this.сalculatedSizes()
 		},
 	},
 	mounted() {
-		this.setComputedSize()
-		window.addEventListener('resize', this.setComputedSize)
+		this.сalculatedSizes()
+		window.addEventListener('resize', this.сalculatedSizes)
 	}
 }
 </script>

@@ -41,6 +41,10 @@ export default {
 		VWeekItem
 	},
 	props: {
+		name: {
+			type: String,
+			default: 'from'
+		},
 		width: {
 			type: Number,
 			default: 0
@@ -132,7 +136,7 @@ export default {
 	},
 	methods: {
 		selectDate({ date }) {
-			this.$emit('select-date', date)
+			this.$emit('select-date', date, this.name)
 		},
 		createWeek(size, start) {
 			const array = new Array(size).fill(null)
@@ -145,30 +149,34 @@ export default {
 				return date
 			})
 		},
-		setComputedSize() {
-			const container = this.$refs['v2dp-week-list']
-			const DOMRect = container?.firstChild?.getBoundingClientRect()
+		сalculatedSizes() {
+			const weekList = this.$refs['v2dp-week-list']
 
-			if (DOMRect !== undefined) {
-				const { width } = DOMRect
+			if (weekList) {
+				const item = weekList.firstChild
+					,	DOMRect = item.getBoundingClientRect()
 
-				this.fontSizeDay = `${width * .4}px`
-				this.fontSizeDayWeek = `${width * .25}px`
-				this.height = `${width + (width / 1.5)}px`
-				this.borderRadiusInner = `${width * .5}px`
-				this.borderRadiusOuter = `${width * .55}px`
-				this.borderWidth = `${Math.floor(width * .06)}px`
+				if (DOMRect !== undefined) {
+					const { width } = DOMRect
+
+					this.height = `${width + (width / 1.5)}px`
+					this.fontSizeDay = `${Math.floor(width * .42)}px`
+					this.borderWidth = `${Math.floor(width * .07)}px`
+					this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
+					this.borderRadiusInner = `${Math.floor(width * .5)}px`
+					this.borderRadiusOuter = `${Math.floor(width * .55)}px`
+				}
 			}
 		}
 	},
 	watch: {
 		width() {
-			this.setComputedSize()
+			this.сalculatedSizes()
 		},
 	},
 	mounted() {
-		this.setComputedSize()
-		window.addEventListener('resize', this.setComputedSize)
+		this.сalculatedSizes()
+		window.addEventListener('resize', this.сalculatedSizes)
 	}
 }
 </script>

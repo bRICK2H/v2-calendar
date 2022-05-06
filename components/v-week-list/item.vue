@@ -111,10 +111,11 @@ export default {
 		flex-direction: column;
 		justify-content: space-evenly;
 		align-items: center;
+		border-radius: var(--border-radius-inner);
+		font-weight: 500;
 		position: absolute;
 		top: 0;
 		left: 0;
-		border-radius: var(--border-radius-inner);
 		
 		&__event-day {
 			border: var(--border-width) solid #fff;
