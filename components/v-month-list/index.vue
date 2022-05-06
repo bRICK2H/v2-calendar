@@ -69,6 +69,10 @@ export default {
 			type: Array,
 			require: true
 		},
+		cList: {
+			type: Object,
+			default: () => ({})
+		},
 		todaysDate: {
 			type: Date,
 			default: new Date
@@ -90,6 +94,10 @@ export default {
 			default: 0
 		},
 		isMarkedDay: {
+			type: Boolean,
+			default: true
+		},
+		isRangeMode: {
 			type: Boolean,
 			default: true
 		}
@@ -160,6 +168,9 @@ export default {
 				,	isEventSelectedDay = isSelectedDay && isEventDay
 				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
 				,	isCurrentDay = currentDay === day && currenMonth === month && currenYear === year
+				,	isTest = this.name === 'from'
+					? this.selectedDate < date && date < this.cList.to.selectedDate
+					: this.selectedDate > date && date > this.cList.from.selectedDate
 
 				return {
 					id,
@@ -168,6 +179,7 @@ export default {
 					year,
 					name,
 					month,
+					isTest,
 					isEmptyDay,
 					isEventDay,
 					isCurrentDay,
@@ -176,7 +188,7 @@ export default {
 					isVisibleCurrentMonth
 				}
 			})
-		}
+		},
 	},
 	data: () => ({
 		height: 0,
@@ -206,7 +218,7 @@ export default {
 			if (monthList) {
 				const item = monthList.firstChild
 					,	DOMRect = item.getBoundingClientRect()
-					
+
 				if (DOMRect !== undefined) {
 					const { width } = DOMRect
 

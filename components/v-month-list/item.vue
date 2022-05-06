@@ -26,7 +26,7 @@ export default {
 		isMarkedDay: {
 			type: Boolean,
 			default: true
-		}
+		},
 	},
 	computed: {
 		setClassCurrentMonth() {
@@ -46,6 +46,7 @@ export default {
 				[`${ITEM}__event-selected-day`]: this.date.isEventSelectedDay,
 				[`${ITEM}__visible-current-month`]: this.date.isVisibleCurrentMonth,
 				[`${ITEM}__selected-offset-day`]: !this.date.isVisibleCurrentMonth && this.date.isSelectedDay,
+				[`${ITEM}__test`]: this.date.isTest,
 			}
 		}
 	}
@@ -100,6 +101,9 @@ export default {
 	}
 	&__selected-offset-day {
 		opacity: .4;
+	}
+	&__test {
+		background: red !important;
 	}
 }
 .v2dp-month-day {

@@ -67,9 +67,11 @@
 							:width="width"
 							:weeks="weeks"
 							:months="months"
+							:cList="cList"
 							:selectedDates="dates"
 							:todaysDate="todaysDate"
 							:isMarkedDay="isMarkedDay"
+							:isRangeMode="isRangeMode"
 							@select-date="updateDate"
 						>
 
