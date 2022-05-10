@@ -229,12 +229,6 @@
 			inputValue: '',
 			todaysDate: null,
 
-			// currDay: null,
-			// currYear: null,
-			// currMonth: null,
-			// switchedDate: null,
-			// selectedDate: null,
-
 			isAllowEventChanges: false,
 			isShowCalendar: false,
 
@@ -346,6 +340,10 @@
 
 				if (!side && !days) {
 					this.updateDate(this.todaysDate, name)
+
+					if (this.isRangeMode && name === 'to') {
+						this.updateDate(this.todaysDate, 'from')
+					}
 				}
 
 				switch (this.subMode) {
@@ -386,6 +384,10 @@
 
 				if (isUpdateSelected) {
 					this.cList[name].selectedDate = date
+				}
+
+				if (this.isRangeMode && name === 'from' && date > this.cList.to.selectedDate) {
+					this.updateDate(date, 'to')
 				}
 
 				this.cList[name].currDay = _day
@@ -549,15 +551,9 @@
 			this.initDate()
 
 			/**
-			 * + 1. Упростить переменные на isEvent и isEventSelected 
-			 * + 2. Баг на откритые недели, непосредственно с шириной и размерами
-			 * 3. Логика работы инпута и открытие календарей
-			 * + 4. Определение модов [multiple, range, single]
-			 * + 5. Стилизация инпута + иконка
-			 * + 6. Позиционирование абсолютное (определить позицию)
-			 * + 7. dd-mm-yy props
-			 * 8. создание range
-			 * 9. определение передачи типов данных для даты String, Date, Array
+			 * 1. Сравнить верству и размеры для  дней недель и недельки.
+			 * 2. isHiddenRange.. подумать над тем, что бы скрывать только если месяцы равны.
+			 * 3. box-shadow, появление полосы справа (баг)
 			 * 10. Набор даты (в последнюю очередь)
 			 */
 

@@ -4,6 +4,7 @@
 			'--height': height,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
+			'--offset-size-day': offsetSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
 			'--offset-bottom-day-week': offsetBottomDayWeek
 		}"
@@ -22,7 +23,7 @@
 			ref="v2dp-month-list"
 		>
 		
-			<VMonthItem v-for="date of getMonths"
+			<!-- <VMonthItem v-for="date of getMonths"
 				:date="date"
 				:key="date.id"
 				:isMarkedDay="isMarkedDay"
@@ -31,7 +32,14 @@
 			
 				<slot v-bind="date" />
 				
-			</VMonthItem>
+			</VMonthItem> -->
+
+			<VMonthRow v-for="(row, i) of getMonths"
+				:key="`${name}:${i}`"
+				:row="row"
+				:isMarkedDay="isMarkedDay"
+				@select-date="selectDate"
+			/>
 
 		</div>
 		
@@ -45,12 +53,14 @@ import {
 	calcDayOffset
 } from '../../functions'
 
-import VMonthItem from './item'
+// import VMonthItem from './item'
+import VMonthRow from './row'
 
 export default {
 	name: 'VMonthList',
 	components: {
-		VMonthItem
+		// VMonthItem,
+		VMonthRow,
 	},
 	props: {
 		name: {
@@ -102,6 +112,14 @@ export default {
 			default: true
 		}
 	},
+	data: () => ({
+		height: 0,
+		borderWidth: 0,
+		fontSizeDay: 0,
+		offsetSizeDay: 0,
+		fontSizeDayWeek: 0,
+		offsetBottomDayWeek: 0,
+	}),
 	computed: {
 		firstCurrentDate() {
 			return new Date(this.currYear, this.currMonth, 1)
@@ -137,19 +155,25 @@ export default {
 			return this.createMonth(difineNextSize, firstDateOfNext)
 		},
 		getMonths() {
-			const {
-				_day: currentDay,
-				_year: currenYear,
-				_month: currenMonth
-			} = splitDate(this.todaysDate)
-			,	{
-				_day: selectedDay,
-				_year: selectedYear,
-				_month: selectedMonth
-			} = splitDate(this.selectedDate)
-			,	preSelectedStringDates = this.selectedDates.map(date => date.toLocaleDateString())
+			const ROW_COUNT = 6
+				,	CELL_COUNT = 7
+				,	ROWS = new Array(ROW_COUNT).fill(null)
+				,	 {
+					_day: currentDay,
+					_year: currenYear,
+					_month: currenMonth
+				} = splitDate(this.todaysDate)
+				,	{
+					_day: selectedDay,
+					_year: selectedYear,
+					_month: selectedMonth
+				} = splitDate(this.selectedDate)
+				,	{
+					_dateString: fromSelectedString
+				} = splitDate(this.cList.from.selectedDate)
+				,	preSelectedStringDates = this.selectedDates.map(date => date.toLocaleDateString())
 
-			return [
+			const dateList = [
 				...this.preventMonth,
 				...this.currentMonth,
 				...this.nextMonth
@@ -160,17 +184,24 @@ export default {
 					_month: month,
 					_dateString
 				} = splitDate(date)
-				,	id = `month:${_dateString}`
+				,	id = `date:${_dateString}`
 				,	name = this.weeks[calcDayWeek(date)]
 				,	isVisibleCurrentMonth = this.currMonth === month
 				,	isEventDay = preSelectedStringDates.includes(_dateString)
-				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
+				,	isSelectedDay = selectedDay === day && selectedMonth === month && selectedYear === year
 				,	isEventSelectedDay = isSelectedDay && isEventDay
 				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
 				,	isCurrentDay = currentDay === day && currenMonth === month && currenYear === year
-				,	isTest = this.name === 'from'
-					? this.selectedDate < date && date < this.cList.to.selectedDate
-					: this.selectedDate > date && date > this.cList.from.selectedDate
+
+				,	isRangeDay = this.isRangeMode && splitDate(this.cList.to.selectedDate)._dateString !== fromSelectedString
+						&& (this.name === 'from' && this.selectedDate <= date && date <= this.cList.to.selectedDate
+						|| this.name === 'to' && this.selectedDate >= date && this.cList.from.selectedDate <= date)
+				,	isFirstRangeDay = isRangeDay && fromSelectedString === _dateString
+				,	isLastRangeDay = isRangeDay && splitDate(this.cList.to.selectedDate)._dateString === _dateString
+				,	isDisabledToRangeDay = this.isRangeMode && this.name === 'to'
+						&& this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
+				,	isHiddenRangeFromNextDay = this.isRangeMode && this.name === 'from' && date > this.lastCurrentDate
+				,	isHiddenRangeToPrevDay = this.isRangeMode && this.name === 'to' && date < this.firstCurrentDate
 
 				return {
 					id,
@@ -179,7 +210,14 @@ export default {
 					year,
 					name,
 					month,
-					isTest,
+
+					isDisabledToRangeDay,
+					isRangeDay,
+					isFirstRangeDay,
+					isLastRangeDay,
+					isHiddenRangeFromNextDay,
+					isHiddenRangeToPrevDay,
+					
 					isEmptyDay,
 					isEventDay,
 					isCurrentDay,
@@ -188,15 +226,10 @@ export default {
 					isVisibleCurrentMonth
 				}
 			})
+
+			return ROWS.map(() => dateList.splice(0, CELL_COUNT))
 		},
 	},
-	data: () => ({
-		height: 0,
-		borderWidth: 0,
-		fontSizeDay: 0,
-		fontSizeDayWeek: 0,
-		offsetBottomDayWeek: 0,
-	}),
 	methods: {
 		selectDate({ date }) {
 			this.$emit('select-date', date, this.name)
@@ -216,17 +249,28 @@ export default {
 			const monthList = this.$refs['v2dp-month-list']
 
 			if (monthList) {
-				const item = monthList.firstChild
+				const item = monthList.firstChild.firstChild
 					,	DOMRect = item.getBoundingClientRect()
 
 				if (DOMRect !== undefined) {
 					const { width } = DOMRect
 
-					this.height = `${width}px`
-					this.fontSizeDay = `${Math.floor(width * .42)}px`
-					this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
-					this.borderWidth = `${Math.floor(width * .07)}px`
-					this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
+					// const height = Math.floor(width / 7)
+					// const height = width / 7
+					const height = width
+
+					this.height = `${height}px`
+					this.fontSizeDay = `${Math.floor(height * .42)}px`
+					this.borderWidth = `${Math.floor(height * .07)}px`
+					this.offsetSizeDay = `${Math.floor(height * .17)}px`
+					this.fontSizeDayWeek = `${Math.floor(height * .3)}px`
+					this.offsetBottomDayWeek = `-${Math.floor(height * .06)}px`
+
+					// this.height = `${width}px`
+					// this.fontSizeDay = `${Math.floor(width * .42)}px`
+					// this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
+					// this.borderWidth = `${Math.floor(width * .07)}px`
+					// this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
 				}
 			}
 
