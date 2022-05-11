@@ -32,8 +32,11 @@ export default {
 <style lang="scss">
 	.v2dp-month-row {
 		width: 100%;
-		display:flex;
+		display: flex;
 		justify-content: space-between;
-		border: 2px solid #fff;
+
+		&:not(:last-child) {
+			border-bottom: var(--border-width) solid #fff;
+		}
 	}
 </style>

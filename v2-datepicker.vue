@@ -37,8 +37,10 @@
 					<!-- Controls -->
 					<V2Controls
 						v-bind="options"
+						:cList="cList"
 						:months="months"
 						:todaysDate="todaysDate"
+						:isRangeMode="isRangeMode"
 						@offset="offset"
 					/>
 
@@ -52,7 +54,7 @@
 							:selectedDates="dates"
 							:todaysDate="todaysDate"
 							:isMarkedDay="isMarkedDay"
-							@select-date="updateDate"
+							@select-date="selectDate"
 						>
 
 							<template v-slot="date">
@@ -72,7 +74,7 @@
 							:todaysDate="todaysDate"
 							:isMarkedDay="isMarkedDay"
 							:isRangeMode="isRangeMode"
-							@select-date="updateDate"
+							@select-date="selectDate"
 						>
 
 							<template v-slot="date">
@@ -253,7 +255,6 @@
 			isOpenDatePicker() {
 				return this.subMods.includes(this.subMode)
 			},
-
 			getSelectedDays() {
 				return this.getFields('selectedDate')
 			},
@@ -337,14 +338,7 @@
 			offset({ side, days, name }) {
 				let date = null
 				const calendar = this.cList[name]
-
-				if (!side && !days) {
-					this.updateDate(this.todaysDate, name)
-
-					if (this.isRangeMode && name === 'to') {
-						this.updateDate(this.todaysDate, 'from')
-					}
-				}
+					,	{ from, to } = this.cList
 
 				switch (this.subMode) {
 					case 'month': {
@@ -373,7 +367,52 @@
 						break
 				}
 
-				this.updateDate(date, name, false)
+				if (!side && !days) {
+					this.updateDate(this.todaysDate, name)
+
+					if (this.isRangeMode) {
+						if (name === 'from') {
+							if (date > to.selectedDate) {
+								this.updateDate(date, 'to')
+							} else {
+								this.updateDate(to.selectedDate, 'to')
+							}
+						} else if (name === 'to') {
+							if (date < from.selectedDate) {
+								this.updateDate(date, 'from')
+							}
+						}
+					}
+				} else {
+					this.updateDate(date, name, false)
+
+					if (this.isRangeMode) {
+						if (name === 'from') {
+							if (date > to.selectedDate) {
+								this.updateDate(date, 'to', false)
+							} else {
+								this.updateDate(to.selectedDate, 'to', false)
+							}
+						} else if (name === 'to') {
+							if (date < new Date(from.currYear, from.currMonth, 1)) {
+								this.updateDate(date, 'from', false)
+							}
+						}
+					}
+				}
+			},
+			selectDate(date, name) {
+				const	{ to } = this.cList
+
+				this.updateDate(date, name)
+
+				if (this.isRangeMode) {
+					if (name === 'from') {
+						if (date > to.selectedDate) {
+							this.updateDate(date, 'to')
+						}
+					}
+				}
 			},
 			updateDate(date, name, isUpdateSelected = true) {
 				const {
@@ -386,14 +425,12 @@
 					this.cList[name].selectedDate = date
 				}
 
-				if (this.isRangeMode && name === 'from' && date > this.cList.to.selectedDate) {
-					this.updateDate(date, 'to')
-				}
-
 				this.cList[name].currDay = _day
 				this.cList[name].currMonth = _month
 				this.cList[name].currYear = _year
 				this.cList[name].switchedDate = getDayWeekFirst(date)
+
+				return true
 			},
 			multipleToggle(name) {
 				const calendar = this.cList[name]
@@ -551,9 +588,8 @@
 			this.initDate()
 
 			/**
-			 * 1. Сравнить верству и размеры для  дней недель и недельки.
-			 * 2. isHiddenRange.. подумать над тем, что бы скрывать только если месяцы равны.
-			 * 3. box-shadow, появление полосы справа (баг)
+			 * 1. Размер, выделение ячеек, плотно разобраться с этим потом сравнить с неделькой
+			 * 2. Сравнить верству и размеры для  дней недель и недельки.
 			 * 10. Набор даты (в последнюю очередь)
 			 */
 

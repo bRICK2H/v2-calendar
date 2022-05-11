@@ -1,20 +1,14 @@
 <template>
 	<div class="v2dp-month-cell"
-		:class="{
-			'v2dp-month-cell__range-day': this.date.isRangeDay,
-			'v2dp-month-cell__first-range-day': this.date.isFirstRangeDay,
-			'v2dp-month-cell__last-range-day': this.date.isLastRangeDay,
-			'v2dp-month-cell__hidden-range-from-next-day': this.date.isHiddenRangeFromNextDay,
-			'v2dp-month-cell__hidden-range-to-prev-day': this.date.isHiddenRangeToPrevDay,
-		}"
+		:class="setClassCell"
 		@click="select"
 	>
 			<div class="v2dp-day-container"
-				:class="[setClassCell, setClassCurrentMonth]"
+				:class="setClassDayContainer"
 			>
 				
 				<span class="v2dp-day"
-					:class="{ 'v2dp-day__event-day': date.isEventDay }"
+					:class="setClassDay"
 				>
 					{{ date.day }}
 				</span>
@@ -40,24 +34,41 @@ export default {
 		},
 	},
 	computed: {
-		setClassCurrentMonth() {
-			return {
-				'v2dp-day-container__visible-current-month': this.date.isVisibleCurrentMonth
-			}
-		},
 		setClassCell() {
 			if (!this.isMarkedDay) return null
-			const CELL = 'v2dp-day-container'
+			const CELL = 'v2dp-month-cell'
 
 			return {
-				[`${CELL}__empty-day`]: this.date.isEmptyDay,
-				[`${CELL}__event-day`]: this.date.isEventDay,
-				[`${CELL}__current-day`]: this.date.isCurrentDay,
-				[`${CELL}__selected-day`]: this.date.isSelectedDay,
-				[`${CELL}__event-selected-day`]: this.date.isEventSelectedDay,
-				[`${CELL}__visible-current-month`]: this.date.isVisibleCurrentMonth,
-				[`${CELL}__selected-offset-day`]: !this.date.isVisibleCurrentMonth && this.date.isSelectedDay,
-				[`${CELL}__disabled-range-day`]: this.date.isDisabledToRangeDay,
+				[`${CELL}__range-day`]: this.date.isRangeDay,
+				[`${CELL}__last-range-day`]: this.date.isLastRangeDay,
+				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay,
+				[`${CELL}__offset-day`]: !this.date.isVisibleCurrentMonth,
+				[`${CELL}__hidden-range-to-prev-day`]: this.date.isHiddenRangeToPrevDay,
+				[`${CELL}__hidden-range-from-next-day`]: this.date.isHiddenRangeFromNextDay,
+			}
+		},
+		setClassDayContainer() {
+			if (!this.isMarkedDay) return null
+			const DAY_CONTAINER = 'v2dp-day-container'
+
+			return {
+				[`${DAY_CONTAINER}__event-day`]: this.date.isEventDay,
+				[`${DAY_CONTAINER}__selected-day`]: this.date.isSelectedDay,
+				[`${DAY_CONTAINER}__event-selected-day`]: this.date.isEventSelectedDay,
+				[`${DAY_CONTAINER}__disabled-range-day`]: this.date.isDisabledToRangeDay,
+			}
+		},
+		setClassDay() {
+			if (!this.isMarkedDay) return null
+			const DAY = 'v2dp-day'
+
+			return {
+				[`${DAY}__empty-day`]: this.date.isEmptyDay,
+				[`${DAY}__event-day`]: this.date.isEventDay,
+				[`${DAY}__current-day`]: this.date.isCurrentDay,
+				[`${DAY}__selected-day`]: this.date.isSelectedDay,
+				[`${DAY}__event-selected-day`]: this.date.isEventSelectedDay,
+				[`${DAY}__disabled-range-day`]: this.date.isDisabledToRangeDay,
 			}
 		}
 	},
@@ -79,9 +90,6 @@ export default {
 	justify-content: center;
 	align-items: center;
 
-	&__range-day {
-		background: #4bbac5;
-	}
 	&__first-range-day {
 		border-top-left-radius: 40px;
 		border-bottom-left-radius: 40px;
@@ -94,7 +102,12 @@ export default {
 	&__hidden-range-to-prev-day {
 		visibility: hidden;
 	}
-
+	&__range-day {
+		background: #4bbac5;
+	}
+	&__offset-day {
+		opacity: .5;
+	}
 }
 
 .v2dp-day-container {
@@ -104,7 +117,7 @@ export default {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	color: #b7b7cc;
+
 	transition: box-shadow .2s;
 	cursor: pointer;
 
@@ -115,35 +128,16 @@ export default {
 		box-shadow: 0 0 4px 0 #1f1f33;
 	}
 
-	&__visible-current-month {
-		color: #000;
-	}
-	&__current-day {
-		background: #eeedf7;
-	}
-	&__selected-day {
-		background: #1f1f33;
-		box-shadow: 0 0 4px 0 #1f1f33;
-
-		.v2dp-day {
-			color: #fff;
-		}
-	}
-	&__empty-day {
-		// border: 1px solid #fafafa;
-	}
 	&__event-day {
 		border: var(--border-width) solid #e6e6ee;
 	}
 	&__event-selected-day {
 		border: var(--border-width) solid #1f1f33;
 	}
-	&__selected-offset-day {
-		opacity: .4;
+	&__selected-day {
+		box-shadow: 0 0 4px 0 #1f1f33;
 	}
 	&__disabled-range-day {
-		opacity: .2;
-
 		&:hover {
 			box-shadow: none;
 			cursor: no-drop;
@@ -159,10 +153,30 @@ export default {
 	align-items: center;
 	border-radius: 50%;
 	font-weight: 500;
+	color: #000;
 	font-size: var(--font-size-day);
+	position: relative;
+
+	
+	&__empty-day {
+		border: 1px solid rgba(255, 255, 255, .2);
+	}
+	&__current-day {
+		background: #eeedf7;
+	}
+	&__selected-day {
+		color: #fff;
+		background: #1f1f33;
+	}
+	&__disabled-range-day {
+		opacity: .2;
+	}
+	&__event-selected-day {
+		border: var(--border-width) solid #fff;
+	}
 
 	&__event-day {
-		border: var(--border-width) solid #fff;
+		// border: var(--border-width) solid #fff;
 	}
 }
 </style>

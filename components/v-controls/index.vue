@@ -16,10 +16,12 @@
 			</button>
 			<button class="v2dp-controls-prevent"
 				@click="$emit('offset', { side: -1, days: 7, name })"
+				:disabled="isDisabledToRangeLeftControl"
 			>
-				<img class="v2dp-controls-icon-toggle"
+				<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
 					src="../../assets/img/svg/prev-day.svg"
 					alt="prev-day"
+					:class="{'v2dp-controls-icon-prevent__disabled' : isDisabledToRangeLeftControl }"
 				>
 			</button>
 			<button class="v2dp-controls-next"
@@ -48,6 +50,14 @@ export default {
 		name: {
 			type: String,
 			default: 'from'
+		},
+		cList: {
+			type: Object,
+			default: () => ({})
+		},
+		isRangeMode: {
+			type: Boolean,
+			default: false
 		},
 		currMonth: {
 			type: Number,
@@ -93,6 +103,17 @@ export default {
 				|| todayMonth !== this.currMonth
 				|| todayDateString !== selectedDateString
 				|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
+		},
+		isDisabledToRangeLeftControl() {
+			if (!this.isRangeMode) return false
+
+			const { from } = this.cList
+				,	{
+					_year: fromYear,
+					_month: fromMonth
+				} = splitDate(from.selectedDate)
+				
+			return this.name === 'to' && fromYear === this.currYear && fromMonth === this.currMonth
 		},
 	}
 }
@@ -154,6 +175,16 @@ export default {
 
 		&:hover {
 			box-shadow: 0 0 8px 0 #1f1f33;
+		}
+	}
+	.v2dp-controls-icon-prevent {
+		&__disabled {
+			cursor: no-drop;
+			opacity: .3;
+
+			&:hover {
+				box-shadow: none;
+			}
 		}
 	}
 </style>

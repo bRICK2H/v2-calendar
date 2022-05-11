@@ -200,8 +200,9 @@ export default {
 				,	isLastRangeDay = isRangeDay && splitDate(this.cList.to.selectedDate)._dateString === _dateString
 				,	isDisabledToRangeDay = this.isRangeMode && this.name === 'to'
 						&& this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
-				,	isHiddenRangeFromNextDay = this.isRangeMode && this.name === 'from' && date > this.lastCurrentDate
-				,	isHiddenRangeToPrevDay = this.isRangeMode && this.name === 'to' && date < this.firstCurrentDate
+				,	isRangeMonthExist = this.isRangeMode && this.cList.from.currYear === this.cList.to.currYear && this.cList.from.currMonth === this.cList.to.currMonth
+				,	isHiddenRangeFromNextDay = isRangeMonthExist && this.name === 'from' && date > this.lastCurrentDate
+				,	isHiddenRangeToPrevDay = isRangeMonthExist && this.name === 'to' && date < this.firstCurrentDate
 
 				return {
 					id,
@@ -260,8 +261,9 @@ export default {
 					const height = width
 
 					this.height = `${height}px`
-					this.fontSizeDay = `${Math.floor(height * .42)}px`
-					this.borderWidth = `${Math.floor(height * .07)}px`
+					this.fontSizeDay = `${Math.floor(height * .36)}px`
+					// this.borderWidth = `${Math.floor(height * .06)}px`
+					this.borderWidth = `${Math.floor(height * .06)}px`
 					this.offsetSizeDay = `${Math.floor(height * .17)}px`
 					this.fontSizeDayWeek = `${Math.floor(height * .3)}px`
 					this.offsetBottomDayWeek = `-${Math.floor(height * .06)}px`
