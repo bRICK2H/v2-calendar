@@ -53,6 +53,7 @@ export default {
 
 			return {
 				[`${CELL_CONTENT}__event-day`]: this.date.isEventDay,
+				[`${CELL_CONTENT}__current-day`]: this.date.isCurrentDay,
 				[`${CELL_CONTENT}__selected-day`]: this.date.isSelectedDay,
 				[`${CELL_CONTENT}__event-selected-day`]: this.date.isEventSelectedDay,
 				[`${CELL_CONTENT}__disabled-range-day`]: this.date.isDisabledToRangeDay,
@@ -64,9 +65,9 @@ export default {
 
 			return {
 				[`${CELL_DATE}__empty-day`]: this.date.isEmptyDay,
-				[`${CELL_DATE}__current-day`]: this.date.isCurrentDay,
 				[`${CELL_DATE}__selected-day`]: this.date.isSelectedDay,
 				[`${CELL_DATE}__event-selected-day`]: this.date.isEventSelectedDay,
+				[`${CELL_DATE}__range-day`]: this.date.isRangeDay && !this.date.isCurrentDay,
 				[`${CELL_DATE}__disabled-range-day`]: this.date.isDisabledToRangeDay,
 			}
 		}
@@ -132,6 +133,9 @@ export default {
 	&__event-selected-day {
 		border: var(--border-width) solid #1f1f33;
 	}
+	&__current-day {
+		background: #eeedf7;
+	}
 	&__selected-day {
 		box-shadow: 0 0 4px 0 #1f1f33;
 	}
@@ -153,13 +157,9 @@ export default {
 	font-weight: 500;
 	color: #1f1f33;
 	font-size: var(--font-size-day);
-	position: relative;
 	
 	&__empty-day {
 		border: 1px solid rgba(255, 255, 255, .2);
-	}
-	&__current-day {
-		background: #eeedf7;
 	}
 	&__selected-day {
 		color: #fff;
@@ -170,6 +170,9 @@ export default {
 	}
 	&__event-selected-day {
 		border: var(--border-width) solid #fff;
+	}
+	&__range-day {
+		color: #fff;
 	}
 }
 </style>
