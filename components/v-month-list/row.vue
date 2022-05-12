@@ -1,5 +1,5 @@
 <template>
-	<div class="v2dp-month-row">
+	<div class="v2dp-row-month">
 		<VMonthCell v-for="date of row"
 			:key="date.id"
 			:date="date"
@@ -30,7 +30,7 @@ export default {
 }
 </script>
 <style lang="scss">
-	.v2dp-month-row {
+	.v2dp-row-month {
 		width: 100%;
 		display: flex;
 		justify-content: space-between;

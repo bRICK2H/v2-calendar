@@ -23,17 +23,6 @@
 			ref="v2dp-month-list"
 		>
 		
-			<!-- <VMonthItem v-for="date of getMonths"
-				:date="date"
-				:key="date.id"
-				:isMarkedDay="isMarkedDay"
-				@select-date="selectDate(date)"
-			>
-			
-				<slot v-bind="date" />
-				
-			</VMonthItem> -->
-
 			<VMonthRow v-for="(row, i) of getMonths"
 				:key="`${name}:${i}`"
 				:row="row"
@@ -53,13 +42,11 @@ import {
 	calcDayOffset
 } from '../../functions'
 
-// import VMonthItem from './item'
 import VMonthRow from './row'
 
 export default {
 	name: 'VMonthList',
 	components: {
-		// VMonthItem,
 		VMonthRow,
 	},
 	props: {
@@ -211,20 +198,18 @@ export default {
 					year,
 					name,
 					month,
-
-					isDisabledToRangeDay,
-					isRangeDay,
-					isFirstRangeDay,
-					isLastRangeDay,
-					isHiddenRangeFromNextDay,
-					isHiddenRangeToPrevDay,
-					
 					isEmptyDay,
 					isEventDay,
+					isRangeDay,
 					isCurrentDay,
 					isSelectedDay,
+					isLastRangeDay,
+					isFirstRangeDay,
 					isEventSelectedDay,
-					isVisibleCurrentMonth
+					isDisabledToRangeDay,
+					isVisibleCurrentMonth,
+					isHiddenRangeToPrevDay,
+					isHiddenRangeFromNextDay,
 				}
 			})
 
@@ -256,23 +241,12 @@ export default {
 				if (DOMRect !== undefined) {
 					const { width } = DOMRect
 
-					// const height = Math.floor(width / 7)
-					// const height = width / 7
-					const height = width
-
-					this.height = `${height}px`
-					this.fontSizeDay = `${Math.floor(height * .36)}px`
-					// this.borderWidth = `${Math.floor(height * .06)}px`
-					this.borderWidth = `${Math.floor(height * .06)}px`
-					this.offsetSizeDay = `${Math.floor(height * .17)}px`
-					this.fontSizeDayWeek = `${Math.floor(height * .3)}px`
-					this.offsetBottomDayWeek = `-${Math.floor(height * .06)}px`
-
-					// this.height = `${width}px`
-					// this.fontSizeDay = `${Math.floor(width * .42)}px`
-					// this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
-					// this.borderWidth = `${Math.floor(width * .07)}px`
-					// this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
+					this.height = `${width}px`
+					this.fontSizeDay = `${Math.floor(width * .36)}px`
+					this.borderWidth = `${Math.floor(width * .06)}px`
+					this.offsetSizeDay = `${Math.floor(width * .17)}px`
+					this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
+					this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
 				}
 			}
 
@@ -298,7 +272,7 @@ export default {
 		align-items: center;
 	}
 	.v2dp-week-name {
-		flex: 0 1 calc(100% / 7 - 7px);
+		flex: 1 1 100%;
 		font-size: var(--font-size-day-week);
 		text-align: center;
 		color: #b7b7cc;
@@ -306,10 +280,6 @@ export default {
 		justify-content: center;
 		align-items: flex-end;
 		position: relative;
-
-		&:not(:last-of-type) {
-			margin-right: 5px;
-		}
 	}
 	.v2dp-month-list {
 		display: flex;

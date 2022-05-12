@@ -5,6 +5,7 @@
 			'--height': height,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
+			'--offset-size-day': offsetSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
 			'--border-radius-outer': borderRadiusOuter,
 			'--border-radius-inner': borderRadiusInner,
@@ -12,7 +13,7 @@
 	>
 		
 
-		<VWeekItem v-for="date of getWeeks"
+		<VWeekCell v-for="date of getWeeks"
 			:date="date"
 			:key="date.id"
 			:isMarkedDay="isMarkedDay"
@@ -21,7 +22,7 @@
 
 			<slot v-bind="date"/>
 			
-		</VWeekItem>
+		</VWeekCell>
 
 	</div>
 </template>
@@ -33,12 +34,12 @@ import {
 	calcDayOffset
 } from '../../functions'
 
-import VWeekItem from './item'
+import VWeekCell from './cell'
 
 export default {
 	name: 'VWeekList',
 	components: {
-		VWeekItem
+		VWeekCell
 	},
 	props: {
 		name: {
@@ -82,6 +83,7 @@ export default {
 		height: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
+		offsetSizeDay: 0,
 		fontSizeDayWeek: 0,
 		borderRadiusOuter: 0,
 		borderRadiusInner: 0
@@ -159,10 +161,11 @@ export default {
 				if (DOMRect !== undefined) {
 					const { width } = DOMRect
 
-					this.height = `${width + (width / 1.5)}px`
-					this.fontSizeDay = `${Math.floor(width * .42)}px`
-					this.borderWidth = `${Math.floor(width * .07)}px`
-					this.fontSizeDayWeek = `${Math.floor(width * .3)}px`
+					this.height = `${width + (width / 2)}px`
+					this.fontSizeDay = `${Math.floor(width * .36)}px`
+					this.borderWidth = `${Math.floor(width * .06)}px`
+					this.offsetSizeDay = `${Math.floor(width * .17)}px`
+					this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
 					this.borderRadiusInner = `${Math.floor(width * .5)}px`
 					this.borderRadiusOuter = `${Math.floor(width * .55)}px`
 				}
