@@ -590,8 +590,6 @@
 			/**
 			 * 1. Проверить слоты
 			 * 2. Выдеделине при событии hover на календаре
-			 * 3. hover border-right bug
-			 * 4. inner border selected bug
 			 * 10. Набор даты (в последнюю очередь)
 			 */
 
@@ -611,6 +609,7 @@
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
+		-webkit-tap-highlight-color: rgba(0,0,0,0);
 	}
 
 	html {

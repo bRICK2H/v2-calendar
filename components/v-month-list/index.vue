@@ -1,10 +1,10 @@
 <template>
 	<div class="v2dp-month-container"
 		:style="{
-			'--height': height,
+			'--height-cell': heightCell,
+			'--size-day': sizeDay,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
-			'--offset-size-day': offsetSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
 			'--offset-bottom-day-week': offsetBottomDayWeek
 		}"
@@ -21,12 +21,17 @@
 
 		<div class="v2dp-month-list"
 			ref="v2dp-month-list"
+			@mouseleave="hoverDateRage = null"
 		>
 		
 			<VMonthRow v-for="(row, i) of getMonths"
 				:key="`${name}:${i}`"
 				:row="row"
+				:name="name"
 				:isMarkedDay="isMarkedDay"
+				:selectedDate="selectedDate"
+				:hoverDateRage="hoverDateRage"
+				@over-date="overDate"
 				@select-date="selectDate"
 			/>
 
@@ -100,12 +105,13 @@ export default {
 		}
 	},
 	data: () => ({
-		height: 0,
+		sizeDay: 0,
+		heightCell: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
-		offsetSizeDay: 0,
 		fontSizeDayWeek: 0,
 		offsetBottomDayWeek: 0,
+		hoverDateRage: null
 	}),
 	computed: {
 		firstCurrentDate() {
@@ -142,6 +148,7 @@ export default {
 			return this.createMonth(difineNextSize, firstDateOfNext)
 		},
 		getMonths() {
+			console.log('mon')
 			const ROW_COUNT = 6
 				,	CELL_COUNT = 7
 				,	ROWS = new Array(ROW_COUNT).fill(null)
@@ -220,6 +227,9 @@ export default {
 		selectDate({ date }) {
 			this.$emit('select-date', date, this.name)
 		},
+		overDate({ date }) {
+			this.hoverDateRage = date
+		},
 		createMonth(size, start) {
 			const array = new Array(size).fill(null)
 
@@ -235,22 +245,16 @@ export default {
 			const monthList = this.$refs['v2dp-month-list']
 
 			if (monthList) {
-				const item = monthList.firstChild.firstChild
-					,	DOMRect = item.getBoundingClientRect()
+				const width = Math.floor(monthList.offsetWidth / 7)
 
-				if (DOMRect !== undefined) {
-					const { width } = DOMRect
-
-					this.height = `${width}px`
-					this.fontSizeDay = `${Math.floor(width * .36)}px`
-					this.borderWidth = `${Math.floor(width * .06)}px`
-					this.offsetSizeDay = `${Math.floor(width * .17)}px`
-					this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
-					this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
-				}
+				this.heightCell = `${width}px`
+				this.sizeDay = `${Math.floor(width / 1.13)}px`
+				this.fontSizeDay = `${Math.floor(width * .36)}px`
+				this.borderWidth = `${Math.floor(width * .06)}px`
+				this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
+				this.offsetBottomDayWeek = `-${Math.floor(width * .06)}px`
 			}
-
-		}
+		},
 	},
 	watch: {
 		width() {
@@ -266,7 +270,7 @@ export default {
 
 <style lang="scss">
 	.v2dp-week-names {
-		height: calc(var(--height) / 1.5);
+		height: calc(var(--height-cell) / 1.5);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

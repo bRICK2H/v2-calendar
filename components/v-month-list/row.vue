@@ -3,7 +3,11 @@
 		<VMonthCell v-for="date of row"
 			:key="date.id"
 			:date="date"
+			:name="name"
 			:isMarkedDay="isMarkedDay"
+			:selectedDate="selectedDate"
+			:hoverDateRage="hoverDateRage"
+			@over-date="$emit('over-date', date)"
 			@select-date="$emit('select-date', date)"
 		/>
 	</div>
@@ -18,6 +22,10 @@ export default {
 		VMonthCell
 	},
 	props: {
+		name: {
+			type: String,
+			default: 'from'
+		},
 		row: {
 			type: Array,
 			default: () => ([])
@@ -26,7 +34,12 @@ export default {
 			type: Boolean,
 			default: true
 		},
-	}
+		selectedDate: {
+			type: Date,
+			default: new Date
+		},
+		hoverDateRage: null,
+	},
 }
 </script>
 <style lang="scss">

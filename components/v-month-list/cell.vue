@@ -1,10 +1,11 @@
 <template>
 	<div class="v2dp-cell-month"
-		:class="setClassCellMonth"
-		@click="select"
+		:class="[setClassCellMonth, setClassHoverRangeDay]"
 	>
 			<div class="v2dp-cell-month-content"
 				:class="setClassCellMonthContent"
+				@click="select"
+				@mouseenter="over"
 			>
 				
 				<span class="v2dp-cell-month-date"
@@ -24,6 +25,10 @@
 export default {
 	name: 'VMonthCell',
 	props: {
+		name: {
+			type: String,
+			default: 'from'
+		},
 		date: {
 			type: Object,
 			default: () => ({})
@@ -32,16 +37,46 @@ export default {
 			type: Boolean,
 			default: true
 		},
+		selectedDate: {
+			type: Date,
+			default: new Date
+		},
+		hoverDateRage: null
 	},
 	computed: {
+		setClassHoverRangeDay() {
+			if (!this.isMarkedDay || !this.hoverDateRage) return null
+			const CELL = 'v2dp-cell-month'
+				,	isFromHoverRangeDay = this.name === 'from'
+					&& this.date.date >= this.hoverDateRage
+					&& this.date.date < this.selectedDate
+				,	isFirstFromHoverRangeDay = isFromHoverRangeDay && this.date.date === this.hoverDateRage
+				,	isToHoverRangeDay = this.name === 'to'
+					&& this.date.date <= this.hoverDateRage
+					&& this.date.date > this.selectedDate
+				,	isLastToHoverRangeDay = isToHoverRangeDay && this.date.date === this.hoverDateRage
+
+			return {
+				[`${CELL}__from_hover-range-day`]: isFromHoverRangeDay,
+				[`${CELL}__first-from-hover-range-day`]: isFirstFromHoverRangeDay,
+				[`${CELL}__to_hover-range-day`]: isToHoverRangeDay,
+				[`${CELL}__last-to-hover-range-day`]: isLastToHoverRangeDay,
+			}
+		},
 		setClassCellMonth() {
 			if (!this.isMarkedDay) return null
 			const CELL = 'v2dp-cell-month'
-
+			const isFromHoverRangeDay = this.hoverDateRage
+					&& this.name === 'from'
+					&& this.hoverDateRage < this.selectedDate
+				,	isToHoverRangeDay = this.hoverDateRage
+					&& this.name === 'to'
+					&& this.hoverDateRage > this.selectedDate
+			
 			return {
 				[`${CELL}__range-day`]: this.date.isRangeDay,
-				[`${CELL}__last-range-day`]: this.date.isLastRangeDay,
-				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay,
+				[`${CELL}__last-range-day`]: this.date.isLastRangeDay && !isToHoverRangeDay,
+				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay && !isFromHoverRangeDay,
 				[`${CELL}__offset-day`]: !this.date.isVisibleCurrentMonth,
 				[`${CELL}__hidden-range-to-prev-day`]: this.date.isHiddenRangeToPrevDay,
 				[`${CELL}__hidden-range-from-next-day`]: this.date.isHiddenRangeFromNextDay,
@@ -77,7 +112,12 @@ export default {
 			if (!this.date.isDisabledToRangeDay) {
 				this.$emit('select-date')
 			}
-		}
+		},
+		over() {
+			if (!this.date.isDisabledToRangeDay) {
+				this.$emit('over-date')
+			}
+		},
 	}
 }
 </script>
@@ -85,18 +125,21 @@ export default {
 <style lang="scss">
 .v2dp-cell-month {
 	flex: 1 1 100%;
-	height: var(--height);
+	height: var(--height-cell);
 	display: flex;
 	justify-content: center;
 	align-items: center;
-
-	&__first-range-day {
-		border-top-left-radius: 40px;
-		border-bottom-left-radius: 40px;
+	position: relative;
+	
+	&__first-range-day,
+	&__first-from-hover-range-day  {
+		border-top-left-radius: var(--height-cell);
+		border-bottom-left-radius: var(--height-cell);
 	}
-	&__last-range-day {
-		border-top-right-radius: 40px;
-		border-bottom-right-radius: 40px;
+	&__last-range-day,
+	&__last-to-hover-range-day {
+		border-top-right-radius: var(--height-cell);
+		border-bottom-right-radius: var(--height-cell);
 	}
 	&__hidden-range-from-next-day,
 	&__hidden-range-to-prev-day {
@@ -105,19 +148,23 @@ export default {
 	&__range-day {
 		background: #4bbac5;
 	}
+	&__from_hover-range-day,
+	&__to_hover-range-day {
+		transition: background-color .2s;
+		background: #4bbac5;
+		opacity: .8;
+	}
 	&__offset-day {
-		opacity: .5;
+		opacity: .6;
 	}
 }
 
 .v2dp-cell-month-content {
-	width: calc(100% - var(--offset-size-day));
-	height: calc(100% - var(--offset-size-day));
+	width: var(--size-day);
+	height: var(--size-day);
 	border-radius: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	transition: box-shadow .2s;
+	position: relative;
 	cursor: pointer;
 
 	&:hover {
@@ -157,9 +204,12 @@ export default {
 	font-weight: 500;
 	color: #1f1f33;
 	font-size: var(--font-size-day);
+	position: absolute;
+	top: 0;
+	left: 0;
 	
 	&__empty-day {
-		border: 1px solid rgba(255, 255, 255, .2);
+		border: 1px solid rgba(255, 255, 255, .1);
 	}
 	&__selected-day {
 		color: #fff;

@@ -2,13 +2,12 @@
 	<div class="v2dp-week-list"
 		ref="v2dp-week-list"
 		:style="{
-			'--height': height,
+			'--width-day': widthDay,
+			'--height-day': heightDay,
+			'--height-cell': heightCell,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
-			'--offset-size-day': offsetSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
-			'--border-radius-outer': borderRadiusOuter,
-			'--border-radius-inner': borderRadiusInner,
 		}"
 	>
 		
@@ -80,13 +79,12 @@ export default {
 		}
 	},
 	data: () => ({
-		height: 0,
+		widthDay: 0,
+		heightDay: 0,
+		heightCell: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
-		offsetSizeDay: 0,
 		fontSizeDayWeek: 0,
-		borderRadiusOuter: 0,
-		borderRadiusInner: 0
 	}),
 	computed: {
 		getWeeks() {
@@ -155,20 +153,14 @@ export default {
 			const weekList = this.$refs['v2dp-week-list']
 
 			if (weekList) {
-				const item = weekList.firstChild
-					,	DOMRect = item.getBoundingClientRect()
+				const width = Math.floor(weekList.offsetWidth / 7)
 
-				if (DOMRect !== undefined) {
-					const { width } = DOMRect
-
-					this.height = `${width + (width / 2)}px`
-					this.fontSizeDay = `${Math.floor(width * .36)}px`
-					this.borderWidth = `${Math.floor(width * .06)}px`
-					this.offsetSizeDay = `${Math.floor(width * .17)}px`
-					this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
-					this.borderRadiusInner = `${Math.floor(width * .5)}px`
-					this.borderRadiusOuter = `${Math.floor(width * .55)}px`
-				}
+				this.heightCell = `${Math.floor(width * 1.7)}px`
+				this.widthDay = `${Math.floor(width / 1.13)}px`
+				this.fontSizeDay = `${Math.floor(width * .36)}px`
+				this.borderWidth = `${Math.floor(width * .06)}px`
+				this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
+				this.heightDay = `${Math.floor((width * 1.7) / 1.13)}px`
 			}
 		}
 	},

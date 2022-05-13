@@ -1,10 +1,10 @@
 <template>
 	<div class="v2dp-cell-week"
 		:class="setClassCellWeek"
-		@click="$emit('select-date')"
 	>
 		<div class="v2dp-cell-week-content"
 			:class="setClassCellWeekContent"
+			@click="$emit('select-date')"
 		>
 			<div class="v2dp-cell-week-date"
 				:class="setClassCellWeekDate"
@@ -76,7 +76,7 @@ export default {
 <style lang="scss">
 	.v2dp-cell-week {
 		flex: 1 1 100%;
-		height: var(--height);
+		height: var(--height-cell);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -86,12 +86,13 @@ export default {
 		}
 	}
 	.v2dp-cell-week-content {
-		width: calc(100% - var(--offset-size-day));
-		height: 100%;
-		border-radius: var(--border-radius-inner);
+		width: var(--width-day);
+		height: var(--height-day);
+		border-radius: var(--width-day);
 		font-weight: 500;
 		color: #1f1f33;
 		transition: box-shadow .2s;
+		position: relative;
 		cursor: pointer;
 		
 		&:hover {
@@ -118,12 +119,14 @@ export default {
 		flex-direction: column;
 		justify-content: space-evenly;
 		align-items: center;
-		border-radius: var(--border-radius-inner);
+		border-radius: var(--width-day);
 		font-weight: 500;
+		position: absolute;
+		top: 0;
+		left: 0;
 		
-
 		&__empty-day {
-			border: 1px solid rgba(255, 255, 255, .2);
+			border: 1px solid rgba(255, 255, 255, .1);
 		}
 		&__current-day {
 			background: #eeedf7;
