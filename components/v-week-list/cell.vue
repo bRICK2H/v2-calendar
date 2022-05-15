@@ -9,18 +9,20 @@
 			<div class="v2dp-cell-week-date"
 				:class="setClassCellWeekDate"
 			>
-				<span class="v2dp-cell-week-name">
-					{{ date.name }}
-				</span>
-				<span class="v2dp-cell-week-day">
-					{{ date.day }}
-				</span>
+				<!-- <slot> -->
+					<span class="v2dp-cell-week-name">
+						{{ date.name }}
+					</span>
+					<span class="v2dp-cell-week-day">
+						{{ date.day }}
+					</span>
+				<!-- </slot> -->
+			</div>
+
+			<div class="v2dp-slot-week-area">
+				<slot name="supp" v-bind="date"/>
 			</div>
 		</div>
-
-		<!-- <div class="v2dp-slot-week-area">
-			<slot></slot>
-		</div> -->
 	</div>
 </template>
 
@@ -156,12 +158,12 @@ export default {
 		color: #1f1f33;
 	}
 
-	.v2dp-slot-week-area {
-		width: 100%;
-		height: 100%;
-		position: absolute;
-		top: 0;
-		left: 0;
-		border-radius: var(--border-radius-inner);
-	}
+	// .v2dp-slot-week-area {
+	// 	width: 100%;
+	// 	height: 100%;
+	// 	position: absolute;
+	// 	top: 0;
+	// 	left: 0;
+	// 	border-radius: var(--border-radius-inner);
+	// }
 </style>

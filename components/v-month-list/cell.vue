@@ -22,6 +22,10 @@
 </template>
 
 <script>
+import {
+	splitDate,
+} from '../../functions'
+
 export default {
 	name: 'VMonthCell',
 	props: {
@@ -33,7 +37,15 @@ export default {
 			type: Object,
 			default: () => ({})
 		},
+		cList: {
+			type: Object,
+			default: () => ({})
+		},
 		isMarkedDay: {
+			type: Boolean,
+			default: true
+		},
+		isRangeMode: {
 			type: Boolean,
 			default: true
 		},
@@ -45,16 +57,45 @@ export default {
 	},
 	computed: {
 		setClassHoverRangeDay() {
-			if (!this.isMarkedDay || !this.hoverDateRage) return null
+			if (!this.isMarkedDay || !this.hoverDateRage || !this.isRangeMode) return null
 			const CELL = 'v2dp-cell-month'
+				,	{
+					_dateString: toSelectedDayString,
+				} = splitDate(this.cList.to.selectedDate)
+				,	{
+					_dateString: fromSelectedDayString,
+				} = splitDate(this.cList.from.selectedDate)
+				,	{
+					_dateString: hoverDayString,
+				} = splitDate(this.hoverDateRage)
+				,	{
+					_dateString: selectedDayString,
+				} = splitDate(this.selectedDate)
+				,	{
+					_dateString: dayString,
+				} = splitDate(this.date.date)
 				,	isFromHoverRangeDay = this.name === 'from'
-					&& this.date.date >= this.hoverDateRage
-					&& this.date.date < this.selectedDate
-				,	isFirstFromHoverRangeDay = isFromHoverRangeDay && this.date.date === this.hoverDateRage
+						&& hoverDayString !== selectedDayString
+						&& this.date.date >= this.hoverDateRage
+						&& (selectedDayString === toSelectedDayString	
+							? this.date.date <= this.selectedDate
+							: this.date.date < this.selectedDate)
+				,	isFirstToHoverRangeDay = this.hoverDateRage
+						&& this.name === 'to'
+						&& selectedDayString === fromSelectedDayString
+						&& dayString === selectedDayString
+				,	isFirstFromHoverRangeDay = (isFromHoverRangeDay && dayString === hoverDayString) || isFirstToHoverRangeDay
+				,	isLastFromHoverRangeDay = this.hoverDateRage
+						&& this.name === 'from'
+						&& selectedDayString === toSelectedDayString
+						&& dayString === selectedDayString
 				,	isToHoverRangeDay = this.name === 'to'
-					&& this.date.date <= this.hoverDateRage
-					&& this.date.date > this.selectedDate
-				,	isLastToHoverRangeDay = isToHoverRangeDay && this.date.date === this.hoverDateRage
+						&& hoverDayString !== selectedDayString
+						&& this.date.date <= this.hoverDateRage
+						&& (selectedDayString === fromSelectedDayString	
+							? this.date.date >= this.selectedDate
+							: this.date.date > this.selectedDate)
+				,	isLastToHoverRangeDay = (isToHoverRangeDay && dayString === hoverDayString) || isLastFromHoverRangeDay
 
 			return {
 				[`${CELL}__from_hover-range-day`]: isFromHoverRangeDay,
@@ -64,7 +105,7 @@ export default {
 			}
 		},
 		setClassCellMonth() {
-			if (!this.isMarkedDay) return null
+			if (!this.isMarkedDay || !this.isRangeMode) return null
 			const CELL = 'v2dp-cell-month'
 			const isFromHoverRangeDay = this.hoverDateRage
 					&& this.name === 'from'

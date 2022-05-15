@@ -28,7 +28,9 @@
 				:key="`${name}:${i}`"
 				:row="row"
 				:name="name"
+				:cList="cList"
 				:isMarkedDay="isMarkedDay"
+				:isRangeMode="isRangeMode"
 				:selectedDate="selectedDate"
 				:hoverDateRage="hoverDateRage"
 				@over-date="overDate"
@@ -148,11 +150,10 @@ export default {
 			return this.createMonth(difineNextSize, firstDateOfNext)
 		},
 		getMonths() {
-			console.log('mon')
 			const ROW_COUNT = 6
 				,	CELL_COUNT = 7
 				,	ROWS = new Array(ROW_COUNT).fill(null)
-				,	 {
+				,	{
 					_day: currentDay,
 					_year: currenYear,
 					_month: currenMonth

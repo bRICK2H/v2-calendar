@@ -43,7 +43,6 @@
 						:isRangeMode="isRangeMode"
 						@offset="offset"
 					/>
-
 					<transition name="toggle-multiple" mode="out-in">
 
 						<!-- Week -->
@@ -57,9 +56,8 @@
 							@select-date="selectDate"
 						>
 
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
+							<!-- slots -->
+							
 
 						</V2WeekList>
 
@@ -77,9 +75,7 @@
 							@select-date="selectDate"
 						>
 
-							<template v-slot="date">
-								<slot v-bind="date" />
-							</template>
+							<!-- slots -->
 
 						</V2MonthList>
 
@@ -231,8 +227,8 @@
 			inputValue: '',
 			todaysDate: null,
 
-			isAllowEventChanges: false,
 			isShowCalendar: false,
+			isAllowEventChanges: false,
 
 			weeks: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
 			months: [
@@ -540,9 +536,9 @@
 					this.сalculatedSizes()
 				}
 			},
-			mode() {
-				this.defineCalendarMode()
-				this.isAllowEventChanges = false
+			mode(mode) {
+				this.commonMode = mode
+				this.initDate()
 			},
 			format() {
 				if (this.isInput) this.setInputDate(this.getSelectedDays)
@@ -589,7 +585,7 @@
 
 			/**
 			 * 1. Проверить слоты
-			 * 2. Выдеделине при событии hover на календаре
+			 * 2. Разобраться с watch mode и проверить остальные
 			 * 10. Набор даты (в последнюю очередь)
 			 */
 

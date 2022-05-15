@@ -4,7 +4,9 @@
 			:key="date.id"
 			:date="date"
 			:name="name"
+			:cList="cList"
 			:isMarkedDay="isMarkedDay"
+			:isRangeMode="isRangeMode"
 			:selectedDate="selectedDate"
 			:hoverDateRage="hoverDateRage"
 			@over-date="$emit('over-date', date)"
@@ -30,7 +32,15 @@ export default {
 			type: Array,
 			default: () => ([])
 		},
+		cList: {
+			type: Object,
+			default: () => ({})
+		},
 		isMarkedDay: {
+			type: Boolean,
+			default: true
+		},
+		isRangeMode: {
 			type: Boolean,
 			default: true
 		},

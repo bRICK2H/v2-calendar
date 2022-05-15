@@ -19,7 +19,8 @@
 			@select-date="selectDate(date)"
 		>
 
-			<slot v-bind="date"/>
+			<!-- <slot v-bind="date"/> -->
+			<slot name="supp" v-bind="date"/>
 			
 		</VWeekCell>
 
