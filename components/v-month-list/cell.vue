@@ -8,15 +8,18 @@
 				@mouseenter="over"
 			>
 				
+				
 				<span class="v2dp-cell-month-date"
 					:class="setClassCellMonthDate"
 				>
-					{{ date.day }}
+					<slot name="clear" v-bind="date">
+						{{ date.day }}
+					</slot>
 				</span>
 			</div>
 
-			<div class="v2dp-month-slot-area">
-				<slot></slot>
+			<div class="v2dp-slot-month-complete">
+				<slot v-bind="date" />
 			</div>
 	</div>
 </template>
@@ -206,6 +209,7 @@ export default {
 	border-radius: 50%;
 	transition: box-shadow .2s;
 	position: relative;
+	z-index: 1;
 	cursor: pointer;
 
 	&:hover {
@@ -265,5 +269,13 @@ export default {
 	&__range-day {
 		color: #fff;
 	}
+}
+
+.v2dp-slot-month-complete {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 </style>

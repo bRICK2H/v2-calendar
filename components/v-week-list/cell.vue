@@ -9,19 +9,19 @@
 			<div class="v2dp-cell-week-date"
 				:class="setClassCellWeekDate"
 			>
-				<!-- <slot> -->
+				<slot name="clear" v-bind="date">
 					<span class="v2dp-cell-week-name">
 						{{ date.name }}
 					</span>
 					<span class="v2dp-cell-week-day">
 						{{ date.day }}
 					</span>
-				<!-- </slot> -->
+				</slot>
 			</div>
+		</div>
 
-			<div class="v2dp-slot-week-area">
-				<slot name="supp" v-bind="date"/>
-			</div>
+		<div class="v2dp-slot-week-complete">
+			<slot/>
 		</div>
 	</div>
 </template>
@@ -71,7 +71,7 @@ export default {
 				[`${CELL_DAY}__disabled-range-day`]: this.date.isDisabledToRangeDay,
 			}
 		}
-	}
+	},
 }
 </script>
 
@@ -82,6 +82,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		position: relative;
 
 		&__offset-day {
 			opacity: .5;
@@ -95,6 +96,7 @@ export default {
 		color: #1f1f33;
 		transition: box-shadow .2s;
 		position: relative;
+		z-index: 1;
 		cursor: pointer;
 		
 		&:hover {
@@ -158,12 +160,11 @@ export default {
 		color: #1f1f33;
 	}
 
-	// .v2dp-slot-week-area {
-	// 	width: 100%;
-	// 	height: 100%;
-	// 	position: absolute;
-	// 	top: 0;
-	// 	left: 0;
-	// 	border-radius: var(--border-radius-inner);
-	// }
+	.v2dp-slot-week-complete {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
 </style>

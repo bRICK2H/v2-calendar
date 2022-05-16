@@ -35,7 +35,15 @@
 				:hoverDateRage="hoverDateRage"
 				@over-date="overDate"
 				@select-date="selectDate"
-			/>
+			>
+				<template v-slot:clear="data">
+					<slot name="clear" v-bind="data" />
+				</template>							
+
+				<template v-slot:default="data">
+					<slot v-bind="data" />
+				</template>
+			</VMonthRow>
 
 		</div>
 		

@@ -56,8 +56,13 @@
 							@select-date="selectDate"
 						>
 
-							<!-- slots -->
-							
+							<template v-slot:clear="data">
+								<slot name="clear" v-bind="data" />
+							</template>							
+
+							<template v-slot:default="data">
+								<slot v-bind="data" />
+							</template>
 
 						</V2WeekList>
 
@@ -75,7 +80,13 @@
 							@select-date="selectDate"
 						>
 
-							<!-- slots -->
+							<template v-slot:clear="data">
+								<slot name="clear" v-bind="data" />
+							</template>							
+
+							<template v-slot:default="data">
+								<slot v-bind="data" />
+							</template>
 
 						</V2MonthList>
 
@@ -202,6 +213,28 @@
 			 * ? Event
 			 * 1. v-model работает в обычном режиме
 			 * 2. Возвращаемый event работает как для @input так и для @select (на выбор)
+			 
+			 * ? Slots
+			 * Реализовано 2 вида слотов
+			 * 1. default - никак не затрагивает внутренний контент,
+			 * 	предполагает реализацию некого расширения для каждой ячейки дня. (все данные по текущему дню есть)
+			 
+					<template v-slot="data">
+						<div style="border: 1px solid red; height: 100%">
+							{{ data.day }}
+						</div>
+					</template>
+					
+			 
+			 * 2. clear - стрирает внутренний контент,
+			 * 	предполагает реализицию собственной визуальной части (все данные по текущему дню есть)
+			 
+			 		<template v-slot:clear="data">
+						<div style="border: 1px solid blue">
+							{{ data.day }}
+						</div>
+					</template>
+			 
 			 */
 		},
 		data: () => ({
@@ -584,8 +617,7 @@
 			this.initDate()
 
 			/**
-			 * 1. Проверить слоты
-			 * 2. Разобраться с watch mode и проверить остальные
+			 * 1. Разобраться с watch mode и проверить остальные
 			 * 10. Набор даты (в последнюю очередь)
 			 */
 
