@@ -1,7 +1,19 @@
 <template>
 	<div class="v2dp-controls">
 		<p class="v2dp-controls-date">
-			{{ getMonth }} {{ currYear }}
+			<span class="v2dp-controls-month"
+				:class="setClassControlsMonth"
+				@click="$emit('open-months', name)"
+			>
+				{{ getMonth }}
+			</span>
+
+			<span class="v2dp-controls-year"
+				:class="setClassControlsYear"
+				@click="$emit('open-years', name)"
+			>
+				{{ currYear }}
+			</span>
 		</p>
 
 		<div class="v2dp-controls-buttons">
@@ -14,24 +26,27 @@
 					alt="curr-day" 
 				>
 			</button>
-			<button class="v2dp-controls-prevent"
-				@click="$emit('offset', { side: -1, days: 7, name })"
-				:disabled="isDisabledToRangeLeftControl"
-			>
-				<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
-					src="../../assets/img/svg/prev-day.svg"
-					alt="prev-day"
-					:class="{'v2dp-controls-icon-prevent__disabled' : isDisabledToRangeLeftControl }"
+
+			<template v-if="subMode !== 'months'">
+				<button class="v2dp-controls-prevent"
+					@click="$emit('offset', { side: -1, days: 7, name })"
+					:disabled="isDisabledToRangeLeftControl"
 				>
-			</button>
-			<button class="v2dp-controls-next"
-				@click="$emit('offset', { side: 1, days: 7, name })"
-			>
-				<img class="v2dp-controls-icon-toggle"
-					src="../../assets/img/svg/next-day.svg"
-					alt="next-day"
+					<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
+						src="../../assets/img/svg/prev-day.svg"
+						alt="prev-day"
+						:class="{'v2dp-controls-icon-prevent__disabled' : isDisabledToRangeLeftControl }"
+					>
+				</button>
+				<button class="v2dp-controls-next"
+					@click="$emit('offset', { side: 1, days: 7, name })"
 				>
-			</button>
+					<img class="v2dp-controls-icon-toggle"
+						src="../../assets/img/svg/next-day.svg"
+						alt="next-day"
+					>
+				</button>
+			</template>
 		</div>
 	</div>
 </template>
@@ -75,7 +90,14 @@ export default {
 			type: Array,
 			default: () => ([])
 		},
+		subMode: {
+			type: String,
+			default: ''
+		}
 	},
+	data: () => ({
+		mods: ['months', 'years']
+	}),
 	computed: {
 		getMonth() {
 			return this.months[this.currMonth]
@@ -115,6 +137,18 @@ export default {
 				
 			return this.name === 'to' && fromYear === this.currYear && fromMonth === this.currMonth
 		},
+		setClassControlsMonth() {
+			if (!this.mods.includes(this.subMode)) return 
+
+			return this.subMode === 'months'
+				? 'v2dp-controls-month--active' : 'v2dp-controls-month--opacity'
+		},
+		setClassControlsYear() {
+			if (!this.mods.includes(this.subMode)) return 
+			
+			return this.subMode === 'years'
+				? 'v2dp-controls-year--active' :	'v2dp-controls-year--opacity'
+		},
 	}
 }
 </script>
@@ -131,6 +165,43 @@ export default {
 	.v2dp-controls-date {
 		font-size: var(--font-size);
 		font-weight: 700;
+	}
+
+	.v2dp-controls-month {
+		margin-right: calc(var(--margin) / 2);
+	}
+
+	.v2dp-controls-month,
+	.v2dp-controls-year {
+		display: inline-flex;
+		cursor: pointer;
+		position: relative;
+
+		&:hover::after {
+			transition: background-color .2s;
+			background-color: #717177;
+		}
+
+		&::after {
+			content: '';
+			width: 100%;
+			height: var(--border-width);
+			border-radius: var(--border-width);
+			background: #dddde4;
+
+			position: absolute;
+			bottom: -3px;
+			left: 0;
+		}
+
+		&--active {
+			&::after {
+				background-color: #717177;
+			}
+		}
+		&--opacity {
+			opacity: .5;
+		}
 	}
 
 	.v2dp-controls-buttons {

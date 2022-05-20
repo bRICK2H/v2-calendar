@@ -24,7 +24,7 @@
 			@mouseleave="hoverDateRage = null"
 		>
 		
-			<VMonthRow v-for="(row, i) of getMonths"
+			<VMonthDayRow v-for="(row, i) of getMonthDays"
 				:key="`${name}:${i}`"
 				:row="row"
 				:name="name"
@@ -36,6 +36,7 @@
 				@over-date="overDate"
 				@select-date="selectDate"
 			>
+			
 				<template v-slot:clear="data">
 					<slot name="clear" v-bind="data" />
 				</template>							
@@ -43,7 +44,8 @@
 				<template v-slot:default="data">
 					<slot v-bind="data" />
 				</template>
-			</VMonthRow>
+				
+			</VMonthDayRow>
 
 		</div>
 		
@@ -55,14 +57,14 @@ import {
 	splitDate,
 	calcDayWeek,
 	calcDayOffset
-} from '../../functions'
+} from '../../../functions'
 
-import VMonthRow from './row'
+import VMonthDayRow from './row'
 
 export default {
-	name: 'VMonthList',
+	name: 'VMonthDayList',
 	components: {
-		VMonthRow,
+		VMonthDayRow,
 	},
 	props: {
 		name: {
@@ -138,12 +140,12 @@ export default {
 				Date.parse(this.firstCurrentDate) - calcDayOffset(this.firstCurrentDayWeek)
 			)
 
-			return this.createMonth(this.firstCurrentDayWeek, firstPreventDate)
+			return this.createMonthDays(this.firstCurrentDayWeek, firstPreventDate)
 		},
 		currentMonth() {
 			const	{ _day: lastCurrentDay } = splitDate(this.lastCurrentDate)
 
-			return this.createMonth(lastCurrentDay, this.firstCurrentDate)
+			return this.createMonthDays(lastCurrentDay, this.firstCurrentDate)
 		},
 		nextMonth() {
 			const	{ _day: lastCurrentDay } = splitDate(this.lastCurrentDate)
@@ -155,9 +157,9 @@ export default {
 				)
 				,	difineNextSize = isAdditionalRow ? nextSize + 7 : nextSize
 
-			return this.createMonth(difineNextSize, firstDateOfNext)
+			return this.createMonthDays(difineNextSize, firstDateOfNext)
 		},
-		getMonths() {
+		getMonthDays() {
 			const ROW_COUNT = 6
 				,	CELL_COUNT = 7
 				,	ROWS = new Array(ROW_COUNT).fill(null)
@@ -239,7 +241,7 @@ export default {
 		overDate({ date }) {
 			this.hoverDateRage = date
 		},
-		createMonth(size, start) {
+		createMonthDays(size, start) {
 			const array = new Array(size).fill(null)
 
 			return array.map((_, i) => {

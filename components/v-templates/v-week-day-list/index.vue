@@ -1,6 +1,6 @@
 <template>
-	<div class="v2dp-week-list"
-		ref="v2dp-week-list"
+	<div class="v2dp-week-day-list"
+		ref="v2dp-week-day-list"
 		:style="{
 			'--width-day': widthDay,
 			'--height-day': heightDay,
@@ -12,7 +12,7 @@
 	>
 		
 
-		<VWeekCell v-for="date of getWeeks"
+		<VWeekCell v-for="date of getWeekDays"
 			:date="date"
 			:key="date.id"
 			:isMarkedDay="isMarkedDay"
@@ -37,12 +37,12 @@
 import {
 	splitDate,
 	calcDayOffset
-} from '../../functions'
+} from '../../../functions'
 
 import VWeekCell from './cell'
 
 export default {
-	name: 'VWeekList',
+	name: 'VWeekDayList',
 	components: {
 		VWeekCell
 	},
@@ -93,8 +93,8 @@ export default {
 		fontSizeDayWeek: 0,
 	}),
 	computed: {
-		getWeeks() {
-			const weeks = this.createWeek(7, this.switchedDate)
+		getWeekDays() {
+			const weeks = this.createWeekDays(7, this.switchedDate)
 			,	{
 				_day: currentDay,
 				_year: currenYear,
@@ -144,7 +144,7 @@ export default {
 		selectDate({ date }) {
 			this.$emit('select-date', date, this.name)
 		},
-		createWeek(size, start) {
+		createWeekDays(size, start) {
 			const array = new Array(size).fill(null)
 
 			return array.map((_, i) => {
@@ -156,7 +156,7 @@ export default {
 			})
 		},
 		сalculatedSizes() {
-			const weekList = this.$refs['v2dp-week-list']
+			const weekList = this.$refs['v2dp-week-day-list']
 
 			if (weekList) {
 				const width = Math.floor(weekList.offsetWidth / 7)
@@ -183,7 +183,7 @@ export default {
 </script>
 
 <style lang="scss">
-	.v2dp-week-list {
+	.v2dp-week-day-list {
 		display: flex;
 		justify-content: space-between;
 	}

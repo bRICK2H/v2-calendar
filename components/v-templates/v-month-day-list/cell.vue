@@ -1,15 +1,15 @@
 <template>
-	<div class="v2dp-cell-month"
+	<div class="v2dp-cell-month-day"
 		:class="[setClassCellMonth, setClassHoverRangeDay]"
 	>
-			<div class="v2dp-cell-month-content"
+			<div class="v2dp-cell-month-day-content"
 				:class="setClassCellMonthContent"
 				@click="select"
 				@mouseenter="over"
 			>
 				
 				
-				<span class="v2dp-cell-month-date"
+				<span class="v2dp-cell-month-day-date"
 					:class="setClassCellMonthDate"
 				>
 					<slot name="clear" v-bind="date">
@@ -27,7 +27,7 @@
 <script>
 import {
 	splitDate,
-} from '../../functions'
+} from '../../../functions'
 
 export default {
 	name: 'VMonthCell',
@@ -61,7 +61,7 @@ export default {
 	computed: {
 		setClassHoverRangeDay() {
 			if (!this.isMarkedDay || !this.hoverDateRage || !this.isRangeMode) return null
-			const CELL = 'v2dp-cell-month'
+			const CELL = 'v2dp-cell-month-day'
 				,	{
 					_dateString: toSelectedDayString,
 				} = splitDate(this.cList.to.selectedDate)
@@ -108,8 +108,8 @@ export default {
 			}
 		},
 		setClassCellMonth() {
-			if (!this.isMarkedDay || !this.isRangeMode) return null
-			const CELL = 'v2dp-cell-month'
+			if (!this.isMarkedDay) return null
+			const CELL = 'v2dp-cell-month-day'
 			const isFromHoverRangeDay = this.hoverDateRage
 					&& this.name === 'from'
 					&& this.hoverDateRage < this.selectedDate
@@ -119,8 +119,8 @@ export default {
 			
 			return {
 				[`${CELL}__range-day`]: this.date.isRangeDay,
-				[`${CELL}__last-range-day`]: this.date.isLastRangeDay && !isToHoverRangeDay,
-				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay && !isFromHoverRangeDay,
+				[`${CELL}__last-range-day`]: this.date.isLastRangeDay && this.isRangeMode && !isToHoverRangeDay,
+				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay && this.isRangeMode && !isFromHoverRangeDay,
 				[`${CELL}__offset-day`]: !this.date.isVisibleCurrentMonth,
 				[`${CELL}__hidden-range-to-prev-day`]: this.date.isHiddenRangeToPrevDay,
 				[`${CELL}__hidden-range-from-next-day`]: this.date.isHiddenRangeFromNextDay,
@@ -128,7 +128,7 @@ export default {
 		},
 		setClassCellMonthContent() {
 			if (!this.isMarkedDay) return null
-			const CELL_CONTENT = 'v2dp-cell-month-content'
+			const CELL_CONTENT = 'v2dp-cell-month-day-content'
 
 			return {
 				[`${CELL_CONTENT}__event-day`]: this.date.isEventDay,
@@ -140,7 +140,7 @@ export default {
 		},
 		setClassCellMonthDate() {
 			if (!this.isMarkedDay) return null
-			const CELL_DATE = 'v2dp-cell-month-date'
+			const CELL_DATE = 'v2dp-cell-month-day-date'
 
 			return {
 				[`${CELL_DATE}__empty-day`]: this.date.isEmptyDay,
@@ -167,7 +167,7 @@ export default {
 </script>
 
 <style lang="scss">
-.v2dp-cell-month {
+.v2dp-cell-month-day {
 	flex: 1 1 100%;
 	height: var(--height-cell);
 	display: flex;
@@ -201,9 +201,12 @@ export default {
 	&__offset-day {
 		opacity: .6;
 	}
+
+	// border: 1px solid red !important;
+	// opacity: .2 !important;
 }
 
-.v2dp-cell-month-content {
+.v2dp-cell-month-day-content {
 	width: var(--size-day);
 	height: var(--size-day);
 	border-radius: 50%;
@@ -239,7 +242,7 @@ export default {
 	}
 }
 
-.v2dp-cell-month-date {
+.v2dp-cell-month-day-date {
 	width: 100%;
 	height: 100%;
 	display: flex;

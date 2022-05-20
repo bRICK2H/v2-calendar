@@ -4,6 +4,7 @@
 		:style="{
 			'--margin': margin,
 			'--font-size': fontSize,
+			'--border-width': borderWidth,
 			'--size-circle-toggle': sizeCircleToggle,
 			'--size-circle-current': sizeCircleCurrent,
 		}"
@@ -11,6 +12,7 @@
 
 		<!-- Input -->
 		<V2Input v-if="isInput"
+			:width="width"
 			v-model="inputValue"
 			@toggle-calendar="isShowCalendar = !isShowCalendar"
 		/>
@@ -39,56 +41,76 @@
 						v-bind="options"
 						:cList="cList"
 						:months="months"
+						:subMode="subMode"
 						:todaysDate="todaysDate"
 						:isRangeMode="isRangeMode"
 						@offset="offset"
+						@open-years="openYears"
+						@open-months="openMonths"
 					/>
 					<transition name="toggle-multiple" mode="out-in">
 
 						<!-- Week -->
-						<V2WeekList v-if="isWeekSubMode"
-							v-bind="options"
-							:width="width"
-							:weeks="weeks"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							@select-date="selectDate"
-						>
+						<template v-if="subMode === 'week'">
+							<V2WeekDayList
+								v-bind="options"
+								:width="width"
+								:weeks="weeks"
+								:selectedDates="dates"
+								:todaysDate="todaysDate"
+								:isMarkedDay="isMarkedDay"
+								@select-date="selectDate"
+							>
 
-							<template v-slot:clear="data">
-								<slot name="clear" v-bind="data" />
-							</template>							
+								<template v-slot:clear="data">
+									<slot name="clear" v-bind="data" />
+								</template>							
 
-							<template v-slot:default="data">
-								<slot v-bind="data" />
-							</template>
+								<template v-slot:default="data">
+									<slot v-bind="data" />
+								</template>
 
-						</V2WeekList>
+							</V2WeekDayList>
+						</template>
 
-						<!-- Month -->
-						<V2MonthList v-else
-							v-bind="options"
-							:width="width"
-							:weeks="weeks"
-							:months="months"
-							:cList="cList"
-							:selectedDates="dates"
-							:todaysDate="todaysDate"
-							:isMarkedDay="isMarkedDay"
-							:isRangeMode="isRangeMode"
-							@select-date="selectDate"
-						>
+						<!-- Month-day -->
+						<template v-else-if="subMode === 'month-day' && !options.isAdditionalMode">
+							<V2MonthDayList
+								v-bind="options"
+								:cList="cList"
+								:width="width"
+								:weeks="weeks"
+								:months="months"
+								:selectedDates="dates"
+								:todaysDate="todaysDate"
+								:isMarkedDay="isMarkedDay"
+								:isRangeMode="isRangeMode"
+								@select-date="selectDate"
+							>
 
-							<template v-slot:clear="data">
-								<slot name="clear" v-bind="data" />
-							</template>							
+								<template v-slot:clear="data">
+									<slot name="clear" v-bind="data" />
+								</template>							
 
-							<template v-slot:default="data">
-								<slot v-bind="data" />
-							</template>
+								<template v-slot:default="data">
+									<slot v-bind="data" />
+								</template>
 
-						</V2MonthList>
+							</V2MonthDayList>
+						</template>
+
+						<template v-else-if="additionalMode === 'months'">
+							<V2MonthsList
+								:months="months"
+								@close-months="month => closeMonths(options, month)"
+							/>
+						</template>
+
+						<template v-else-if="additionalMode === 'years'">
+							<div>
+								years
+							</div>
+						</template>
 
 					</transition>
 
@@ -109,27 +131,29 @@
 
 	import V2Input from './components/v-input'
 	import V2Controls from './components/v-controls'
-	import V2WeekList from './components/v-week-list'
-	import V2MonthList from './components/v-month-list'
+	import V2MonthsList from './components/v-templates/v-months-list'
+	import V2WeekDayList from './components/v-templates/v-week-day-list'
+	import V2MonthDayList from './components/v-templates/v-month-day-list'
 	import V2MultipleToggleMode from './components/v-multiple-toggle-mode'
 
 	export default {
 		name: 'V2DatePicker',
 		components: {
 			V2Input,
-			V2WeekList,
 			V2Controls,
-			V2MonthList,
+			V2MonthsList,
+			V2WeekDayList,
+			V2MonthDayList,
 			V2MultipleToggleMode
 		},
 		props: {
 			/**
 			 * Режим календаря
-			 * 1. single -	по умолчанию month
-			 * 	для сменты шаблона используем - single:week
+			 * 1. single -	по умолчанию month-day
+			 * 	для сменты шаблона используем - single:week || :months || :years
 			 * 2. multiple -	по умолчанию week
-			 * 	для сменты шаблона используем - multiple:month
-			 * 3. range - визуализирует только шаблон month
+			 * 	для сменты шаблона используем - multiple:month-day || :months || :years
+			 * 3. range - визуализирует только шаблон month-day
 			 */
 
 			mode: {
@@ -239,8 +263,9 @@
 		},
 		data: () => ({
 			subMode: '',
+			additionalMode: '',
 			commonMode: '',
-			subMods: ['month', 'week'],
+			subMods: ['month-day', 'week', 'months', 'years'],
 			cList: {
 				from: {
 					name: 'from',
@@ -249,11 +274,13 @@
 					currMonth: null,
 					switchedDate: null,
 					selectedDate: null,
+					isAdditionalMode: false
 				},
 			},
 
 			margin: 0,
 			fontSize: 0,
+			borderWidth: 0,
 			sizeCircleToggle: 0,
 			sizeCircleCurrent: 0,
 
@@ -307,6 +334,7 @@
 						currMonth: null,
 						switchedDate: null,
 						selectedDate: null,
+						isAdditionalMode: false
 					})
 					
 					const { to } = this.cList
@@ -367,10 +395,10 @@
 			offset({ side, days, name }) {
 				let date = null
 				const calendar = this.cList[name]
-					,	{ from, to } = this.cList
+					,	isCurrentMonth = side === 0 && days === 0
 
 				switch (this.subMode) {
-					case 'month': {
+					case 'month-day': {
 						const {
 							_day,
 							_month
@@ -387,7 +415,7 @@
 							Date.parse(calendar.switchedDate) + (calcDayOffset(days) * side)
 						)
 
-						date = side === 0 && days === 0
+						date = isCurrentMonth
 							? getDayWeekFirst(this.todaysDate)
 							: side > 0
 								? getDayWeekFirst(offsetDate)
@@ -396,7 +424,15 @@
 						break
 				}
 
-				if (!side && !days) {
+
+				this.updateOffset({ date, name, isCurrentMonth })
+
+			},
+
+			updateOffset({ date, name, isCurrentMonth }) {
+				const { from, to } = this.cList
+				
+				if (isCurrentMonth) {
 					this.updateDate(this.todaysDate, name)
 
 					if (this.isRangeMode) {
@@ -430,19 +466,6 @@
 					}
 				}
 			},
-			selectDate(date, name) {
-				const	{ to } = this.cList
-
-				this.updateDate(date, name)
-
-				if (this.isRangeMode) {
-					if (name === 'from') {
-						if (date > to.selectedDate) {
-							this.updateDate(date, 'to')
-						}
-					}
-				}
-			},
 			updateDate(date, name, isUpdateSelected = true) {
 				const {
 					_day,
@@ -461,17 +484,63 @@
 
 				return true
 			},
+			selectDate(date, name) {
+				const	{ to } = this.cList
+
+				this.updateDate(date, name)
+
+				if (this.isRangeMode) {
+					if (name === 'from') {
+						if (date > to.selectedDate) {
+							this.updateDate(date, 'to')
+						}
+					}
+				}
+			},
+			openMonths(name) {
+				
+				this.additionalMode = 'months'
+				this.cList[name].isAdditionalMode = true
+
+				// Закрывать режим месяцев, если открывается другое для Range
+				// if (this.isRangeMode) {
+				// 	const reverseName = name === 'from' ? 'to' : 'from'
+					
+				// 	if (this.cList[reverseName].isAdditionalMode) {
+				// 		this.cList[reverseName].isAdditionalMode = false
+				// 	}
+				// }
+			},
+			closeMonths(options, month) {
+				const {
+					name,
+					currDay,
+					currYear,
+					currMonth
+				} = options
+
+				if (month !== currMonth) {
+					const date = new Date(currYear, month, currDay)
+
+					this.updateOffset({ date, name, isCurrentMonth: false })
+				}
+
+				options.isAdditionalMode = false
+			},
+			openYears(name) {
+				// this.additionalMode = 'years'
+			},
 			multipleToggle(name) {
 				const calendar = this.cList[name]
 
 				this.updateDate(calendar.selectedDate, name)
-				this.subMode = this.subMode === 'week' ? 'month' : 'week'
+				this.subMode = this.subMode === 'week' ? 'month-day' : 'week'
 			},
 			defineCalendarMode() {
 				const [commonMode, subMode] = this.mode.split(':')
 					, defaultMods = {
-						range: 'month',
-						single: 'month',
+						range: 'month-day',
+						single: 'month-day',
 						multiple: 'week',
 					}
 
@@ -479,7 +548,7 @@
 
 				if (Object.keys(defaultMods).includes(commonMode)) {
 					if (commonMode === 'range') {
-						this.subMode = 'month'
+						this.subMode = defaultMods[commonMode]
 					} else if (subMode) {
 						if (this.subMods.includes(subMode)) {
 							this.subMode = subMode
@@ -532,16 +601,13 @@
 
 				if (calendarList) {
 					const [item] = calendarList
-						,	DOMRect = item?.getBoundingClientRect()
+						,	width = Math.floor(item.offsetWidth / 2)
 
-					if (DOMRect !== undefined) {
-						const { width } = DOMRect
-
-						this.margin = `${(Math.floor(width / 2) * .1)}px`
-						this.fontSize = `${Math.floor((width / 2) * .13)}px`
-						this.sizeCircleToggle = `${Math.floor((width / 2) * .15)}px`
-						this.sizeCircleCurrent = `${Math.floor((width / 2) * .13)}px`
-					}
+					this.margin = `${Math.floor(width * .1)}px`
+					this.borderWidth = `${Math.floor(width / 3  * .06)}px`
+					this.fontSize = `${Math.floor((width) * .13)}px`
+					this.sizeCircleToggle = `${Math.floor(width * .15)}px`
+					this.sizeCircleCurrent = `${Math.floor(width * .13)}px`
 				}
 			},
 			getFields(field) {
@@ -617,8 +683,14 @@
 			this.initDate()
 
 			/**
-			 * 1. Разобраться с watch mode и проверить остальные
-			 * 10. Набор даты (в последнюю очередь)
+			 * 1.1. Месяц/год продолжить разработку года (сделать формальную подсветку, хотябы текущий месяц)
+			 * 1.2 	Возможность блокировать isAdditionalMode из props
+			 * 2. Сделать вариант с input (не absolute а + relative)
+			 * 3. Параметр блокировки кнопки открытия календаря
+			 * 4. Дополнить параметрами input (width, height как минимум)
+			 * 5. Точки для событий, продумать структуру dates
+			 * 6. Разобраться с watch mode и проверить остальные
+			 * 7. Набор даты (в последнюю очередь create mask) будет включать в себя mask.
 			 */
 
 		},

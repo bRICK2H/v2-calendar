@@ -1,6 +1,6 @@
 <template>
-	<div class="v2dp-row-month">
-		<VMonthCell v-for="date of row"
+	<div class="v2dp-row-month-day">
+		<VMonthDayCell v-for="date of row"
 			:key="date.id"
 			:date="date"
 			:name="name"
@@ -19,17 +19,17 @@
 			<template v-slot:default="data">
 				<slot v-bind="data" />
 			</template>
-		</VMonthCell>
+		</VMonthDayCell>
 	</div>
 </template>
 
 <script>
-import VMonthCell from './cell.vue'
+import VMonthDayCell from './cell.vue'
 
 export default {
-	name: 'VMonthRow',
+	name: 'VMonthDayRow',
 	components: {
-		VMonthCell
+		VMonthDayCell
 	},
 	props: {
 		name: {
@@ -61,7 +61,7 @@ export default {
 }
 </script>
 <style lang="scss">
-	.v2dp-row-month {
+	.v2dp-row-month-day {
 		width: 100%;
 		display: flex;
 		justify-content: space-between;

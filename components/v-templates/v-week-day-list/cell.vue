@@ -28,7 +28,7 @@
 
 <script>
 export default {
-	name: 'VWeekCell',
+	name: 'VWeekDayCell',
 	props: {
 		date: {
 			type: Object,

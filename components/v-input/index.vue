@@ -1,5 +1,7 @@
 <template>
-	<div class="v2dp-input-container">
+	<div class="v2dp-input-container"
+		:style="setStyleInput"
+	>
 
 		<input class="v2dp-input-item"
 			type="text"
@@ -21,14 +23,25 @@
 export default {
 	name: 'VInput',
 	props: {
-		value: null
+		value: null,
+		width: {
+			type: [String, Number],
+			default: 300
+		}
+	},
+	computed: {
+		setStyleInput() {
+			return {
+				maxWidth: `${this.width}px`
+			}
+		}
 	}
 }
 </script>
 
 <style lang="scss">
 	.v2dp-input-container {
-		max-width: 300px;
+		// max-width: 300px;
 		margin: 5px;
 		display: flex;
 		align-items: center;
