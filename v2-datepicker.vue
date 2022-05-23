@@ -44,6 +44,8 @@
 						:subMode="subMode"
 						:todaysDate="todaysDate"
 						:isRangeMode="isRangeMode"
+						:additionalMode="additionalMode"
+
 						@offset="offset"
 						@open-years="openYears"
 						@open-months="openMonths"
@@ -51,7 +53,7 @@
 					<transition name="toggle-multiple" mode="out-in">
 
 						<!-- Week -->
-						<template v-if="subMode === 'week'">
+						<template v-if="subMode === 'week' && !options.isAdditionalMode">
 							<V2WeekDayList
 								v-bind="options"
 								:width="width"
@@ -101,8 +103,14 @@
 
 						<template v-else-if="additionalMode === 'months'">
 							<V2MonthsList
+								v-bind="options"
+								:cList="cList"
 								:months="months"
-								@close-months="month => closeMonths(options, month)"
+								:selectedDates="dates"
+								:todaysDate="todaysDate"
+								:isMarkedDay="isMarkedDay"
+								:isRangeMode="isRangeMode"
+								@select-month="month => selectMonth(options, month)"
 							/>
 						</template>
 
@@ -511,7 +519,7 @@
 				// 	}
 				// }
 			},
-			closeMonths(options, month) {
+			selectMonth(options, month) {
 				const {
 					name,
 					currDay,

@@ -93,7 +93,15 @@ export default {
 		subMode: {
 			type: String,
 			default: ''
-		}
+		},
+		isAdditionalMode: {
+			type: Boolean,
+			default: false
+		},
+		additionalMode: {
+			type: String,
+			default: ''
+		},
 	},
 	data: () => ({
 		mods: ['months', 'years']
@@ -138,15 +146,15 @@ export default {
 			return this.name === 'to' && fromYear === this.currYear && fromMonth === this.currMonth
 		},
 		setClassControlsMonth() {
-			if (!this.mods.includes(this.subMode)) return 
+			if (!this.isAdditionalMode) return 
 
-			return this.subMode === 'months'
+			return this.additionalMode === 'months'
 				? 'v2dp-controls-month--active' : 'v2dp-controls-month--opacity'
 		},
 		setClassControlsYear() {
-			if (!this.mods.includes(this.subMode)) return 
+			if (!this.isAdditionalMode) return 
 			
-			return this.subMode === 'years'
+			return this.additionalMode === 'years'
 				? 'v2dp-controls-year--active' :	'v2dp-controls-year--opacity'
 		},
 	}
