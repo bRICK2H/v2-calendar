@@ -105,6 +105,7 @@
 							<V2MonthsList
 								v-bind="options"
 								:cList="cList"
+								:width="width"
 								:months="months"
 								:selectedDates="dates"
 								:todaysDate="todaysDate"
@@ -505,20 +506,6 @@
 					}
 				}
 			},
-			openMonths(name) {
-				
-				this.additionalMode = 'months'
-				this.cList[name].isAdditionalMode = true
-
-				// Закрывать режим месяцев, если открывается другое для Range
-				// if (this.isRangeMode) {
-				// 	const reverseName = name === 'from' ? 'to' : 'from'
-					
-				// 	if (this.cList[reverseName].isAdditionalMode) {
-				// 		this.cList[reverseName].isAdditionalMode = false
-				// 	}
-				// }
-			},
 			selectMonth(options, month) {
 				const {
 					name,
@@ -534,6 +521,12 @@
 				}
 
 				options.isAdditionalMode = false
+			},
+			openMonths(name) {
+				const calendar = this.cList[name]
+				
+				this.additionalMode = 'months'
+				calendar.isAdditionalMode = !calendar.isAdditionalMode
 			},
 			openYears(name) {
 				// this.additionalMode = 'years'

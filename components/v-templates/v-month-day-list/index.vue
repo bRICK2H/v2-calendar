@@ -204,7 +204,7 @@ export default {
 				,	isFirstRangeDay = isRangeDay && fromSelectedString === _dateString
 				,	isLastRangeDay = isRangeDay && splitDate(this.cList.to.selectedDate)._dateString === _dateString
 				,	isDisabledToRangeDay = this.isRangeMode && this.name === 'to'
-						&& this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
+					&& this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
 				,	isRangeMonthExist = this.isRangeMode && this.cList.from.currYear === this.cList.to.currYear && this.cList.from.currMonth === this.cList.to.currMonth
 				,	isHiddenRangeFromNextDay = isRangeMonthExist && this.name === 'from' && date > this.lastCurrentDate
 				,	isHiddenRangeToPrevDay = isRangeMonthExist && this.name === 'to' && date < this.firstCurrentDate

@@ -2,11 +2,12 @@
 	<div class="v2dp-months-list"
 		ref="v2dp-months-list"
 		:style="{
-			'--margin': margin,
-			'--width-cell': widthCell,
 			'--height-cell': heightCell,
 			'--border-width': borderWidth,
+			'--margin-bottom': marginBottom,
 			'--border-radius': borderRadius,
+			'--width-content': widthContent,
+			'--height-content': heightContent,
 			'--font-size-month': fontSizeMonth,
 		}"
 	>
@@ -14,8 +15,10 @@
 			v-for="(month, i) of getMonthsList"
 			:key="month.name"
 			:month="month"
+			:hoverMonth="hoverMonth"
 			:isMarkedDay="isMarkedDay"
 			@select-month="$emit('select-month', i)"
+			@over-month="hoverMonth = month"
 		/>
 	</div>
 </template>
@@ -36,6 +39,10 @@ export default {
 			type: String,
 			default: 'from'
 		},
+		width: {
+			type: Number,
+			default: 0
+		},
 		months: {
 			type: Array,
 			default: () => ([])
@@ -43,6 +50,14 @@ export default {
 		cList: {
 			type: Object,
 			default: () => ({})
+		},
+		currDay: {
+			type: Number,
+			default: 0
+		},
+		currYear: {
+			type: Number,
+			default: 0
 		},
 		currMonth: {
 			type: Number,
@@ -53,6 +68,10 @@ export default {
 			default: new Date
 		},
 		selectedDate: {
+			type: Date,
+			default: new Date
+		},
+		switchedDate: {
 			type: Date,
 			default: new Date
 		},
@@ -70,69 +89,91 @@ export default {
 		}
 	},
 	data: () => ({
-		margin: 0,
-		widthCell: 0,
 		heightCell: 0,
 		borderWidth: 0,
 		borderRadius: 0,
+		widthContent: 0,
+		marginBottom: 0,
+		heightContent: 0,
 		fontSizeMonth: 0,
+
+		hoverMonth: null,
 	}),
 	computed: {
 		getMonthsList() {
 			const	{
 				_day: selectedDay,
 				_year: selectedYear,
-				_month: selectedMonth
+				_month: selectedMonth,
 			} = splitDate(this.selectedDate)
 			,	{
+				_year: todayYear,
 				_month: todayMonth
 			} = splitDate(this.todaysDate)
-			,	eventsMonths = [
-				...new Set(
-					this.selectedDates.map(date => {
-						const { _month } = splitDate(date)
-						return _month
-					})
-				)
-			]
-
-			const {
-				_day: toSelectedDay,
-				_year: toSelectedYear,
-				_month: toSelectedMonth,
-			} = splitDate(this.cList.to.selectedDate)
-			const {
-				_day: fromSelectedDay,
-				_year: fromSelectedYear,
-				_month: fromSelectedMonth,
-			} = splitDate(this.cList.from.selectedDate)
-
-			console.warn(eventsMonths, this.name)
+			,	eventsMonths = this.selectedDates.map(date => splitDate(date))
+			,	fromSelected = this.cList?.from?.selectedDate
+					? splitDate(this.cList.from.selectedDate)
+					: null
+			,	toSelected = this.cList?.to?.selectedDate
+					? splitDate(this.cList.to.selectedDate)
+					: null
+			,	fromDate = new Date(fromSelected._year, fromSelected._month, selectedDay)
+			,	toDate = new Date(toSelected._year, toSelected._month, selectedDay)
+			
+			// потом начало и конец и одиноковые и hover
 
 			return this.months.map((month, i) => {
-				console.log(this.cList.from.selectedDate, new Date(toSelectedYear, i, fromSelectedDay), this.currMonth)
-				const isCurrentMonth = i === todayMonth
+				const date = new Date(this.currYear, i, selectedDay)
+					,	isCurrentMonth = i === todayMonth
+							&& todayYear === this.currYear
 					,	isSelectedMonth = i === selectedMonth
-					,	isEventMonth = eventsMonths.includes(i)
+							&& selectedYear === this.currYear
+					,	isEventMonth = eventsMonths.some(({ _month, _year }) => {
+							return i === _month && this.currYear === _year
+						})
 					,	isEmptyMonth = !isSelectedMonth && !isEventMonth
-					,	isDisabledToRangeMonth = this.isRangeMode && this.name === 'to'
-					// ! ПРодумать disabledRAngeMonth при появлении и switched
-						// && this.cList.to.selectedDate > new Date(toSelectedYear, i, this.cList.from.currDay)
-
-						// && this.cList.from.selectedDate > new Date(toSelectedYear, i, fromSelectedDay)
-						// && this.cList.from.selectedDate >= new Date(toSelectedYear, i, toSelectedDay)
-						
-						// && this.cList.to.selectedDate.getMonth() > i && this.cList.from.selectedDate.getMonth() > i
-						// && this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
-						// && this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
-				
+					,	isDisabledToRangeMonth = this.isRangeMode
+							&& this.name === 'to'
+							&& i < fromSelected._month
+							&& toSelected._year <= fromSelected._year
+							&& this.currYear <= fromSelected._year
+					,	isRangeMonth = this.isRangeMode
+							&& toSelected
+							&& fromDate.toLocaleDateString() !== toDate.toLocaleDateString()
+							&& (
+								this.name === 'from'
+									&& this.selectedDate <= date
+									&& date <= toDate
+								|| this.name === 'to'
+									&& this.selectedDate >= date
+									&& fromDate <= date
+							)
+					
+					
+					// , 	isFirstRangeMonth = false
+					// , 	isLastRangeMonth = false
+					
+					, 	isFirstRangeMonth = isRangeMonth
+							&& fromSelected._month === i
+					, 	isLastRangeMonth = isRangeMonth
+							&& toSelected._month === i
+							
+					// , 	isFirstRangeMonth = this.isRangeMode && toSelected
+					// 		&& fromSelected._month === i
+					// , 	isLastRangeMonth = this.isRangeMode && toSelected
+					// 		&& toSelected._month === i
+				console.warn(fromSelected._dateString,  date.toLocaleDateString())
 				return {
 					index: i,
 					name: month,
+					isRangeMonth,
 					isEmptyMonth,
 					isEventMonth,
 					isCurrentMonth,
 					isSelectedMonth,
+					isLastRangeMonth,
+					isFirstRangeMonth,
+					year: selectedYear,
 					isDisabledToRangeMonth: isDisabledToRangeMonth,
 					isEventSelectedMonth: isEventMonth && isSelectedMonth
 				}
@@ -144,20 +185,19 @@ export default {
 			const weekList = this.$refs['v2dp-months-list']
 
 			if (weekList) {
-				// По окончанию разобраться с высостой
 				const containerWidth = weekList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
 					,	height = Math.floor(width / 1.5)
-					,	margin = Math.floor(width * .06)
 
 				this.heightCell = `${height}px`
 				this.borderRadius = `${height}px`
-				this.margin = `${Math.floor(margin)}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeMonth = `${Math.floor(width * .15)}px`
-				this.widthCell = `${Math.floor(width - (margin / 2))}px`
+				this.widthContent = `${Math.floor(width / 1.13)}px`
+				this.heightContent = `${Math.floor(height / 1.23)}px`
+				this.marginBottom = `${Math.floor(width - (width / 1.12))}px`
 			}
-		}
+		},
 	},
 	watch: {
 		width() {

@@ -18,6 +18,7 @@
 
 		<div class="v2dp-controls-buttons">
 			<button class="v2dp-controls-current"
+				:style="setStyleCurrentControl"
 				@click="$emit('offset', { side: 0, days: 0, name })"
 			>
 				<img class="v2dp-controls-icon-current"
@@ -27,7 +28,7 @@
 				>
 			</button>
 
-			<template v-if="subMode !== 'months'">
+			<template v-if="!isAdditionalMode || additionalMode !== 'months'">
 				<button class="v2dp-controls-prevent"
 					@click="$emit('offset', { side: -1, days: 7, name })"
 					:disabled="isDisabledToRangeLeftControl"
@@ -157,6 +158,12 @@ export default {
 			return this.additionalMode === 'years'
 				? 'v2dp-controls-year--active' :	'v2dp-controls-year--opacity'
 		},
+		setStyleCurrentControl() {
+			return {
+				marginRight: !this.isAdditionalMode
+					? 'calc(var(--margin) - 3px)' : 0
+				}
+		}
 	}
 }
 </script>
@@ -227,10 +234,6 @@ export default {
 		display: flex;
 		align-items: center;
 		cursor: pointer;
-	}
-
-	.v2dp-controls-current {
-		margin-right: calc(var(--margin) - 3px);
 	}
 
 	.v2dp-controls-prevent {

@@ -1,9 +1,11 @@
 <template>
   <div class="v2dp-cell-months"
-	@click="select"
+	:class="[setClassCellMonths, setClassCellHoverMonth]"
   >
 		<div class="v2dp-cell-months-content"
 			:class="setClassCellMonthsContent"
+			@click="select"
+			@mouseenter="over"
 		>
 			<div class="v2dp-cell-sub-months"
 				:class="setClassCellSubMonth"
@@ -18,6 +20,7 @@
 export default {
 	name: 'V2MonthsListCell',
 	props: {
+		hoverMonth: null,
 		month: {
 			type: Object,
 			default: () => ({})
@@ -28,6 +31,20 @@ export default {
 		},
 	},
 	computed: {
+		setClassCellHoverMonth() {
+			// console.log(this.hoverMonth)
+		},
+		setClassCellMonths() {
+			if (!this.isMarkedDay) return null
+			const CELL = 'v2dp-cell-months'
+
+			return {
+				[`${CELL}__range-month`]: this.month.isRangeMonth,
+				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth,
+				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth
+			}
+
+		},
 		setClassCellMonthsContent() {
 			if (!this.isMarkedDay) return null
 			const CELL_CONTENT = 'v2dp-cell-months-content'
@@ -48,6 +65,7 @@ export default {
 				[`${CELL_MONTH}__current-month`]: this.month.isCurrentMonth,
 				[`${CELL_MONTH}__selected-month`]: this.month.isSelectedMonth,
 				[`${CELL_MONTH}__event-selected-month`]: this.month.isEventSelectedMonth,
+				[`${CELL_MONTH}__range-month`]: this.month.isRangeMonth && !this.month.isCurrentMonth,
 				[`${CELL_MONTH}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
 			}
 		}
@@ -58,26 +76,51 @@ export default {
 				this.$emit('select-month')
 			}
 		},
+		over() {
+			if (!this.month.isDisabledToRangeMonth) {
+				// this.hoverMonth = this.month
+				this.$emit('over-month')
+			}
+		}
+
 	}
 }
 </script>
 
 <style lang="scss">
 	.v2dp-cell-months {
-		width: var(--width-cell);
+		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
 		font-size: var(--font-size-month);
-		margin-bottom: var(--margin);
 		cursor: pointer;
+
+		&:not(:nth-last-child(-n + 3)) {
+			margin-bottom: var(--margin-bottom);
+		}
 
 		display: flex;
 		justify-content: center;
 		align-items: center;
+
+		&__first-range-month,
+		&__first-from-hover-range-month  {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+		&__last-range-month,
+		&__last-to-hover-range-month {
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+		}
+
+		&__range-month {
+			background: #4bbac5;
+		}
 	}
 
 	.v2dp-cell-months-content {
-		width: calc(100% - 2px);
-		height: calc(100% - 2px);
+		width: var(--width-content);
+		height: var(--height-content);
 		border-radius: var(--border-radius);
 		transition: box-shadow .4s;
 		position: relative;
@@ -96,7 +139,7 @@ export default {
 			border: var(--border-width) solid #1f1f33;
 		}
 		&__selected-month {
-			box-shadow: 0 0 4px 0 #1f1f33;
+			box-shadow: 0 0 2px 0 #1f1f33;
 		}
 		&__disabled-range-month {
 			&:hover {
@@ -121,7 +164,7 @@ export default {
 		left: 0;
 
 		&__empty-month {
-			border: 1px solid rgba(255, 255, 255, 1);
+			border: 1px solid rgba(255, 255, 255, .1);
 		}
 		&__current-month {
 			background: #eeedf7;
@@ -143,6 +186,9 @@ export default {
 		}
 		&__event-selected-month {
 			border: var(--border-width) solid #fff;
+		}
+		&__range-month {
+			color: #fff;
 		}
 
 	}

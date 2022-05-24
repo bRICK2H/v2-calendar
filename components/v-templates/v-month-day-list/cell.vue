@@ -8,7 +8,6 @@
 				@mouseenter="over"
 			>
 				
-				
 				<span class="v2dp-cell-month-day-date"
 					:class="setClassCellMonthDate"
 				>
@@ -195,15 +194,12 @@ export default {
 	&__from_hover-range-day,
 	&__to_hover-range-day {
 		transition: background-color .2s;
-		background: #4bbac5;
+		background: #b9e6eb;
 		opacity: .8;
 	}
 	&__offset-day {
 		opacity: .6;
 	}
-
-	// border: 1px solid red !important;
-	// opacity: .2 !important;
 }
 
 .v2dp-cell-month-day-content {
