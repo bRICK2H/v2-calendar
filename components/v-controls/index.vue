@@ -183,7 +183,6 @@ export default {
 	},
 	methods: {
 		offset({ side, days, name }) {
-			console.error(this.subMode, this.isAdditionalMode, this.additionalMode)
 			this.$emit('offset', { side, days, name })
 		},
 		openAdditionalMode(mode) {

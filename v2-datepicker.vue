@@ -444,7 +444,7 @@
 				const calendar = this.cList[name]
 					,	isCurrentMonth = side === 0 && days === 0
 
-				console.warn(this.subMode)
+				console.warn(this.subMode, isCurrentMonth)
 				switch (this.subMode) {
 					case 'month-day': {
 						const {
@@ -472,9 +472,7 @@
 						break
 				}
 
-
 				this.updateOffset({ date, name, isCurrentMonth })
-
 			},
 
 			updateOffset({ date, name, isCurrentMonth }) {
@@ -492,7 +490,10 @@
 							}
 						} else if (name === 'to') {
 							if (date < from.selectedDate) {
+								console.log(1)
 								this.updateDate(date, 'from')
+							} else {
+								this.updateDate(from.selectedDate, 'from')
 							}
 						}
 					}
