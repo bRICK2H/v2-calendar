@@ -1,16 +1,22 @@
 <template>
 	<div class="v2dp-controls">
 		<p class="v2dp-controls-date">
-			<span class="v2dp-controls-month"
-				:class="setClassControlsMonth"
-				@click="$emit('open-additional-mode', name, 'months')"
+			<span class="v2dp-controls-link v2dp-controls-month"
+				:class="[
+					setClassAdditionalMode,
+					setClassControlsMonth,
+				]"
+				@click="openAdditionalMode('months')"
 			>
 				{{ getMonth }}
 			</span>
 
-			<span class="v2dp-controls-year"
-				:class="setClassControlsYear"
-				@click="$emit('open-additional-mode', name, 'years')"
+			<span class="v2dp-controls-link v2dp-controls-year"
+				:class="[
+					setClassAdditionalMode,
+					setClassControlsYear,
+				]"
+				@click="openAdditionalMode('years')"
 			>
 				{{ currYear }}
 			</span>
@@ -71,9 +77,9 @@ export default {
 			type: Object,
 			default: () => ({})
 		},
-		isRangeMode: {
-			type: Boolean,
-			default: false
+		months: {
+			type: Array,
+			default: () => ([])
 		},
 		currMonth: {
 			type: Number,
@@ -87,21 +93,25 @@ export default {
 			type: Date,
 			default: new Date()
 		},
-		months: {
-			type: Array,
-			default: () => ([])
-		},
 		subMode: {
 			type: String,
 			default: ''
+		},
+		additionalMode: {
+			type: String,
+			default: ''
+		},
+		isRangeMode: {
+			type: Boolean,
+			default: false
 		},
 		isAdditionalMode: {
 			type: Boolean,
 			default: false
 		},
-		additionalMode: {
-			type: String,
-			default: ''
+		isOuterAdditionalMode: {
+			type: Boolean,
+			default: true
 		},
 	},
 	data: () => ({
@@ -146,23 +156,36 @@ export default {
 				
 			return this.name === 'to' && fromYear === this.currYear && fromMonth === this.currMonth
 		},
+		setClassAdditionalMode() {
+			return this.isOuterAdditionalMode
+				? 'v2dp-controls-link--additional'
+				: null
+		},
 		setClassControlsMonth() {
-			if (!this.isAdditionalMode) return 
+			if (!this.isAdditionalMode || !this.isOuterAdditionalMode) return null
 
 			return this.additionalMode === 'months'
-				? 'v2dp-controls-month--active' : 'v2dp-controls-month--opacity'
+				? 'v2dp-controls-link--active' : 'v2dp-controls-link--opacity'
 		},
 		setClassControlsYear() {
-			if (!this.isAdditionalMode) return 
+			if (!this.isAdditionalMode || !this.isOuterAdditionalMode) return null
 			
 			return this.additionalMode === 'years'
-				? 'v2dp-controls-year--active' :	'v2dp-controls-year--opacity'
+				? 'v2dp-controls-link--active' :	'v2dp-controls-link--opacity'
 		},
 		setStyleCurrentControl() {
 			return {
-				marginRight: this.additionalMode !== 'months' || !this.isAdditionalMode
-					? 'calc(var(--margin) - 3px)' : 0
+				marginRight: this.additionalMode !== 'months'
+					|| (!this.isAdditionalMode && !this.isOuterAdditionalMode)
+						? 'calc(var(--margin) - 3px)' : 0
 				}
+		}
+	},
+	methods: {
+		openAdditionalMode(mode) {
+			if (this.isOuterAdditionalMode) {
+				this.$emit('open-additional-mode', this.name, mode)
+			}
 		}
 	}
 }
@@ -186,27 +209,29 @@ export default {
 		margin-right: calc(var(--margin) / 2);
 	}
 
-	.v2dp-controls-month,
-	.v2dp-controls-year {
+	.v2dp-controls-link {
 		display: inline-flex;
-		cursor: pointer;
-		position: relative;
 
-		&:hover::after {
-			transition: background-color .2s;
-			background-color: #717177;
-		}
-
-		&::after {
-			content: '';
-			width: 100%;
-			height: var(--border-width);
-			border-radius: var(--border-width);
-			background: #dddde4;
-
-			position: absolute;
-			bottom: -3px;
-			left: 0;
+		&--additional {
+			position: relative;
+			cursor: pointer;
+	
+			&:hover::after {
+				transition: background-color .2s;
+				background-color: #717177;
+			}
+	
+			&::after {
+				content: '';
+				width: 100%;
+				height: var(--border-width);
+				border-radius: var(--border-width);
+				background: #dddde4;
+	
+				position: absolute;
+				bottom: -3px;
+				left: 0;
+			}
 		}
 
 		&--active {

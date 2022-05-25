@@ -45,6 +45,7 @@
 						:subMode="subMode"
 						:todaysDate="todaysDate"
 						:isRangeMode="isRangeMode"
+						:isOuterAdditionalMode="isAdditionalMode"
 
 						@offset="offset"
 						@open-additional-mode="openAdditionalMode"
@@ -112,7 +113,7 @@
 								:todaysDate="todaysDate"
 								:isMarkedDay="isMarkedDay"
 								:isRangeMode="isRangeMode"
-								
+
 								@select-month="month => selectMonth(options, month)"
 							/>
 						</template>
@@ -164,7 +165,7 @@
 			 * 	для сменты шаблона используем - single:week || :months || :years
 			 * 2. multiple -	по умолчанию week
 			 * 	для сменты шаблона используем - multiple:month-day || :months || :years
-			 * 3. range - визуализирует только шаблон month-day
+			 * 3. range - визуализирует только шаблон month-day с дополнением типа :months || :years
 			 */
 
 			mode: {
@@ -218,15 +219,16 @@
 			},
 
 			/**
-			 * Сразуже открыть календарь при существовании инпута
+			 * Показать инпут. Вызов календаря происходит непосредственно из него. 
 			 */
 
-			isImmediateOpen: {
+			isInput: {
 				type: Boolean,
-				default: false
+				default: true
 			},
+
 			/**
-			 * Отменить день. Включает в себя текущий, выбранный или событийный день
+			 * Включить всевозможные события дня (текущий, выбранный или день с каким либо событием)
 			 */
 
 			isMarkedDay: {
@@ -235,13 +237,21 @@
 			},
 
 			/**
-			 * Показать инпут. Вызов календаря происходит непосредственно из него. 
+			 * Включить мод открытия дополнительных шаблонов (months, years)
 			 */
 
-			isInput: {
+			isAdditionalMode: {
 				type: Boolean,
 				default: true
-			}
+			},
+			/**
+			 * Скрыть (при инициализации) календарь при ключеном инпуте
+			 */
+
+			isImmediateOpen: {
+				type: Boolean,
+				default: false
+			},
 
 			/**
 			 * TODO: Информация о slots и events
@@ -274,8 +284,8 @@
 		},
 		data: () => ({
 			subMode: '',
-			// additionalMode: '',
 			commonMode: '',
+			additionalMods: ['months', 'years'],
 			subMods: ['month-day', 'week', 'months', 'years'],
 			cList: {
 				from: {
@@ -403,6 +413,20 @@
 					if (date) {
 						this.updateDate(date, name, false)
 					}
+				}
+
+				if (this.isAdditionalMode) {
+					const isExistMode = this.additionalMods.includes(this.subMode)
+					
+
+					this.cList.from.additionalMode = isExistMode ? this.subMode : ''
+					this.cList.from.isAdditionalMode = isExistMode ? true : false
+
+					if (this.isRangeMode) {
+						this.cList.to.additionalMode = isExistMode ? this.subMode : ''
+						this.cList.to.isAdditionalMode =  isExistMode ? true : false
+					}
+
 				}
 			},
 			offset({ side, days, name }) {
@@ -553,7 +577,11 @@
 
 				if (Object.keys(defaultMods).includes(commonMode)) {
 					if (commonMode === 'range') {
-						this.subMode = defaultMods[commonMode]
+						if (this.additionalMods.includes(subMode) && this.isAdditionalMode) {
+							this.subMode = subMode
+						} else {
+							this.subMode = defaultMods[commonMode]
+						}
 					} else if (subMode) {
 						if (this.subMods.includes(subMode)) {
 							this.subMode = subMode
@@ -646,6 +674,9 @@
 			},
 			format() {
 				if (this.isInput) this.setInputDate(this.getSelectedDays)
+			},
+			isAdditionalMode() {
+				this.initDate()
 			},
 			isRangeMode: {
 				immediate: true,
