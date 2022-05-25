@@ -143,7 +143,6 @@ export default {
 		},
 		over() {
 			if (!this.month.isDisabledToRangeMonth) {
-				// this.hoverMonth = this.month
 				this.$emit('over-month')
 			}
 		}

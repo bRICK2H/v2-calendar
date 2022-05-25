@@ -7,6 +7,7 @@
 			type="text"
 			placeholder="Выберите дату"
 			:value="value"
+			:disabled="true"
 			@input="$emit('input', $event.target.value)"
 		>
 		

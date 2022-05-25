@@ -10,6 +10,8 @@
 			'--height-content': heightContent,
 			'--font-size-month': fontSizeMonth,
 		}"
+
+		@mouseleave="hoverMonth = null"
 	>
 		<V2MonthsListCell
 			v-for="(month, i) of getMonthsList"
@@ -20,6 +22,7 @@
 			:hoverMonth="hoverMonth"
 			:isMarkedDay="isMarkedDay"
 			:isRangeMode="isRangeMode"
+
 			@select-month="$emit('select-month', i)"
 			@over-month="hoverMonth = month"
 		/>
@@ -114,7 +117,7 @@ export default {
 				_year: todayYear,
 				_month: todayMonth
 			} = splitDate(this.todaysDate)
-			,	eventsMonths = this.selectedDates.map(date => splitDate(date))
+			,	eventMonths = this.selectedDates.map(date => splitDate(date))
 			,	fromSelected = this.cList?.from?.selectedDate
 					? splitDate(this.cList.from.selectedDate)
 					: null
@@ -127,17 +130,17 @@ export default {
 					: null
 			,	isRange = this.isRangeMode && toSelected && toDate
 			
-			// потом начало и конец и одиноковые и hover
 			return this.months.map((month, i) => {
 				const date = new Date(this.currYear, i, selectedDay)
 					,	isCurrentMonth = i === todayMonth
 							&& todayYear === this.currYear
 					,	isSelectedMonth = i === selectedMonth
 							&& selectedYear === this.currYear
-					,	isEventMonth = eventsMonths.some(({ _month, _year }) => {
+					,	isEventMonth = eventMonths.some(({ _month, _year }) => {
 							return i === _month && this.currYear === _year
 						})
 					,	isEmptyMonth = !isSelectedMonth && !isEventMonth
+					,	isEventSelectedMonth = isEventMonth && isSelectedMonth
 					,	isDisabledToRangeMonth = isRange
 							&& this.name === 'to'
 							&& i < fromSelected._month
@@ -173,17 +176,17 @@ export default {
 				return {
 					index: i,
 					name: month,
+					selectedMonth,
+					
 					isRangeMonth,
 					isEmptyMonth,
 					isEventMonth,
-					selectedMonth,
 					isCurrentMonth,
 					isSelectedMonth,
 					isLastRangeMonth,
 					isFirstRangeMonth,
-					year: selectedYear,
-					isDisabledToRangeMonth: isDisabledToRangeMonth,
-					isEventSelectedMonth: isEventMonth && isSelectedMonth
+					isEventSelectedMonth,
+					isDisabledToRangeMonth,
 				}
 			})
 		}

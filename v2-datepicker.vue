@@ -119,9 +119,17 @@
 						</template>
 
 						<template v-else-if="options.additionalMode === 'years'">
-							<div>
-								years
-							</div>
+							<V2YearsList
+								v-bind="options"
+								:cList="cList"
+								:width="width"
+								:selectedDates="dates"
+								:todaysDate="todaysDate"
+								:isMarkedDay="isMarkedDay"
+								:isRangeMode="isRangeMode"
+
+								@select-year="year => selectYear(options, year)"
+							/>
 						</template>
 
 					</transition>
@@ -143,6 +151,7 @@
 
 	import V2Input from './components/v-input'
 	import V2Controls from './components/v-controls'
+	import V2YearsList from './components/v-templates/v-years-list'
 	import V2MonthsList from './components/v-templates/v-months-list'
 	import V2WeekDayList from './components/v-templates/v-week-day-list'
 	import V2MonthDayList from './components/v-templates/v-month-day-list'
@@ -153,6 +162,7 @@
 		components: {
 			V2Input,
 			V2Controls,
+			V2YearsList,
 			V2MonthsList,
 			V2WeekDayList,
 			V2MonthDayList,
@@ -434,14 +444,15 @@
 				const calendar = this.cList[name]
 					,	isCurrentMonth = side === 0 && days === 0
 
+				console.warn(this.subMode)
 				switch (this.subMode) {
 					case 'month-day': {
 						const {
 							_day,
 							_month
 						} = splitDate(this.todaysDate)
-							, day = side === 0 ? _day : 1
-							, month = side === 0 ? _month : calendar.currMonth + side
+						,	day = side === 0 ? _day : 1
+						,	month = side === 0 ? _month : calendar.currMonth + side
 
 						date = new Date(calendar.currYear, month, day)
 					}
@@ -544,6 +555,22 @@
 
 				if (month !== currMonth) {
 					const date = new Date(currYear, month, currDay)
+
+					this.updateOffset({ date, name, isCurrentMonth: false })
+				}
+
+				options.isAdditionalMode = false
+			},
+			selectYear(options, year) {
+				const {
+					name,
+					currDay,
+					currYear,
+					currMonth
+				} = options
+
+				if (year !== currYear) {
+					const date = new Date(year, currMonth, currDay)
 
 					this.updateOffset({ date, name, isCurrentMonth: false })
 				}

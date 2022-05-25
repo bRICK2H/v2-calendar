@@ -25,7 +25,7 @@
 		<div class="v2dp-controls-buttons">
 			<button class="v2dp-controls-current"
 				:style="setStyleCurrentControl"
-				@click="$emit('offset', { side: 0, days: 0, name })"
+				@click="offset({ side: 0, days: 0, name })"
 			>
 				<img class="v2dp-controls-icon-current"
 					:style="setStyleOffsetSpace"
@@ -36,7 +36,7 @@
 
 			<template v-if="!isAdditionalMode || additionalMode !== 'months'">
 				<button class="v2dp-controls-prevent"
-					@click="$emit('offset', { side: -1, days: 7, name })"
+					@click="offset({ side: -1, days: 7, name })"
 					:disabled="isDisabledToRangeLeftControl"
 				>
 					<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
@@ -46,7 +46,7 @@
 					>
 				</button>
 				<button class="v2dp-controls-next"
-					@click="$emit('offset', { side: 1, days: 7, name })"
+					@click="offset({ side: 1, days: 7, name })"
 				>
 					<img class="v2dp-controls-icon-toggle"
 						src="../../assets/img/svg/next-day.svg"
@@ -176,12 +176,16 @@ export default {
 		setStyleCurrentControl() {
 			return {
 				marginRight: this.additionalMode !== 'months'
-					|| (!this.isAdditionalMode && !this.isOuterAdditionalMode)
+					|| (!this.isAdditionalMode || !this.isOuterAdditionalMode)
 						? 'calc(var(--margin) - 3px)' : 0
 				}
 		}
 	},
 	methods: {
+		offset({ side, days, name }) {
+			console.error(this.subMode, this.isAdditionalMode, this.additionalMode)
+			this.$emit('offset', { side, days, name })
+		},
 		openAdditionalMode(mode) {
 			if (this.isOuterAdditionalMode) {
 				this.$emit('open-additional-mode', this.name, mode)
@@ -203,6 +207,8 @@ export default {
 	.v2dp-controls-date {
 		font-size: var(--font-size);
 		font-weight: 700;
+		display: flex;
+    	align-items: flex-end;
 	}
 
 	.v2dp-controls-month {
@@ -241,6 +247,11 @@ export default {
 		}
 		&--opacity {
 			opacity: .5;
+			font-size: calc(var(--font-size) * .7);
+
+			&::after {
+				height: calc(var(--border-width) * .7);
+			}
 		}
 	}
 
