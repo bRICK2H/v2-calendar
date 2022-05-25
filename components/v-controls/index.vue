@@ -3,14 +3,14 @@
 		<p class="v2dp-controls-date">
 			<span class="v2dp-controls-month"
 				:class="setClassControlsMonth"
-				@click="$emit('open-months', name)"
+				@click="$emit('open-additional-mode', name, 'months')"
 			>
 				{{ getMonth }}
 			</span>
 
 			<span class="v2dp-controls-year"
 				:class="setClassControlsYear"
-				@click="$emit('open-years', name)"
+				@click="$emit('open-additional-mode', name, 'years')"
 			>
 				{{ currYear }}
 			</span>
@@ -160,7 +160,7 @@ export default {
 		},
 		setStyleCurrentControl() {
 			return {
-				marginRight: !this.isAdditionalMode
+				marginRight: this.additionalMode !== 'months' || !this.isAdditionalMode
 					? 'calc(var(--margin) - 3px)' : 0
 				}
 		}

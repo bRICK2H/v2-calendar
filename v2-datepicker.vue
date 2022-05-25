@@ -14,6 +14,7 @@
 		<V2Input v-if="isInput"
 			:width="width"
 			v-model="inputValue"
+
 			@toggle-calendar="isShowCalendar = !isShowCalendar"
 		/>
 
@@ -44,11 +45,9 @@
 						:subMode="subMode"
 						:todaysDate="todaysDate"
 						:isRangeMode="isRangeMode"
-						:additionalMode="additionalMode"
 
 						@offset="offset"
-						@open-years="openYears"
-						@open-months="openMonths"
+						@open-additional-mode="openAdditionalMode"
 					/>
 					<transition name="toggle-multiple" mode="out-in">
 
@@ -61,6 +60,7 @@
 								:selectedDates="dates"
 								:todaysDate="todaysDate"
 								:isMarkedDay="isMarkedDay"
+
 								@select-date="selectDate"
 							>
 
@@ -87,6 +87,7 @@
 								:todaysDate="todaysDate"
 								:isMarkedDay="isMarkedDay"
 								:isRangeMode="isRangeMode"
+
 								@select-date="selectDate"
 							>
 
@@ -101,7 +102,7 @@
 							</V2MonthDayList>
 						</template>
 
-						<template v-else-if="additionalMode === 'months'">
+						<template v-else-if="options.additionalMode === 'months'">
 							<V2MonthsList
 								v-bind="options"
 								:cList="cList"
@@ -111,11 +112,12 @@
 								:todaysDate="todaysDate"
 								:isMarkedDay="isMarkedDay"
 								:isRangeMode="isRangeMode"
+								
 								@select-month="month => selectMonth(options, month)"
 							/>
 						</template>
 
-						<template v-else-if="additionalMode === 'years'">
+						<template v-else-if="options.additionalMode === 'years'">
 							<div>
 								years
 							</div>
@@ -272,7 +274,7 @@
 		},
 		data: () => ({
 			subMode: '',
-			additionalMode: '',
+			// additionalMode: '',
 			commonMode: '',
 			subMods: ['month-day', 'week', 'months', 'years'],
 			cList: {
@@ -283,6 +285,7 @@
 					currMonth: null,
 					switchedDate: null,
 					selectedDate: null,
+					additionalMode: '',
 					isAdditionalMode: false
 				},
 			},
@@ -343,6 +346,7 @@
 						currMonth: null,
 						switchedDate: null,
 						selectedDate: null,
+						additionalMode: '',
 						isAdditionalMode: false
 					})
 					
@@ -522,14 +526,14 @@
 
 				options.isAdditionalMode = false
 			},
-			openMonths(name) {
+			openAdditionalMode(name, mode) {
 				const calendar = this.cList[name]
 				
-				this.additionalMode = 'months'
-				calendar.isAdditionalMode = !calendar.isAdditionalMode
-			},
-			openYears(name) {
-				// this.additionalMode = 'years'
+				calendar.isAdditionalMode = calendar.additionalMode !== mode
+					? true
+					: !calendar.isAdditionalMode
+
+				calendar.additionalMode = mode
 			},
 			multipleToggle(name) {
 				const calendar = this.cList[name]
