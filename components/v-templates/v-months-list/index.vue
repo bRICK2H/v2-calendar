@@ -14,9 +14,12 @@
 		<V2MonthsListCell
 			v-for="(month, i) of getMonthsList"
 			:key="month.name"
+			:name="name"
 			:month="month"
+			:cList="cList"
 			:hoverMonth="hoverMonth"
 			:isMarkedDay="isMarkedDay"
+			:isRangeMode="isRangeMode"
 			@select-month="$emit('select-month', i)"
 			@over-month="hoverMonth = month"
 		/>
@@ -105,6 +108,7 @@ export default {
 				_day: selectedDay,
 				_year: selectedYear,
 				_month: selectedMonth,
+				_dateString: selectedDateString,
 			} = splitDate(this.selectedDate)
 			,	{
 				_year: todayYear,
@@ -118,10 +122,12 @@ export default {
 					? splitDate(this.cList.to.selectedDate)
 					: null
 			,	fromDate = new Date(fromSelected._year, fromSelected._month, selectedDay)
-			,	toDate = new Date(toSelected._year, toSelected._month, selectedDay)
+			,	toDate = toSelected
+					? new Date(toSelected._year, toSelected._month, selectedDay)
+					: null
+			,	isRange = this.isRangeMode && toSelected && toDate
 			
 			// потом начало и конец и одиноковые и hover
-
 			return this.months.map((month, i) => {
 				const date = new Date(this.currYear, i, selectedDay)
 					,	isCurrentMonth = i === todayMonth
@@ -132,13 +138,12 @@ export default {
 							return i === _month && this.currYear === _year
 						})
 					,	isEmptyMonth = !isSelectedMonth && !isEventMonth
-					,	isDisabledToRangeMonth = this.isRangeMode
+					,	isDisabledToRangeMonth = isRange
 							&& this.name === 'to'
 							&& i < fromSelected._month
 							&& toSelected._year <= fromSelected._year
 							&& this.currYear <= fromSelected._year
-					,	isRangeMonth = this.isRangeMode
-							&& toSelected
+					,	isRangeMonth = isRange
 							&& fromDate.toLocaleDateString() !== toDate.toLocaleDateString()
 							&& (
 								this.name === 'from'
@@ -148,27 +153,30 @@ export default {
 									&& this.selectedDate >= date
 									&& fromDate <= date
 							)
-					
-					
-					// , 	isFirstRangeMonth = false
-					// , 	isLastRangeMonth = false
-					
-					, 	isFirstRangeMonth = isRangeMonth
-							&& fromSelected._month === i
-					, 	isLastRangeMonth = isRangeMonth
-							&& toSelected._month === i
-							
-					// , 	isFirstRangeMonth = this.isRangeMode && toSelected
-					// 		&& fromSelected._month === i
-					// , 	isLastRangeMonth = this.isRangeMode && toSelected
-					// 		&& toSelected._month === i
-				console.warn(fromSelected._dateString,  date.toLocaleDateString())
+					, 	isFirstRangeMonth = isRange
+							&& (
+								this.name === 'from'
+									&& selectedDateString === date.toLocaleDateString()
+								|| this.name === 'to'
+									&& fromSelected._year === this.currYear
+									&& fromSelected._month === i
+							)
+					, 	isLastRangeMonth = isRange
+							&& (
+								this.name === 'to'
+									&& selectedDateString === date.toLocaleDateString()
+								|| this.name === 'from'
+									&& toSelected._year === this.currYear
+									&& toSelected._month === i
+							)
+
 				return {
 					index: i,
 					name: month,
 					isRangeMonth,
 					isEmptyMonth,
 					isEventMonth,
+					selectedMonth,
 					isCurrentMonth,
 					isSelectedMonth,
 					isLastRangeMonth,

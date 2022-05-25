@@ -193,21 +193,44 @@ export default {
 				,	name = this.weeks[calcDayWeek(date)]
 				,	isVisibleCurrentMonth = this.currMonth === month
 				,	isEventDay = preSelectedStringDates.includes(_dateString)
-				,	isSelectedDay = selectedDay === day && selectedMonth === month && selectedYear === year
-				,	isEventSelectedDay = isSelectedDay && isEventDay
-				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
-				,	isCurrentDay = currentDay === day && currenMonth === month && currenYear === year
-
-				,	isRangeDay = this.isRangeMode && splitDate(this.cList.to.selectedDate)._dateString !== fromSelectedString
-						&& (this.name === 'from' && this.selectedDate <= date && date <= this.cList.to.selectedDate
-						|| this.name === 'to' && this.selectedDate >= date && this.cList.from.selectedDate <= date)
-				,	isFirstRangeDay = isRangeDay && fromSelectedString === _dateString
-				,	isLastRangeDay = isRangeDay && splitDate(this.cList.to.selectedDate)._dateString === _dateString
-				,	isDisabledToRangeDay = this.isRangeMode && this.name === 'to'
-					&& this.cList.to.selectedDate > date && this.cList.from.selectedDate > date
-				,	isRangeMonthExist = this.isRangeMode && this.cList.from.currYear === this.cList.to.currYear && this.cList.from.currMonth === this.cList.to.currMonth
-				,	isHiddenRangeFromNextDay = isRangeMonthExist && this.name === 'from' && date > this.lastCurrentDate
-				,	isHiddenRangeToPrevDay = isRangeMonthExist && this.name === 'to' && date < this.firstCurrentDate
+				,	isSelectedDay = selectedDay === day
+						&& selectedMonth === month
+						&& selectedYear === year
+				,	isEventSelectedDay = isSelectedDay
+						&& isEventDay
+				,	isEmptyDay = !isSelectedDay
+						&& !isEventDay
+						&& !isEventSelectedDay
+				,	isCurrentDay = currentDay === day
+						&& currenMonth === month
+						&& currenYear === year
+				,	isRangeDay = this.isRangeMode
+						&& splitDate(this.cList.to.selectedDate)._dateString !== fromSelectedString
+						&& (
+							this.name === 'from'
+								&& this.selectedDate <= date
+								&& date <= this.cList.to.selectedDate
+							|| this.name === 'to'
+								&& this.selectedDate >= date
+								&& this.cList.from.selectedDate <= date
+						)
+				,	isFirstRangeDay = isRangeDay
+						&& fromSelectedString === _dateString
+				,	isLastRangeDay = isRangeDay
+						&& splitDate(this.cList.to.selectedDate)._dateString === _dateString
+				,	isDisabledToRangeDay = this.isRangeMode
+						&& this.name === 'to'
+						&& this.cList.to.selectedDate > date
+						&& this.cList.from.selectedDate > date
+				,	isRangeMonthExist = this.isRangeMode
+						&& this.cList.from.currYear === this.cList.to.currYear
+						&& this.cList.from.currMonth === this.cList.to.currMonth
+				,	isHiddenRangeFromNextDay = isRangeMonthExist
+						&& this.name === 'from'
+						&& date > this.lastCurrentDate
+				,	isHiddenRangeToPrevDay = isRangeMonthExist
+						&& this.name === 'to'
+						&& date < this.firstCurrentDate
 
 				return {
 					id,
