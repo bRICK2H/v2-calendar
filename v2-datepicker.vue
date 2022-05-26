@@ -13,6 +13,7 @@
 		<!-- Input -->
 		<V2Input v-if="isInput"
 			:width="width"
+			:isDisabledCalendarToggle="isDisabledCalendarToggle"
 			v-model="inputValue"
 
 			@toggle-calendar="isShowCalendar = !isShowCalendar"
@@ -216,7 +217,7 @@
 
 			betweenRange: {
 				type: String,
-				default: '-'
+				default: '/'
 			},
 
 			/**
@@ -254,12 +255,21 @@
 				type: Boolean,
 				default: true
 			},
-			
+
 			/**
 			 * Скрыть (при инициализации) календарь при ключеном инпуте
 			 */
 
 			isImmediateOpen: {
+				type: Boolean,
+				default: false
+			},
+
+			/**
+			 * Заблокировать упарвление на открытие/закрытие календаря из инпута
+			 */
+
+			isDisabledCalendarToggle: {
 				type: Boolean,
 				default: false
 			},
@@ -702,10 +712,11 @@
 			},
 			сalculatedSizes() {
 				const calendarList = this.$refs['v2dp-calendar-list']
+				
+				if (calendarList && calendarList.length) {
 
-				if (calendarList) {
 					const [item] = calendarList
-						,	width = Math.floor(item.offsetWidth / 2)
+						,	width = Math.floor(item?.offsetWidth / 2)
 
 					this.margin = `${Math.floor(width * .1)}px`
 					this.borderWidth = `${Math.floor(width / 3  * .06)}px`
@@ -790,8 +801,8 @@
 			this.initDate()
 
 			/**
+			 * 1. Предусмотреть слоты для модов months/years
 			 * 2. Сделать вариант с input (не absolute а + relative)
-			 * 3. Параметр блокировки кнопки открытия календаря
 			 * 4. Дополнить параметрами input (width, height как минимум)
 			 * 5. Точки для событий, продумать структуру dates
 			 * 6. Разобраться с watch mode и проверить остальные

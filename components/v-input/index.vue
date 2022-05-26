@@ -11,11 +11,15 @@
 			@input="$emit('input', $event.target.value)"
 		>
 		
-		<img class="v2dp-input-icon"
-			src="../../assets/img/svg/calendar.svg"
-			alt="calendar"
+		<button class="v2dp-calendar-call"
+			:class="{ 'v2dp-calendar-call__disabled': isDisabledCalendarToggle }"
+			:disabled="isDisabledCalendarToggle"
 			@click="$emit('toggle-calendar')"
 		>
+			<img src="../../assets/img/svg/calendar.svg"
+				alt="calendar"
+			>
+		</button>
 
 	</div>
 </template>
@@ -28,7 +32,11 @@ export default {
 		width: {
 			type: [String, Number],
 			default: 300
-		}
+		},
+		isDisabledCalendarToggle: {
+			type: Boolean,
+			default: false
+		},
 	},
 	computed: {
 		setStyleInput() {
@@ -68,7 +76,10 @@ export default {
 		}
 	}
 
-	.v2dp-input-icon {
+	.v2dp-calendar-call {
+		border: none;
+		opacity: none;
+		background: #fff;
 		position: absolute;
 		right: 12px;
 		cursor: pointer;
@@ -77,6 +88,14 @@ export default {
 
 		&:hover {
 			opacity: 1;
+		}
+
+		&__disabled {
+			cursor: no-drop;
+
+			&:hover {
+				opacity: .4;
+			}
 		}
 	}
 </style>
