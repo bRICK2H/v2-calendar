@@ -23,7 +23,7 @@
 		<transition name="toggle-calendar">
 			<div v-if="isShowCalendar"
 				class="v2dp-calendar-container"
-				:class="{ 'v2dp-calendar-container--absolute': isInput }"
+				:class="setClassCalendarAbsolutePosition"
 			>
 
 				<div v-for="(options, key) in cList"
@@ -275,6 +275,15 @@
 			},
 
 			/**
+			 * Установить абсолютное позиционирование календаря. Работает в связке с инпутом.
+			 */
+
+			isAbsoluteCalendarPosition: {
+				type: Boolean,
+				default: true
+			},
+
+			/**
 			 * TODO: Информация о slots и events
 			 * ? Event
 			 * 1. v-model работает в обычном режиме
@@ -364,6 +373,11 @@
 				const subMode = this.isWeekSubMode ? 'mode-close' : 'mode-open'
 				return require(`./assets/img/svg/${subMode}.svg`)
 			},
+			setClassCalendarAbsolutePosition() {
+				return {
+					'v2dp-calendar-container--absolute': this.isInput && this.isAbsoluteCalendarPosition
+				}
+			}
 		},
 		methods: {
 			initDate() {
