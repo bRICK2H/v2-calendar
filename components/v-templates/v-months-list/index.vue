@@ -177,7 +177,6 @@ export default {
 					index: i,
 					name: month,
 					selectedMonth,
-					
 					isRangeMonth,
 					isEmptyMonth,
 					isEventMonth,

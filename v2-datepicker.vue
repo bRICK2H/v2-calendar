@@ -254,6 +254,7 @@
 				type: Boolean,
 				default: true
 			},
+			
 			/**
 			 * Скрыть (при инициализации) календарь при ключеном инпуте
 			 */
@@ -560,6 +561,7 @@
 				,	{
 					_year: todayYear
 				} = splitDate(this.todaysDate)
+				,	calcYear = _year - todayYear
 
 				if (isUpdateSelected) {
 					this.cList[name].selectedDate = date
@@ -569,7 +571,7 @@
 				this.cList[name].currMonth = _month
 				this.cList[name].currYear = _year
 				this.cList[name].switchedDate = getDayWeekFirst(date)
-				this.cList[name].offsetYear = Math.ceil((_year - todayYear) * 0.1) * 10
+				this.cList[name].offsetYear = Math.ceil(calcYear * 0.1) * 10
 				this.cList[name][`${name}OffsetYear`] = this.cList[name].offsetYear
 
 				return true
@@ -788,8 +790,6 @@
 			this.initDate()
 
 			/**
-			 * 1.1. Месяц/год продолжить разработку года (сделать формальную подсветку, хотябы текущий месяц)
-			 * 1.2 	Возможность блокировать isAdditionalMode из props
 			 * 2. Сделать вариант с input (не absolute а + relative)
 			 * 3. Параметр блокировки кнопки открытия календаря
 			 * 4. Дополнить параметрами input (width, height как минимум)

@@ -51,62 +51,61 @@ export default {
 			if (!this.isMarkedDay || !this.hoverYear || !this.isRangeMode) return null
 
 			const CELL = 'v2dp-cell-years'
-				// ,	{ index: hoverYear } = this.hoverYear
-				// ,	{ index: currMonth, selectedMonth } = this.year
-				// ,	{
-				// 	_month: toSelectedMonth
-				// } = splitDate(this.cList.to.selectedDate)
-				// ,	{
-				// 	_month: fromSelectedMonth
-				// } = splitDate(this.cList.from.selectedDate)
-				// ,	isFromHoverRangeYear = this.name === 'from'
-				// 		&& hoverYear !== selectedMonth
-				// 		&& currMonth >= hoverYear
-				// 		&& (
-				// 			fromSelectedMonth === toSelectedMonth
-				// 				? currMonth <= selectedMonth
-				// 				: currMonth < selectedMonth
-				// 		)
-				// ,	isFirstFromHoverRangeYear = this.name === 'from'
-				// 		&& currMonth === hoverYear
-				// 		&& currMonth < selectedMonth
-				// ,	isToHoverRangeYear = this.name === 'to'
-				// 		&& hoverYear !== selectedMonth
-				// 		&& currMonth <= hoverYear
-				// 		&& (
-				// 			toSelectedMonth === fromSelectedMonth
-				// 				? currMonth >= selectedMonth
-				// 				: currMonth > selectedMonth
-				// 		)
-				// ,	isLastToHoverRangeYear = this.name === 'to'
-				// 		&& currMonth === hoverYear
-				// 		&& currMonth > selectedMonth
+				,	{ name: hoverYear } = this.hoverYear
+				,	{ name: currYear, selectedYear } = this.year
+				,	{
+					_year: toSelectedYear
+				} = splitDate(this.cList.to.selectedDate)
+				,	{
+					_year: fromSelectedYear
+				} = splitDate(this.cList.from.selectedDate)
+				,	isFromHoverRangeYear = this.name === 'from'
+						&& hoverYear !== selectedYear
+						&&	currYear >= hoverYear
+						&& (
+							fromSelectedYear === toSelectedYear
+								? currYear <= selectedYear
+								: currYear < selectedYear
+						)
+				,	isFirstFromHoverRangeYear = this.name === 'from'
+						&&	currYear === hoverYear
+						&& currYear < selectedYear
+				,	isToHoverRangeYear = this.name === 'to'
+						&& hoverYear !== selectedYear
+						&&	currYear <= hoverYear
+						&& (
+							toSelectedYear === fromSelectedYear
+								? currYear >= selectedYear
+								: currYear > selectedYear
+						)
+				,	isLastToHoverRangeYear = this.name === 'to'
+						&& currYear === hoverYear
+						&& currYear > selectedYear
 
 			return {
-				[`${CELL}__from-hover-range-year`]: false && isFromHoverRangeYear,
-				[`${CELL}__first-from-hover-range-year`]: false && isFirstFromHoverRangeYear,
-				[`${CELL}__to-hover-range-year`]: false && isToHoverRangeYear,
-				[`${CELL}__last-to-hover-range-year`]: false && isLastToHoverRangeYear,
+				[`${CELL}__from-hover-range-year`]: isFromHoverRangeYear,
+				[`${CELL}__first-from-hover-range-year`]: isFirstFromHoverRangeYear,
+				[`${CELL}__to-hover-range-year`]: isToHoverRangeYear,
+				[`${CELL}__last-to-hover-range-year`]: isLastToHoverRangeYear,
 			}
 		},
 		setClassCellYears() {
 			if (!this.isMarkedDay) return null
 
 			const CELL = 'v2dp-cell-years'
-				// ,	{ selectedMonth } = this.year
-				// ,	isFromHoverRangeYear = this.hoverYear
-				// 		&& this.name === 'from'
-				// 		&& this.hoverYear.index < selectedMonth
-				// ,	isToHoverRangeYear = this.hoverYear
-				// 		&& this.name === 'to'
-				// 		&& this.hoverYear.index > selectedMonth
+				,	{ selectedYear } = this.year
+				,	isFromHoverRangeYear = this.hoverYear
+						&& this.name === 'from'
+						&& this.hoverYear.name < selectedYear
+				,	isToHoverRangeYear = this.hoverYear
+						&& this.name === 'to'
+						&& this.hoverYear.name > selectedYear
 
 			return {
 				[`${CELL}__future-day`]: this.year.isFutureYear,
 				[`${CELL}__range-year`]: this.year.isRangeYear,
-				[`${CELL}__last-range-year`]: false && this.year.isLastRangeYear,
-				[`${CELL}__last-range-year`]: false && this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
-				[`${CELL}__first-range-year`]: false && this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
+				[`${CELL}__last-range-year`]: this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
+				[`${CELL}__first-range-year`]: this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
 			}
 		},
 		setClassCellYearsContent() {

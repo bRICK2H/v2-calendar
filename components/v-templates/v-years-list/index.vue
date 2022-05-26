@@ -119,20 +119,13 @@ export default {
 				)
 			]
 			,	{
-				_day: selectedDay,
 				_year: selectedYear,
-				_month: selectedMonth,
-				_dateString: selectedDateString,
 			} = splitDate(this.selectedDate)
 			,	fromSelected = this.cList?.from?.selectedDate
 					? splitDate(this.cList.from.selectedDate)
 					: null
 			,	toSelected = this.cList?.to?.selectedDate
 					? splitDate(this.cList.to.selectedDate)
-					: null
-			,	fromDate = new Date(fromSelected._year, fromSelected._month, selectedDay)
-			,	toDate = toSelected
-					? new Date(toSelected._year, toSelected._month, selectedDay)
 					: null
 
 			return new Array(CELL_YEARS)
@@ -158,12 +151,13 @@ export default {
 						,	isDisabledToRangeYear = this.isRangeMode
 								&& this.name === 'to'
 								&&	year < fromSelected._year
+						,	isFirstRangeYear = year === fromSelected._year
+						,	isLastRangeYear = year === toSelected._year
 					
 					acc.push({
 							index: i,
 							name: year,
 							selectedYear,
-
 							isRangeYear,
 							isEmptyYear,
 							isEventYear,
@@ -171,8 +165,8 @@ export default {
 							isCurrentYear,
 							isSelectedYear,
 							isEventSelectedYear,
-							isLastRangeYear: false,
-							isFirstRangeYear: false,
+							isLastRangeYear,
+							isFirstRangeYear,
 							isDisabledToRangeYear,
 						}
 					)

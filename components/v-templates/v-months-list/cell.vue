@@ -103,7 +103,6 @@ export default {
 
 			return {
 				[`${CELL}__range-month`]: this.month.isRangeMonth,
-				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth,
 				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
 				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
 			}

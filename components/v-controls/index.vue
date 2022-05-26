@@ -25,6 +25,7 @@
 		<div class="v2dp-controls-buttons">
 			<button class="v2dp-controls-current"
 				:style="setStyleCurrentControl"
+				:disabled="!isOffsetCurrentSpace"
 				@click="offset({ side: 0, days: 0, name })"
 			>
 				<img class="v2dp-controls-icon-current"
@@ -36,18 +37,18 @@
 
 			<template v-if="!isAdditionalMode || additionalMode !== 'months'">
 				<button class="v2dp-controls-prevent"
+					:disabled="isDisabledLeftControl"
 					@click="offset({ side: -1, days: 7, name })"
-					:disabled="test"
 				>
 					<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
 						src="../../assets/img/svg/prev-day.svg"
 						alt="prev-day"
-						:class="{ 'v2dp-controls-icon-toggle__disabled': test }"
+						:class="{ 'v2dp-controls-icon-toggle__disabled': isDisabledLeftControl }"
 					>
 				</button>
 				<button class="v2dp-controls-next"
-					@click="offset({ side: 1, days: 7, name })"
 					:disabled="isDisabledRightControl"
+					@click="offset({ side: 1, days: 7, name })"
 				>
 					<img class="v2dp-controls-icon-toggle"
 						src="../../assets/img/svg/next-day.svg"
@@ -130,7 +131,10 @@ export default {
 			return this.months[this.currMonth]
 		},
 		setStyleOffsetSpace() {
-			return { opacity: this.isOffsetCurrentSpace ? 1 : .2 }
+			return {
+				opacity: this.isOffsetCurrentSpace ? 1 : .2,
+				boxShadow: this.isOffsetCurrentSpace ? null : 'none'
+			}
 		},
 		isOffsetCurrentSpace() {
 			const {
@@ -154,11 +158,8 @@ export default {
 				|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
 		},
 		isDisabledLeftControl() {
-			return this.offsetYear <= this.minOffsetYears
-		},
-		test() {
 			return this.isAdditionalMode
-				? this.isDisabledLeftControl
+				? this.offsetYear <= this.minOffsetYears
 					|| this.isDisabledToRangeLeftControlYearsMode
 				: this.isDisabledToRangeLeftControlMonthDayMode
 		},
@@ -315,6 +316,16 @@ export default {
 		height: var(--size-circle-current);
 	}
 
+	.v2dp-controls-icon-current,
+	.v2dp-controls-icon-toggle {
+		border-radius: 50%;
+		transition: box-shadow .2s;
+
+		&:hover {
+			box-shadow: 0 0 8px 0 #1f1f33;
+		}
+	}
+
 	.v2dp-controls-icon-toggle {
 		width: var(--size-circle-toggle);
 		height: var(--size-circle-toggle);
@@ -326,16 +337,6 @@ export default {
 			&:hover {
 				box-shadow: none;
 			}
-		}
-	}
-
-	.v2dp-controls-icon-current,
-	.v2dp-controls-icon-toggle {
-		border-radius: 50%;
-		transition: box-shadow .2s;
-
-		&:hover {
-			box-shadow: 0 0 8px 0 #1f1f33;
 		}
 	}
 </style>
