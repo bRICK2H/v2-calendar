@@ -117,7 +117,7 @@ export default {
 			return {
 				[`${CELL_CONTENT}__event-year`]: this.year.isEventYear,
 				[`${CELL_CONTENT}__selected-year`]: this.year.isSelectedYear,
-				[`${CELL_CONTENT}__disabled-range-year`]: false && this.year.isDisabledToRangeYear,
+				[`${CELL_CONTENT}__disabled-range-year`]: this.year.isDisabledToRangeYear,
 				[`${CELL_CONTENT}__event-selected-year`]: this.year.isEventSelectedYear,
 			}
 		},
@@ -132,7 +132,7 @@ export default {
 				[`${CELL_YEAR}__selected-year`]: this.year.isSelectedYear,
 				[`${CELL_YEAR}__event-selected-year`]: this.year.isEventSelectedYear,
 				[`${CELL_YEAR}__range-year`]: this.year.isRangeYear && !this.year.isCurrentYear,
-				[`${CELL_YEAR}__disabled-range-year`]: false && this.year.isDisabledToRangeYear,
+				[`${CELL_YEAR}__disabled-range-year`]: this.year.isDisabledToRangeYear,
 			}
 		}
 	},
@@ -256,9 +256,6 @@ export default {
 			.v2dp-cell-week-year {
 				color: #fff;
 			}
-		}
-		&__disabled-range-year {
-			opacity: .2;
 		}
 		&__event-selected-year {
 			border: var(--border-width) solid #fff;

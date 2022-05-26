@@ -53,6 +53,10 @@ export default {
 			type: Object,
 			default: () => ({})
 		},
+		offsetYear: {
+			type: Number,
+			default: 0
+		},
 		currDay: {
 			type: Number,
 			default: 0
@@ -103,7 +107,6 @@ export default {
 	}),
 	computed: {
 		getYearsList() {
-			const OFFSET = 0
 			const CELL_YEARS = 12
 			const {
 				_year: todayYear
@@ -132,14 +135,10 @@ export default {
 					? new Date(toSelected._year, toSelected._month, selectedDay)
 					: null
 
-			console.log(fromSelected._year, toSelected._year)
-
 			return new Array(CELL_YEARS)
 				.fill(null)
 				.reduceRight((acc, _, i) => {
-					const year = (TODAY_YEAR - i) + (8 * OFFSET)
-
-						
+					const year = (TODAY_YEAR - i) + this.offsetYear
 						,	isCurrentYear = todayYear === year
 						, 	isSelectedYear = selectedYear === year
 						,	isEventYear = eventYears.includes(year)
@@ -156,7 +155,9 @@ export default {
 										&& toSelected._year >= year
 										&& fromSelected._year <= year
 								)
-					
+						,	isDisabledToRangeYear = this.isRangeMode
+								&& this.name === 'to'
+								&&	year < fromSelected._year
 					
 					acc.push({
 							index: i,
@@ -172,7 +173,7 @@ export default {
 							isEventSelectedYear,
 							isLastRangeYear: false,
 							isFirstRangeYear: false,
-							isDisabledToRangeYear: false,
+							isDisabledToRangeYear,
 						}
 					)
 
@@ -203,6 +204,14 @@ export default {
 		width() {
 			this.сalculatedSizes()
 		},
+		getYearsList: {
+			immediate: true,
+			handler(years) {
+				if (this.isRangeMode) {
+					this.cList[this.name].firstYearGrid = years[0].name
+				}
+			}
+		}
 	},
 	mounted() {
 		this.сalculatedSizes()

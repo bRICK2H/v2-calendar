@@ -252,9 +252,6 @@ export default {
 				color: #fff;
 			}
 		}
-		&__disabled-range-month {
-			opacity: .2;
-		}
 		&__event-selected-month {
 			border: var(--border-width) solid #fff;
 		}

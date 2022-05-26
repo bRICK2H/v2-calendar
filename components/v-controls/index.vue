@@ -37,20 +37,22 @@
 			<template v-if="!isAdditionalMode || additionalMode !== 'months'">
 				<button class="v2dp-controls-prevent"
 					@click="offset({ side: -1, days: 7, name })"
-					:disabled="isDisabledToRangeLeftControl"
+					:disabled="test"
 				>
 					<img class="v2dp-controls-icon-toggle v2dp-controls-icon-prevent"
 						src="../../assets/img/svg/prev-day.svg"
 						alt="prev-day"
-						:class="{'v2dp-controls-icon-prevent__disabled' : isDisabledToRangeLeftControl }"
+						:class="{ 'v2dp-controls-icon-toggle__disabled': test }"
 					>
 				</button>
 				<button class="v2dp-controls-next"
 					@click="offset({ side: 1, days: 7, name })"
+					:disabled="isDisabledRightControl"
 				>
 					<img class="v2dp-controls-icon-toggle"
 						src="../../assets/img/svg/next-day.svg"
 						alt="next-day"
+						:class="{'v2dp-controls-icon-toggle__disabled' : isDisabledRightControl }"
 					>
 				</button>
 			</template>
@@ -76,6 +78,10 @@ export default {
 		cList: {
 			type: Object,
 			default: () => ({})
+		},
+		offsetYear: {
+			type: Number,
+			default: 0
 		},
 		months: {
 			type: Array,
@@ -115,7 +121,9 @@ export default {
 		},
 	},
 	data: () => ({
-		mods: ['months', 'years']
+		mods: ['months', 'years'],
+		maxOffsetYear: 100,
+		minOffsetYears: -100,
 	}),
 	computed: {
 		getMonth() {
@@ -145,16 +153,39 @@ export default {
 				|| todayDateString !== selectedDateString
 				|| (this.subMode === 'week' && firstOfWeekDay !== firstSwitchOfWeekDay)
 		},
-		isDisabledToRangeLeftControl() {
-			if (!this.isRangeMode) return false
+		isDisabledLeftControl() {
+			return this.offsetYear <= this.minOffsetYears
+		},
+		test() {
+			return this.isAdditionalMode
+				? this.isDisabledLeftControl
+					|| this.isDisabledToRangeLeftControlYearsMode
+				: this.isDisabledToRangeLeftControlMonthDayMode
+		},
+		isDisabledRightControl() {
+			return this.offsetYear >= this.maxOffsetYear
+		},
+		isDisabledToRangeLeftControlYearsMode() {
+			const { from, to } = this.cList
+					,	{
+					_year: selectedFromYear,
+				} = splitDate(from.selectedDate)
 
+			return this.isRangeMode
+					&& this.name === 'to'
+					&& selectedFromYear + 1 > to.firstYearGrid
+		},
+		isDisabledToRangeLeftControlMonthDayMode() {
 			const { from } = this.cList
 				,	{
-					_year: fromYear,
-					_month: fromMonth
+					_year: selectedFromYear,
+					_month: selectedFromMonth
 				} = splitDate(from.selectedDate)
 				
-			return this.name === 'to' && fromYear === this.currYear && fromMonth === this.currMonth
+			return this.isRangeMode
+				&& this.name === 'to'
+				&& selectedFromYear === this.currYear
+				&& selectedFromMonth === this.currMonth
 		},
 		setClassAdditionalMode() {
 			return this.isOuterAdditionalMode
@@ -183,7 +214,11 @@ export default {
 	},
 	methods: {
 		offset({ side, days, name }) {
-			this.$emit('offset', { side, days, name })
+			const mode = this.isAdditionalMode
+				? this.additionalMode
+				: this.subMode
+
+			this.$emit('offset', { side, days, name, mode })
 		},
 		openAdditionalMode(mode) {
 			if (this.isOuterAdditionalMode) {
@@ -283,6 +318,15 @@ export default {
 	.v2dp-controls-icon-toggle {
 		width: var(--size-circle-toggle);
 		height: var(--size-circle-toggle);
+
+		&__disabled {
+			cursor: no-drop;
+			opacity: .3;
+
+			&:hover {
+				box-shadow: none;
+			}
+		}
 	}
 
 	.v2dp-controls-icon-current,
@@ -292,16 +336,6 @@ export default {
 
 		&:hover {
 			box-shadow: 0 0 8px 0 #1f1f33;
-		}
-	}
-	.v2dp-controls-icon-prevent {
-		&__disabled {
-			cursor: no-drop;
-			opacity: .3;
-
-			&:hover {
-				box-shadow: none;
-			}
 		}
 	}
 </style>

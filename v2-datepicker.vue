@@ -300,6 +300,9 @@
 			cList: {
 				from: {
 					name: 'from',
+					offsetYear: 0,
+					firstYearGrid: 0,
+					fromOffsetYear: 0,
 					currDay: null,
 					currYear: null,
 					currMonth: null,
@@ -361,6 +364,9 @@
 				if (this.isRangeMode) {
 					this.$set(this.cList, 'to', {
 						name: 'to',
+						offsetYear: 0,
+						toOffsetYear: 0,
+						firstYearGrid: 0,
 						currDay: null,
 						currYear: null,
 						currMonth: null,
@@ -439,22 +445,25 @@
 
 				}
 			},
-			offset({ side, days, name }) {
+			offset({ side, days, name, mode }) {
 				let date = null
 				const calendar = this.cList[name]
+					,	{ from, to } = this.cList
 					,	isCurrentMonth = side === 0 && days === 0
 
-				console.warn(this.subMode, isCurrentMonth)
-				switch (this.subMode) {
+				switch (mode) {
+					case 'months':
 					case 'month-day': {
 						const {
 							_day,
+							_year,
 							_month
 						} = splitDate(this.todaysDate)
 						,	day = side === 0 ? _day : 1
+						,	year = side === 0 ? _year : calendar.currYear
 						,	month = side === 0 ? _month : calendar.currMonth + side
 
-						date = new Date(calendar.currYear, month, day)
+						date = new Date(year, month, day)
 					}
 						break
 
@@ -470,11 +479,39 @@
 								: getDayWeekLast(offsetDate)
 					}
 						break
+
+					case 'years': {
+
+						if (!side && !days) {
+							date = this.todaysDate
+						} else {
+							calendar.offsetYear += side * 10
+
+							if (this.isRangeMode) {
+								if (from.isAdditionalMode && to.isAdditionalMode) {
+									if (name === 'from') {
+										if (from.offsetYear >= to.toOffsetYear) {
+											to.offsetYear = from.offsetYear
+										}
+									} else {
+										if (to.offsetYear <= from.offsetYear) {
+											from.offsetYear = to.offsetYear
+										}
+									}
+									
+								}
+
+							}
+
+							return false
+						}
+
+					}
+						break
 				}
 
 				this.updateOffset({ date, name, isCurrentMonth })
 			},
-
 			updateOffset({ date, name, isCurrentMonth }) {
 				const { from, to } = this.cList
 				
@@ -490,10 +527,9 @@
 							}
 						} else if (name === 'to') {
 							if (date < from.selectedDate) {
-								console.log(1)
 								this.updateDate(date, 'from')
 							} else {
-								this.updateDate(from.selectedDate, 'from')
+								this.updateDate(from.selectedDate, 'from', false)
 							}
 						}
 					}
@@ -521,6 +557,9 @@
 					_year,
 					_month
 				} = splitDate(date)
+				,	{
+					_year: todayYear
+				} = splitDate(this.todaysDate)
 
 				if (isUpdateSelected) {
 					this.cList[name].selectedDate = date
@@ -530,6 +569,8 @@
 				this.cList[name].currMonth = _month
 				this.cList[name].currYear = _year
 				this.cList[name].switchedDate = getDayWeekFirst(date)
+				this.cList[name].offsetYear = Math.ceil((_year - todayYear) * 0.1) * 10
+				this.cList[name][`${name}OffsetYear`] = this.cList[name].offsetYear
 
 				return true
 			},
