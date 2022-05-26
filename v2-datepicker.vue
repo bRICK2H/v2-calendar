@@ -116,7 +116,17 @@
 								:isRangeMode="isRangeMode"
 
 								@select-month="month => selectMonth(options, month)"
-							/>
+							>
+
+								<template v-slot:clear="data">
+									<slot name="clear" v-bind="data" />
+								</template>							
+
+								<template v-slot:default="data">
+									<slot v-bind="data" />
+								</template>
+								
+							</V2MonthsList>
 						</template>
 
 						<template v-else-if="options.additionalMode === 'years'">
@@ -130,7 +140,17 @@
 								:isRangeMode="isRangeMode"
 
 								@select-year="year => selectYear(options, year)"
-							/>
+							>
+
+								<template v-slot:clear="data">
+									<slot name="clear" v-bind="data" />
+								</template>							
+
+								<template v-slot:default="data">
+									<slot v-bind="data" />
+								</template>
+								
+							</V2YearsList>
 						</template>
 
 					</transition>
@@ -815,8 +835,6 @@
 			this.initDate()
 
 			/**
-			 * 1. Предусмотреть слоты для модов months/years
-			 * 2. Сделать вариант с input (не absolute а + relative)
 			 * 4. Дополнить параметрами input (width, height как минимум)
 			 * 5. Точки для событий, продумать структуру dates
 			 * 6. Разобраться с watch mode и проверить остальные

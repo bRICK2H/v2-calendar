@@ -17,7 +17,7 @@
 				</span>
 			</div>
 
-			<div class="v2dp-slot-month-complete">
+			<div class="v2dp-slot-month-day-complete">
 				<slot v-bind="date" />
 			</div>
 	</div>
@@ -277,7 +277,7 @@ export default {
 	}
 }
 
-.v2dp-slot-month-complete {
+.v2dp-slot-month-day-complete {
 	width: 100%;
 	height: 100%;
 	position: absolute;

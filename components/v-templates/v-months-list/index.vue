@@ -25,7 +25,17 @@
 
 			@select-month="$emit('select-month', i)"
 			@over-month="hoverMonth = month"
-		/>
+		>
+
+			<template v-slot:clear="data">
+				<slot name="clear" v-bind="data" />
+			</template>
+
+			<template v-slot:default="data">
+				<slot v-bind="data" />
+			</template>
+		
+		</V2MonthsListCell>
 	</div>
 </template>
 

@@ -7,11 +7,17 @@
 			@click="select"
 			@mouseenter="over"
 		>
-			<div class="v2dp-cell-sub-months"
+			<span class="v2dp-cell-sub-months"
 				:class="setClassCellSubMonth"
 			>
-	  			{{ month.name }}
-			</div>
+				<slot name="clear" v-bind="month">
+					{{ month.name }}
+				</slot>
+			</span>
+		</div>
+
+		<div class="v2dp-slot-months-complete">
+			<slot v-bind="month" />
 		</div>
   </div>
 </template>
@@ -155,6 +161,7 @@ export default {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
 		font-size: var(--font-size-month);
+		position: relative;
 		cursor: pointer;
 
 		&:not(:nth-last-child(-n + 3)) {
@@ -257,6 +264,13 @@ export default {
 		&__range-month {
 			color: #fff;
 		}
+	}
 
+	.v2dp-slot-months-complete {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
 	}
 </style>

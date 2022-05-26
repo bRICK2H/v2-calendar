@@ -10,8 +10,14 @@
 			<div class="v2dp-cell-sub-years"
 				:class="setClassCellSubYear"
 			>
-	  			{{ year.name }}
+				<slot name="clear" v-bind="year">
+					{{ year.name }}
+				</slot>
 			</div>
+		</div>
+
+		<div class="v2dp-slot-years-complete">
+			<slot v-bind="year" />
 		</div>
   </div>
 </template>
@@ -156,6 +162,7 @@ export default {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
 		font-size: var(--font-size-year);
+		position: relative;
 		cursor: pointer;
 
 		&:not(:nth-last-child(-n + 3)) {
@@ -262,6 +269,13 @@ export default {
 		&__range-year {
 			color: #fff;
 		}
+	}
 
+	.v2dp-slot-years-complete {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 0;
 	}
 </style>

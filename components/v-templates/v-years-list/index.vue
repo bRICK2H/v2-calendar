@@ -25,7 +25,17 @@
 
 			@select-year="$emit('select-year', year.name)"
 			@over-year="hoverYear = year"
-		/>
+		>
+
+			<template v-slot:clear="data">
+				<slot name="clear" v-bind="data" />
+			</template>
+
+			<template v-slot:default="data">
+				<slot v-bind="data" />
+			</template>
+		
+		</V2YearsListCell>
 	</div>
 </template>
 
