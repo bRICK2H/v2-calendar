@@ -286,6 +286,15 @@
 			},
 
 			/**
+			 * Закрыть календарь, сразу же после выбора даты
+			 */
+
+			isCloseAfterSelect: {
+				type: Boolean,
+				default: false
+			},
+
+			/**
 			 * Заблокировать упарвление на открытие/закрытие календаря из инпута
 			 */
 
@@ -349,6 +358,7 @@
 					switchedDate: null,
 					selectedDate: null,
 					additionalMode: '',
+					isChoosen: false,
 					isAdditionalMode: false
 				},
 			},
@@ -418,6 +428,7 @@
 						switchedDate: null,
 						selectedDate: null,
 						additionalMode: '',
+						isChoosen: false,
 						isAdditionalMode: false
 					})
 					
@@ -621,9 +632,10 @@
 				return true
 			},
 			selectDate(date, name) {
-				const	{ to } = this.cList
+				const	{ from, to } = this.cList
 
 				this.updateDate(date, name)
+				this.cList[name].isChoosen = true
 
 				if (this.isRangeMode) {
 					if (name === 'from') {
@@ -631,6 +643,12 @@
 							this.updateDate(date, 'to')
 						}
 					}
+
+					if (from.isChoosen && to.isChoosen) {
+						this.isShowCalendar = !this.isCloseAfterSelect
+					}
+				} else {
+					this.isShowCalendar = !this.isCloseAfterSelect
 				}
 			},
 			selectMonth(options, month) {
@@ -782,6 +800,12 @@
 
 					await this.$nextTick()
 					this.сalculatedSizes()
+				}
+
+				if (!isShow && this.isRangeMode) {
+					const { from, to } = this.cList
+
+					from.isChoosen = to.isChoosen = false
 				}
 			},
 			mode(mode) {
