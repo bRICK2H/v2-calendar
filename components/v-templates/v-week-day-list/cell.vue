@@ -14,14 +14,14 @@
 						{{ date.name }}
 					</span>
 					<span class="v2dp-cell-week-day">
-						{{ date.day }}
+						{{ date.title }}
 					</span>
 				</slot>
 			</div>
 		</div>
 
 		<div class="v2dp-slot-week-complete">
-			<slot/>
+			<slot v-bind="date" />
 		</div>
 	</div>
 </template>

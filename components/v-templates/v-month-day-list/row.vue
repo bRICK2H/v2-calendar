@@ -12,6 +12,7 @@
 			@over-date="$emit('over-date', date)"
 			@select-date="$emit('select-date', date)"
 		>
+		
 			<template v-slot:clear="data">
 				<slot name="clear" v-bind="data" />
 			</template>							
@@ -19,6 +20,7 @@
 			<template v-slot:default="data">
 				<slot v-bind="data" />
 			</template>
+
 		</VMonthDayCell>
 	</div>
 </template>

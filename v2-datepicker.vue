@@ -33,7 +33,7 @@
 					:style="{ maxWidth: `${width}px` }"
 				>
 					<!-- Multiple toggle mode -->
-					<V2MultipleToggleMode v-if="isMultipleMode"
+					<V2MultipleToggle v-if="isMultipleMode"
 						:icon="getIconMultipleMode"
 						@multiple-toggle="multipleToggle(key)"
 					/>
@@ -176,7 +176,7 @@
 	import V2MonthsList from './components/v-templates/v-months-list'
 	import V2WeekDayList from './components/v-templates/v-week-day-list'
 	import V2MonthDayList from './components/v-templates/v-month-day-list'
-	import V2MultipleToggleMode from './components/v-multiple-toggle-mode'
+	import V2MultipleToggle from './components/v-multiple-toggle-mode'
 
 	export default {
 		name: 'V2DatePicker',
@@ -187,7 +187,7 @@
 			V2MonthsList,
 			V2WeekDayList,
 			V2MonthDayList,
-			V2MultipleToggleMode
+			V2MultipleToggle
 		},
 		props: {
 			/**
@@ -636,13 +636,12 @@
 			selectMonth(options, month) {
 				const {
 					name,
-					currDay,
 					currYear,
 					currMonth
 				} = options
 
 				if (month !== currMonth) {
-					const date = new Date(currYear, month, currDay)
+					const date = new Date(currYear, month, 1)
 
 					this.updateOffset({ date, name, isCurrentMonth: false })
 				}
@@ -652,13 +651,12 @@
 			selectYear(options, year) {
 				const {
 					name,
-					currDay,
 					currYear,
 					currMonth
 				} = options
 
 				if (year !== currYear) {
-					const date = new Date(year, currMonth, currDay)
+					const date = new Date(year, currMonth, 1)
 
 					this.updateOffset({ date, name, isCurrentMonth: false })
 				}
@@ -677,8 +675,10 @@
 			multipleToggle(name) {
 				const calendar = this.cList[name]
 
+				calendar.isAdditionalMode = false
 				this.updateDate(calendar.selectedDate, name)
-				this.subMode = this.subMode === 'week' ? 'month-day' : 'week'
+				this.subMode = this.subMode === 'week'
+					? 'month-day' : 'week'
 			},
 			defineCalendarMode() {
 				const [commonMode, subMode] = this.mode.split(':')
@@ -754,7 +754,7 @@
 
 					this.margin = `${Math.floor(width * .1)}px`
 					this.borderWidth = `${Math.floor(width / 3  * .06)}px`
-					this.fontSize = `${Math.floor((width) * .13)}px`
+					this.fontSize = `${Math.floor((width) * .12)}px`
 					this.sizeCircleToggle = `${Math.floor(width * .15)}px`
 					this.sizeCircleCurrent = `${Math.floor(width * .13)}px`
 				}

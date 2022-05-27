@@ -15,7 +15,7 @@
 	>
 		<V2MonthsListCell
 			v-for="(month, i) of getMonthsList"
-			:key="month.name"
+			:key="month.id"
 			:name="name"
 			:month="month"
 			:cList="cList"
@@ -142,6 +142,7 @@ export default {
 			
 			return this.months.map((month, i) => {
 				const date = new Date(this.currYear, i, selectedDay)
+					,	id = `${this.name}:${month}`
 					,	isCurrentMonth = i === todayMonth
 							&& todayYear === this.currYear
 					,	isSelectedMonth = i === selectedMonth
@@ -184,8 +185,9 @@ export default {
 							)
 
 				return {
+					id,
 					index: i,
-					name: month,
+					title: month,
 					selectedMonth,
 					isRangeMonth,
 					isEmptyMonth,

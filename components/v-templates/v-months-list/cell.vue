@@ -11,7 +11,7 @@
 				:class="setClassCellSubMonth"
 			>
 				<slot name="clear" v-bind="month">
-					{{ month.name }}
+					{{ month.title }}
 				</slot>
 			</span>
 		</div>
@@ -201,6 +201,7 @@ export default {
 		border-radius: var(--border-radius);
 		transition: box-shadow .4s;
 		position: relative;
+		z-index: 1;
 
 		&:hover {
 			box-shadow: 0 0 6px 0 #1f1f33;

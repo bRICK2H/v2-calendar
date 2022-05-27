@@ -13,7 +13,7 @@
 
 <script>
 export default {
-	name: 'VToggleMultiple',
+	name: 'VMultipleToggle',
 	props: {
 		icon: {
 			type: String,

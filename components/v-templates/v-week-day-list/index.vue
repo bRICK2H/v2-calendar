@@ -114,8 +114,9 @@ export default {
 					_month: month,
 					_dateString
 				} = splitDate(date)
-				,	id = `week:${_dateString}`
+				,	title = day
 				,	name = this.weeks[i]
+				,	id = `${this.name}:${_dateString}`
 				,	isVisibleCurrentWeek = this.currMonth === month
 				,	isEventDay = preSelectedStringDates.includes(_dateString)
 				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
@@ -125,10 +126,10 @@ export default {
 
 				return {
 					id,
-					day,
 					date,
 					year,
 					name,
+					title,
 					month,
 					isEventDay,
 					isEmptyDay,

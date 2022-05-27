@@ -15,7 +15,7 @@
 	>
 		<V2YearsListCell
 			v-for="year of getYearsList"
-			:key="year.name"
+			:key="year.id"
 			:name="name"
 			:year="year"
 			:cList="cList"
@@ -23,7 +23,7 @@
 			:isMarkedDay="isMarkedDay"
 			:isRangeMode="isRangeMode"
 
-			@select-year="$emit('select-year', year.name)"
+			@select-year="$emit('select-year', year.title)"
 			@over-year="hoverYear = year"
 		>
 
@@ -118,16 +118,9 @@ export default {
 	computed: {
 		getYearsList() {
 			const CELL_YEARS = 12
-			const {
+			,	{
 				_year: todayYear
 			} = splitDate(this.todaysDate)
-			const TODAY_YEAR = todayYear + 1
-
-			const eventYears = [
-				...new Set(
-					this.selectedDates.map(date => splitDate(date)._year)
-				)
-			]
 			,	{
 				_year: selectedYear,
 			} = splitDate(this.selectedDate)
@@ -137,18 +130,26 @@ export default {
 			,	toSelected = this.cList?.to?.selectedDate
 					? splitDate(this.cList.to.selectedDate)
 					: null
+			,	eventYears = [
+				...new Set(
+					this.selectedDates.map(date => splitDate(date)._year)
+				)
+			]
+			,	TODAY_YEAR = todayYear + 1
+			,	isRange = this.isRangeMode && toSelected
 
 			return new Array(CELL_YEARS)
 				.fill(null)
 				.reduceRight((acc, _, i) => {
 					const year = (TODAY_YEAR - i) + this.offsetYear
+						,	id = `${this.name}:${year}`
 						,	isCurrentYear = todayYear === year
 						, 	isSelectedYear = selectedYear === year
 						,	isEventYear = eventYears.includes(year)
 						,	isEmptyYear = !isSelectedYear && !isEventYear
 						,	isEventSelectedYear = isSelectedYear && isEventYear
 						,	isFutureYear = todayYear < year
-						,	isRangeYear = this.isRangeMode
+						,	isRangeYear = isRange
 								&& fromSelected._year !== toSelected._year
 								&& (
 									this.name === 'from'
@@ -158,15 +159,16 @@ export default {
 										&& toSelected._year >= year
 										&& fromSelected._year <= year
 								)
-						,	isDisabledToRangeYear = this.isRangeMode
+						,	isDisabledToRangeYear = isRange
 								&& this.name === 'to'
 								&&	year < fromSelected._year
-						,	isFirstRangeYear = year === fromSelected._year
-						,	isLastRangeYear = year === toSelected._year
+						,	isFirstRangeYear = isRange && year === fromSelected._year
+						,	isLastRangeYear = isRange && year === toSelected._year
 					
 					acc.push({
+							id,
 							index: i,
-							name: year,
+							title: year,
 							selectedYear,
 							isRangeYear,
 							isEmptyYear,

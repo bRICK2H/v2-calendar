@@ -12,7 +12,7 @@
 					:class="setClassCellMonthDate"
 				>
 					<slot name="clear" v-bind="date">
-						{{ date.day }}
+						{{ date.title }}
 					</slot>
 				</span>
 			</div>
