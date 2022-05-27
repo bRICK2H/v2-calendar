@@ -20,7 +20,14 @@
 			</div>
 		</div>
 
-		<div class="v2dp-slot-week-complete">
+		<div class="v2dp-slot-week-complete"
+			:class="date.classes.parent"
+		>
+			<div v-for="name of date.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+			
 			<slot v-bind="date" />
 		</div>
 	</div>

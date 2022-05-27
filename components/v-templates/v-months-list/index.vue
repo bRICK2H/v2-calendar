@@ -127,7 +127,7 @@ export default {
 				_year: todayYear,
 				_month: todayMonth
 			} = splitDate(this.todaysDate)
-			,	eventMonths = this.selectedDates.map(date => splitDate(date))
+			,	eventDates = this.getEventDates()
 			,	fromSelected = this.cList?.from?.selectedDate
 					? splitDate(this.cList.from.selectedDate)
 					: null
@@ -139,17 +139,18 @@ export default {
 					? new Date(toSelected._year, toSelected._month, selectedDay)
 					: null
 			,	isRange = this.isRangeMode && toSelected && toDate
-			
+
 			return this.months.map((month, i) => {
 				const date = new Date(this.currYear, i, selectedDay)
 					,	id = `${this.name}:${month}`
+					,	eventDate = eventDates.find(({ _month, _year }) => {
+						return i === _month && this.currYear === _year
+					})
 					,	isCurrentMonth = i === todayMonth
 							&& todayYear === this.currYear
 					,	isSelectedMonth = i === selectedMonth
 							&& selectedYear === this.currYear
-					,	isEventMonth = eventMonths.some(({ _month, _year }) => {
-							return i === _month && this.currYear === _year
-						})
+					,	isEventMonth = Boolean(eventDate)
 					,	isEmptyMonth = !isSelectedMonth && !isEventMonth
 					,	isEventSelectedMonth = isEventMonth && isSelectedMonth
 					,	isDisabledToRangeMonth = isRange
@@ -175,6 +176,9 @@ export default {
 									&& fromSelected._year === this.currYear
 									&& fromSelected._month === i
 							)
+					, 	isBeforeFirstRangeMonth = isRange
+							&& fromSelected._month !== toSelected._month
+							&& fromSelected._month - 1 === i
 					, 	isLastRangeMonth = isRange
 							&& (
 								this.name === 'to'
@@ -183,9 +187,14 @@ export default {
 									&& toSelected._year === this.currYear
 									&& toSelected._month === i
 							)
+					,	classes = {
+							parent: eventDate?.parent ?? null,
+							children: eventDate?.children ?? []
+					}
 
 				return {
 					id,
+					classes,
 					index: i,
 					title: month,
 					selectedMonth,
@@ -198,26 +207,75 @@ export default {
 					isFirstRangeMonth,
 					isEventSelectedMonth,
 					isDisabledToRangeMonth,
+					isBeforeFirstRangeMonth,
 				}
 			})
 		}
 	},
 	methods: {
-		сalculatedSizes() {
-			const weekList = this.$refs['v2dp-months-list']
+		getEventDates() {
+			const eventDates = this.selectedDates.map(options => {
+				if (options instanceof Date) {
+					const { _month, _year } = splitDate(options)
 
-			if (weekList) {
-				const containerWidth = weekList.offsetWidth
+					return { _month, _year }
+				} else {
+					const { date, children, parent } = options
+						,	{ _month, _year } = splitDate(date)
+					
+					return {
+						_year,
+						_month,
+						parent,
+						children,
+					}
+				}
+			})
+
+			return [
+				...new Set(
+					eventDates
+						.map(({ _month, _year }) => ({ _month, _year }))
+						.map(JSON.stringify)
+				)
+			].map(curr => {
+				const { _month, _year } = JSON.parse(curr)
+					,	condition = el => el._month === _month && el._year === _year
+					,	uniqueDates = eventDates.filter(item => condition(item))
+					,	parent = [
+						...new Set(
+							uniqueDates.map(item => item.parent ?? '').filter(item => item)
+						)
+					]
+					,	children = [
+						...new Set(
+							uniqueDates.map(item => item.children ?? []).flat()
+						)
+					]
+
+				return {
+					_year,
+					_month,
+					parent,
+					children
+				}
+			})
+		},
+		сalculatedSizes() {
+			const monthList = this.$refs['v2dp-months-list']
+
+			if (monthList) {
+				const containerWidth = monthList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
-					,	height = Math.floor(width / 1.5)
+					,	height = Math.floor(width / 1.8)
 
 				this.heightCell = `${height}px`
 				this.borderRadius = `${height}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeMonth = `${Math.floor(width * .15)}px`
-				this.widthContent = `${Math.floor(width / 1.13)}px`
-				this.heightContent = `${Math.floor(height / 1.23)}px`
-				this.marginBottom = `${Math.floor(width - (width / 1.12))}px`
+				this.widthContent = `${Math.floor(width / 1.09)}px`
+				this.heightContent = `${Math.floor(height / 1.12)}px`
+				this.marginBottom = `${Math.floor(width - (width / 1.4))}px`
 			}
 		},
 	},

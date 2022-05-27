@@ -215,6 +215,9 @@
 
 			/**
 			 * Список дат, несущие за собой какое-либо событие
+			 * Примеры передачи параметров:
+			 * 	1: [ new Date('2022-5-25'), new Date('2022-5-29'), ... ]
+			 * 	2: [ { date: new Date('2022-5-23'), parent: 'parent', children: ['one', 'two'] }, ... ],
 			 */
 
 			dates: {
@@ -344,6 +347,7 @@
 		data: () => ({
 			subMode: '',
 			commonMode: '',
+			splitedSubMode: '',
 			additionalMods: ['months', 'years'],
 			subMods: ['month-day', 'week', 'months', 'years'],
 			cList: {
@@ -488,17 +492,16 @@
 				}
 
 				if (this.isAdditionalMode) {
-					const isExistMode = this.additionalMods.includes(this.subMode)
-					
+					const { to } = this.cList
+						,	isExistMode = this.additionalMods.includes(this.splitedSubMode)
 
-					this.cList.from.additionalMode = isExistMode ? this.subMode : ''
-					this.cList.from.isAdditionalMode = isExistMode ? true : false
+					from.additionalMode = isExistMode ? this.splitedSubMode : ''
+					from.isAdditionalMode = isExistMode ? true : false
 
 					if (this.isRangeMode) {
-						this.cList.to.additionalMode = isExistMode ? this.subMode : ''
-						this.cList.to.isAdditionalMode =  isExistMode ? true : false
+						to.additionalMode = isExistMode ? this.splitedSubMode : ''
+						to.isAdditionalMode =  isExistMode ? true : false
 					}
-
 				}
 			},
 			offset({ side, days, name, mode }) {
@@ -707,14 +710,11 @@
 					}
 
 				this.commonMode = commonMode
+				this.splitedSubMode = subMode
 
 				if (Object.keys(defaultMods).includes(commonMode)) {
 					if (commonMode === 'range') {
-						if (this.additionalMods.includes(subMode) && this.isAdditionalMode) {
-							this.subMode = subMode
-						} else {
-							this.subMode = defaultMods[commonMode]
-						}
+						this.subMode = defaultMods[commonMode]
 					} else if (subMode) {
 						if (this.subMods.includes(subMode)) {
 							this.subMode = subMode
@@ -859,10 +859,10 @@
 			this.initDate()
 
 			/**
-			 * 4. Дополнить параметрами input (width, height как минимум)
-			 * 5. Точки для событий, продумать структуру dates
-			 * 6. Разобраться с watch mode и проверить остальные
-			 * 7. Набор даты (в последнюю очередь create mask) будет включать в себя mask.
+			 * 1. Дополнить параметрами input (width, height как минимум)
+			 * 2. Поработать над стилями высоты row mode years/months
+			 * 3. Разобраться с watch mode и проверить остальные
+			 * 4. Набор даты (в последнюю очередь create mask) будет включать в себя mask.
 			 */
 
 		},

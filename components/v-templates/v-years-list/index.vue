@@ -130,11 +130,7 @@ export default {
 			,	toSelected = this.cList?.to?.selectedDate
 					? splitDate(this.cList.to.selectedDate)
 					: null
-			,	eventYears = [
-				...new Set(
-					this.selectedDates.map(date => splitDate(date)._year)
-				)
-			]
+			,	eventDates = this.getEventDates()
 			,	TODAY_YEAR = todayYear + 1
 			,	isRange = this.isRangeMode && toSelected
 
@@ -143,9 +139,10 @@ export default {
 				.reduceRight((acc, _, i) => {
 					const year = (TODAY_YEAR - i) + this.offsetYear
 						,	id = `${this.name}:${year}`
+						,	eventDate = eventDates.find(({ _year }) => year === _year)
 						,	isCurrentYear = todayYear === year
 						, 	isSelectedYear = selectedYear === year
-						,	isEventYear = eventYears.includes(year)
+						,	isEventYear = Boolean(eventDate)
 						,	isEmptyYear = !isSelectedYear && !isEventYear
 						,	isEventSelectedYear = isSelectedYear && isEventYear
 						,	isFutureYear = todayYear < year
@@ -164,10 +161,18 @@ export default {
 								&&	year < fromSelected._year
 						,	isFirstRangeYear = isRange && year === fromSelected._year
 						,	isLastRangeYear = isRange && year === toSelected._year
+						, 	isBeforeFirstRangeYear = isRange
+								&& fromSelected._year !== toSelected._year
+								&& fromSelected._year - 1 === year
+						,	classes = {
+								parent: eventDate?.parent ?? null,
+								children: eventDate?.children ?? []
+						}
 					
 					acc.push({
 							id,
 							index: i,
+							classes,
 							title: year,
 							selectedYear,
 							isRangeYear,
@@ -176,10 +181,11 @@ export default {
 							isFutureYear,
 							isCurrentYear,
 							isSelectedYear,
-							isEventSelectedYear,
 							isLastRangeYear,
 							isFirstRangeYear,
+							isEventSelectedYear,
 							isDisabledToRangeYear,
+							isBeforeFirstRangeYear,
 						}
 					)
 
@@ -188,21 +194,68 @@ export default {
 		}
 	},
 	methods: {
-		сalculatedSizes() {
-			const weekList = this.$refs['v2dp-years-list']
+		getEventDates() {
+			const eventDates = this.selectedDates.map(options => {
+				if (options instanceof Date) {
+					const { _month, _year } = splitDate(options)
 
-			if (weekList) {
-				const containerWidth = weekList.offsetWidth
+					return { _month, _year }
+				} else {
+					const { date, children, parent } = options
+						,	{ _month, _year } = splitDate(date)
+					
+					return {
+						_year,
+						_month,
+						parent,
+						children,
+					}
+				}
+			})
+
+			return [
+				...new Set(
+					eventDates
+						.map(({ _month, _year }) => ({ _month, _year }))
+						.map(JSON.stringify)
+				)
+			].map(curr => {
+				const { _month, _year } = JSON.parse(curr)
+					,	condition = el => el._month === _month && el._year === _year
+					,	uniqueDates = eventDates.filter(item => condition(item))
+					,	parent = [
+						...new Set(
+							uniqueDates.map(item => item.parent ?? '').filter(item => item)
+						)
+					]
+					,	children = [
+						...new Set(
+							uniqueDates.map(item => item.children ?? []).flat()
+						)
+					]
+
+				return {
+					_year,
+					parent,
+					children
+				}
+			})
+		},
+		сalculatedSizes() {
+			const yearList = this.$refs['v2dp-years-list']
+
+			if (yearList) {
+				const containerWidth = yearList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
-					,	height = Math.floor(width / 1.5)
+					,	height = Math.floor(width / 1.8)
 
 				this.heightCell = `${height}px`
 				this.borderRadius = `${height}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeYear = `${Math.floor(width * .15)}px`
-				this.widthContent = `${Math.floor(width / 1.13)}px`
-				this.heightContent = `${Math.floor(height / 1.23)}px`
-				this.marginBottom = `${Math.floor(width - (width / 1.12))}px`
+				this.widthContent = `${Math.floor(width / 1.09)}px`
+				this.heightContent = `${Math.floor(height / 1.12)}px`
+				this.marginBottom = `${Math.floor(width - (width / 1.4))}px`
 			}
 		},
 	},

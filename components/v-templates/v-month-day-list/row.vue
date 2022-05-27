@@ -69,7 +69,7 @@ export default {
 		justify-content: space-between;
 
 		&:not(:last-child) {
-			border-bottom: var(--border-width) solid #fff;
+			border-bottom: calc(var(--border-width) * 2) solid #fff;
 		}
 	}
 </style>

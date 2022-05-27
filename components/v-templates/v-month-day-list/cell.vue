@@ -17,7 +17,14 @@
 				</span>
 			</div>
 
-			<div class="v2dp-slot-month-day-complete">
+			<div class="v2dp-slot-month-day-complete"
+				:class="date.classes.parent"
+			>
+				<div v-for="name of date.classes.children"
+					:key="`${name}`"
+					:class="name"
+				></div>
+
 				<slot v-bind="date" />
 			</div>
 	</div>

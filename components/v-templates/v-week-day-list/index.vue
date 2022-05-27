@@ -105,7 +105,7 @@ export default {
 				_year: selectedYear,
 				_month: selectedMonth
 			} = splitDate(this.selectedDate)
-			,	preSelectedStringDates = this.selectedDates.map(date => date.toLocaleDateString())
+			,	eventDates = this.getEventDates()
 
 			return weeks.map((date, i) => {
 				const	{
@@ -118,7 +118,12 @@ export default {
 				,	name = this.weeks[i]
 				,	id = `${this.name}:${_dateString}`
 				,	isVisibleCurrentWeek = this.currMonth === month
-				,	isEventDay = preSelectedStringDates.includes(_dateString)
+				,	eventDate = eventDates.find(({ date }) => date === _dateString)
+				,	isEventDay = Boolean(eventDate)
+				,	classes = {
+					parent: eventDate?.parent ?? null,
+					children: eventDate?.children ?? []
+				}
 				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
 				,	isEventSelectedDay = isSelectedDay && isEventDay
 				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
@@ -131,6 +136,7 @@ export default {
 					name,
 					title,
 					month,
+					classes,
 					isEventDay,
 					isEmptyDay,
 					isCurrentDay,
@@ -154,6 +160,23 @@ export default {
 				)
 
 				return date
+			})
+		},
+		getEventDates() {
+			return this.selectedDates.map(options => {
+					if (options instanceof Date) {
+						return {
+							date: options.toLocaleDateString()
+						}
+					} else {
+						const { date, children, parent } = options
+						
+						return {
+							parent,
+							children,
+							date: date.toLocaleDateString(),
+						}
+					}
 			})
 		},
 		сalculatedSizes() {

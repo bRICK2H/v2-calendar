@@ -16,7 +16,14 @@
 			</div>
 		</div>
 
-		<div class="v2dp-slot-years-complete">
+		<div class="v2dp-slot-years-complete"
+			:class="year.classes.parent"
+		>
+			<div v-for="name of year.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+		
 			<slot v-bind="year" />
 		</div>
   </div>
@@ -57,8 +64,8 @@ export default {
 			if (!this.isMarkedDay || !this.hoverYear || !this.isRangeMode) return null
 
 			const CELL = 'v2dp-cell-years'
-				,	{ name: hoverYear } = this.hoverYear
-				,	{ name: currYear, selectedYear } = this.year
+				,	{ title: hoverYear } = this.hoverYear
+				,	{ title: currYear, selectedYear } = this.year
 				,	{
 					_year: toSelectedYear
 				} = splitDate(this.cList.to.selectedDate)
@@ -102,16 +109,18 @@ export default {
 				,	{ selectedYear } = this.year
 				,	isFromHoverRangeYear = this.hoverYear
 						&& this.name === 'from'
-						&& this.hoverYear.name < selectedYear
+						&& this.hoverYear.title < selectedYear
 				,	isToHoverRangeYear = this.hoverYear
 						&& this.name === 'to'
-						&& this.hoverYear.name > selectedYear
+						&& this.hoverYear.title > selectedYear
 
 			return {
 				[`${CELL}__future-day`]: this.year.isFutureYear,
 				[`${CELL}__range-year`]: this.year.isRangeYear,
 				[`${CELL}__last-range-year`]: this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
 				[`${CELL}__first-range-year`]: this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
+				[`${CELL}__before-first-range-year`]: this.year.isBeforeFirstRangeYear,
+				[`${CELL}__disabled-range-year`]: this.year.isDisabledToRangeYear,
 			}
 		},
 		setClassCellYearsContent() {
@@ -137,7 +146,6 @@ export default {
 				[`${CELL_YEAR}__selected-year`]: this.year.isSelectedYear,
 				[`${CELL_YEAR}__event-selected-year`]: this.year.isEventSelectedYear,
 				[`${CELL_YEAR}__range-year`]: this.year.isRangeYear && !this.year.isCurrentYear,
-				[`${CELL_YEAR}__disabled-range-year`]: this.year.isDisabledToRangeYear,
 			}
 		}
 	},
@@ -165,8 +173,27 @@ export default {
 		position: relative;
 		cursor: pointer;
 
+		&:not(:nth-child(3n)) {
+			&::before {
+				content: '';
+				height: 100%;
+				width: 1px;
+				background: #B7B7CC;
+				position: absolute;
+				right: 0;
+			}
+		}
 		&:not(:nth-last-child(-n + 3)) {
 			margin-bottom: var(--margin-bottom);
+
+			&::after {
+				content: '';
+				height: 1px;
+				width: 100%;
+				background: #B7B7CC;
+				position: absolute;
+				bottom: calc(var(--margin-bottom) / -2);
+			}
 		}
 
 		display: flex;
@@ -197,6 +224,27 @@ export default {
 
 		&__future-day {
 			opacity: .6;
+		}
+
+		&__disabled-range-year {
+			opacity: .4;
+		}
+
+		&__range-year,
+		&__from-hover-range-year,
+		&__to-hover-range-year,
+		&__before-first-range-year {
+			&:not(:nth-child(3n)) {
+				&::before {
+					background: transparent;
+				}
+			}
+
+			&:not(:nth-last-child(-n + 3)) {
+				&::after {
+					background: transparent;
+				}
+			}
 		}
 	}
 
@@ -251,9 +299,6 @@ export default {
 		}
 		&__current-year {
 			background: #eeedf7;
-		}
-		&__disabled-range-year {
-			opacity: .2;
 		}
 		&__selected-year {
 			color: #fff;

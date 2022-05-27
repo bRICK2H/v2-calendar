@@ -16,7 +16,14 @@
 			</span>
 		</div>
 
-		<div class="v2dp-slot-months-complete">
+		<div class="v2dp-slot-months-complete"
+			:class="month.classes.parent"
+		>
+			<div v-for="name of month.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+		
 			<slot v-bind="month" />
 		</div>
   </div>
@@ -111,6 +118,8 @@ export default {
 				[`${CELL}__range-month`]: this.month.isRangeMonth,
 				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
 				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
+				[`${CELL}__before-first-range-month`]: this.month.isBeforeFirstRangeMonth,
+				[`${CELL}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
 			}
 		},
 		setClassCellMonthsContent() {
@@ -136,7 +145,6 @@ export default {
 				[`${CELL_MONTH}__selected-month`]: this.month.isSelectedMonth,
 				[`${CELL_MONTH}__event-selected-month`]: this.month.isEventSelectedMonth,
 				[`${CELL_MONTH}__range-month`]: this.month.isRangeMonth && !this.month.isCurrentMonth,
-				[`${CELL_MONTH}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
 			}
 		}
 	},
@@ -164,8 +172,27 @@ export default {
 		position: relative;
 		cursor: pointer;
 
+		&:not(:nth-child(3n)) {
+			&::before {
+				content: '';
+				height: 100%;
+				width: 1px;
+				background: #B7B7CC;
+				position: absolute;
+				right: 0;
+			}
+		}
 		&:not(:nth-last-child(-n + 3)) {
 			margin-bottom: var(--margin-bottom);
+
+			&::after {
+				content: '';
+				height: 1px;
+				width: 100%;
+				background: #B7B7CC;
+				position: absolute;
+				bottom: calc(var(--margin-bottom) / -2);
+			}
 		}
 
 		display: flex;
@@ -192,6 +219,27 @@ export default {
 			transition: background-color .2s;
 			background: #b9e6eb;
 			opacity: .8;
+		}
+
+		&__disabled-range-month {
+			opacity: .4;
+		}
+
+		&__range-month,
+		&__from-hover-range-month,
+		&__to-hover-range-month,
+		&__before-first-range-month {
+			&:not(:nth-child(3n)) {
+				&::before {
+					background: transparent;
+				}
+			}
+
+			&:not(:nth-last-child(-n + 3)) {
+				&::after {
+					background: transparent;
+				}
+			}
 		}
 	}
 
@@ -246,9 +294,6 @@ export default {
 		}
 		&__current-month {
 			background: #eeedf7;
-		}
-		&__disabled-range-month {
-			opacity: .2;
 		}
 		&__selected-month {
 			color: #fff;
