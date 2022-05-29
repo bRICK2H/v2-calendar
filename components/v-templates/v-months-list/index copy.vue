@@ -3,7 +3,6 @@
 		ref="v2dp-months-list"
 		:style="{
 			'--height-cell': heightCell,
-			'--height-range': heightRange,
 			'--border-width': borderWidth,
 			'--margin-bottom': marginBottom,
 			'--border-radius': borderRadius,
@@ -107,7 +106,6 @@ export default {
 	},
 	data: () => ({
 		heightCell: 0,
-		heightRange: 0,
 		borderWidth: 0,
 		borderRadius: 0,
 		widthContent: 0,
@@ -269,22 +267,15 @@ export default {
 			if (monthList) {
 				const containerWidth = monthList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
-					// ,	height = Math.floor(width / 1.8)
-					,	height = Math.floor(width / 1.2)
-					,	heightRange = Math.floor(height / 1.4)
-					,	widthContent = Math.floor(width / 1.09)
+					,	height = Math.floor(width / 1.8)
 
 				this.heightCell = `${height}px`
 				this.borderRadius = `${height}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeMonth = `${Math.floor(width * .15)}px`
-				this.widthContent = `${widthContent}px`
-				// this.heightContent = `${Math.floor(height / 1.12)}px`
-				this.heightRange = `${heightRange}px`
-				// this.heightContent = `${Math.floor(height / 1.6)}px`
-				this.heightContent = `${Math.floor(heightRange - (width - widthContent))}px`
-				// this.marginBottom = `${Math.floor(width - (width / 1.4))}px`
-				this.marginBottom = `${45}px`
+				this.widthContent = `${Math.floor(width / 1.09)}px`
+				this.heightContent = `${Math.floor(height / 1.12)}px`
+				this.marginBottom = `${Math.floor(width - (width / 1.4))}px`
 			}
 		},
 	},

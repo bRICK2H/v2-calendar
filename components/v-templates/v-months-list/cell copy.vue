@@ -1,34 +1,30 @@
 <template>
   <div class="v2dp-cell-months"
-	:class="[a1, a2]"
+	:class="[setClassCellMonths, setClassCellHoverMonth]"
   >
-		<div class="test"
-			:class="[setClassCellMonths, setClassCellHoverMonth]"
+		<div class="v2dp-cell-months-content"
+			:class="setClassCellMonthsContent"
+			@click="select"
+			@mouseenter="over"
 		>
-			<div class="v2dp-cell-months-content"
-				:class="setClassCellMonthsContent"
-				@click="select"
-				@mouseenter="over"
+			<span class="v2dp-cell-sub-months"
+				:class="setClassCellSubMonth"
 			>
-				<span class="v2dp-cell-sub-months"
-					:class="setClassCellSubMonth"
-				>
-					<slot name="clear" v-bind="month">
-						{{ month.title }}
-					</slot>
-				</span>
-			</div>
+				<slot name="clear" v-bind="month">
+					{{ month.title }}
+				</slot>
+			</span>
+		</div>
 
-			<div class="v2dp-slot-months-complete"
-				:class="month.classes.parent"
-			>
-				<div v-for="name of month.classes.children"
-					:key="`${name}`"
-					:class="name"
-				></div>
-			
-				<slot v-bind="month" />
-			</div>
+		<div class="v2dp-slot-months-complete"
+			:class="month.classes.parent"
+		>
+			<div v-for="name of month.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+		
+			<slot v-bind="month" />
 		</div>
   </div>
 </template>
@@ -64,72 +60,10 @@ export default {
 		},
 	},
 	computed: {
-		a1() {
-			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
-
-			const CELL = 'v2dp-cell-months'
-				,	{ index: hoverMonth } = this.hoverMonth
-				,	{ index: currMonth, selectedMonth } = this.month
-				,	{
-					_month: toSelectedMonth
-				} = splitDate(this.cList.to.selectedDate)
-				,	{
-					_month: fromSelectedMonth
-				} = splitDate(this.cList.from.selectedDate)
-				,	isFromHoverRangeMonth = this.name === 'from'
-						&& hoverMonth !== selectedMonth
-						&& currMonth >= hoverMonth
-						&& (
-							fromSelectedMonth === toSelectedMonth
-								? currMonth <= selectedMonth
-								: currMonth < selectedMonth
-						)
-				,	isFirstFromHoverRangeMonth = this.name === 'from'
-						&& currMonth === hoverMonth
-						&& currMonth < selectedMonth
-				,	isToHoverRangeMonth = this.name === 'to'
-						&& hoverMonth !== selectedMonth
-						&& currMonth <= hoverMonth
-						&& (
-							toSelectedMonth === fromSelectedMonth
-								? currMonth >= selectedMonth
-								: currMonth > selectedMonth
-						)
-				,	isLastToHoverRangeMonth = this.name === 'to'
-						&& currMonth === hoverMonth
-						&& currMonth > selectedMonth
-
-			return {
-				[`${CELL}__from-hover-range-month`]: isFromHoverRangeMonth,
-				[`${CELL}__first-from-hover-range-month`]: isFirstFromHoverRangeMonth,
-				[`${CELL}__to-hover-range-month`]: isToHoverRangeMonth,
-				[`${CELL}__last-to-hover-range-month`]: isLastToHoverRangeMonth,
-			}
-		},
-		a2() {
-			if (!this.isMarkedDay) return null
-
-			const CELL = 'v2dp-cell-months'
-				,	{ selectedMonth } = this.month
-				,	isFromHoverRangeMonth = this.hoverMonth
-						&& this.name === 'from'
-						&& this.hoverMonth.index < selectedMonth
-				,	isToHoverRangeMonth = this.hoverMonth
-						&& this.name === 'to'
-						&& this.hoverMonth.index > selectedMonth
-
-			return {
-				[`${CELL}__range-month`]: this.month.isRangeMonth,
-				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
-				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
-				[`${CELL}__before-first-range-month`]: this.month.isBeforeFirstRangeMonth,
-				[`${CELL}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
-			}
-		},
 		setClassCellHoverMonth() {
 			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
 
-			const CELL = 'test'
+			const CELL = 'v2dp-cell-months'
 				,	{ index: hoverMonth } = this.hoverMonth
 				,	{ index: currMonth, selectedMonth } = this.month
 				,	{
@@ -171,7 +105,7 @@ export default {
 		setClassCellMonths() {
 			if (!this.isMarkedDay) return null
 
-			const CELL = 'test'
+			const CELL = 'v2dp-cell-months'
 				,	{ selectedMonth } = this.month
 				,	isFromHoverRangeMonth = this.hoverMonth
 						&& this.name === 'from'
@@ -228,53 +162,39 @@ export default {
 
 	}
 }
-
-/**
- * 1. Разобратся со всеми стилями, кому какие нужны.
- * 2. Переименовать и сократить
- * 3. Именить index
- * 4. Перенести все измененное для years
- * 5. Поправить так же высоты для month-days and week (заменить бордер высотой)
- */
-
 </script>
 
 <style lang="scss">
 	.v2dp-cell-months {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
-		display: flex;
-		justify-content: center;
-		align-items: center;
 		font-size: var(--font-size-month);
 		position: relative;
 		cursor: pointer;
 
 		&:not(:nth-child(3n)) {
-			border-right: 1px solid #B7B7CC;
+			&::before {
+				content: '';
+				height: 100%;
+				width: 1px;
+				background: #B7B7CC;
+				position: absolute;
+				right: 0;
+			}
 		}
 		&:not(:nth-last-child(-n + 3)) {
-			border-bottom: 1px solid #B7B7CC;
-		}
+			margin-bottom: var(--margin-bottom);
 
-		&__range-month,
-		&__from-hover-range-month,
-		&__to-hover-range-month,
-		&__before-first-range-month {
-			&:not(:nth-child(3n)) {
-				// border-right: none;
-				border-right: 1px solid transparent;
-			}
-
-			&:not(:nth-last-child(-n + 3)) {
-				// border-bottom: 1px solid transparent;
+			&::after {
+				content: '';
+				height: 1px;
+				width: 100%;
+				background: #B7B7CC;
+				position: absolute;
+				bottom: calc(var(--margin-bottom) / -2);
 			}
 		}
-	}
 
-	.test {
-		width: 100%;
-		height: var(--height-range);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -293,7 +213,7 @@ export default {
 		&__range-month {
 			background: #4bbac5;
 		}
-
+		
 		&__from-hover-range-month,
 		&__to-hover-range-month {
 			transition: background-color .2s;
@@ -303,6 +223,23 @@ export default {
 
 		&__disabled-range-month {
 			opacity: .4;
+		}
+
+		&__range-month,
+		&__from-hover-range-month,
+		&__to-hover-range-month,
+		&__before-first-range-month {
+			&:not(:nth-child(3n)) {
+				&::before {
+					background: transparent;
+				}
+			}
+
+			&:not(:nth-last-child(-n + 3)) {
+				&::after {
+					background: transparent;
+				}
+			}
 		}
 	}
 
