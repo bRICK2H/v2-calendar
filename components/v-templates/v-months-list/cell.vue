@@ -1,35 +1,42 @@
 <template>
-  <div class="v2dp-cell-months"
-	:class="[a1, a2]"
-  >
-		<div class="test"
-			:class="[setClassCellMonths, setClassCellHoverMonth]"
+  <div class="v2dp-cell"
+		:class="[
+			setClassRange('v2dp-cell'),
+			setClassRangeHover('v2dp-cell')
+		]"
+  	>
+		<div class="v2dp-cell-container"
+			:class="[
+				setClassRange('v2dp-cell-container'),
+				setClassRangeHover('v2dp-cell-container')
+			]"
 		>
-			<div class="v2dp-cell-months-content"
-				:class="setClassCellMonthsContent"
+			<div class="v2dp-cell-content"
+				:class="setClassCellContent"
 				@click="select"
 				@mouseenter="over"
 			>
-				<span class="v2dp-cell-sub-months"
-					:class="setClassCellSubMonth"
+				<span class="v2dp-cell-title"
+					:class="setClassCellTitle"
 				>
 					<slot name="clear" v-bind="month">
 						{{ month.title }}
 					</slot>
 				</span>
 			</div>
-
-			<div class="v2dp-slot-months-complete"
-				:class="month.classes.parent"
-			>
-				<div v-for="name of month.classes.children"
-					:key="`${name}`"
-					:class="name"
-				></div>
-			
-				<slot v-bind="month" />
-			</div>
 		</div>
+
+		<div class="v2dp-slot-container"
+			:class="month.classes.parent"
+		>
+			<div v-for="name of month.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+		
+			<slot v-bind="month" />
+		</div>
+		
   </div>
 </template>
 
@@ -64,134 +71,10 @@ export default {
 		},
 	},
 	computed: {
-		a1() {
-			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
-
-			const CELL = 'v2dp-cell-months'
-				,	{ index: hoverMonth } = this.hoverMonth
-				,	{ index: currMonth, selectedMonth } = this.month
-				,	{
-					_month: toSelectedMonth
-				} = splitDate(this.cList.to.selectedDate)
-				,	{
-					_month: fromSelectedMonth
-				} = splitDate(this.cList.from.selectedDate)
-				,	isFromHoverRangeMonth = this.name === 'from'
-						&& hoverMonth !== selectedMonth
-						&& currMonth >= hoverMonth
-						&& (
-							fromSelectedMonth === toSelectedMonth
-								? currMonth <= selectedMonth
-								: currMonth < selectedMonth
-						)
-				,	isFirstFromHoverRangeMonth = this.name === 'from'
-						&& currMonth === hoverMonth
-						&& currMonth < selectedMonth
-				,	isToHoverRangeMonth = this.name === 'to'
-						&& hoverMonth !== selectedMonth
-						&& currMonth <= hoverMonth
-						&& (
-							toSelectedMonth === fromSelectedMonth
-								? currMonth >= selectedMonth
-								: currMonth > selectedMonth
-						)
-				,	isLastToHoverRangeMonth = this.name === 'to'
-						&& currMonth === hoverMonth
-						&& currMonth > selectedMonth
-
-			return {
-				[`${CELL}__from-hover-range-month`]: isFromHoverRangeMonth,
-				[`${CELL}__first-from-hover-range-month`]: isFirstFromHoverRangeMonth,
-				[`${CELL}__to-hover-range-month`]: isToHoverRangeMonth,
-				[`${CELL}__last-to-hover-range-month`]: isLastToHoverRangeMonth,
-			}
-		},
-		a2() {
+		setClassCellContent() {
 			if (!this.isMarkedDay) return null
 
-			const CELL = 'v2dp-cell-months'
-				,	{ selectedMonth } = this.month
-				,	isFromHoverRangeMonth = this.hoverMonth
-						&& this.name === 'from'
-						&& this.hoverMonth.index < selectedMonth
-				,	isToHoverRangeMonth = this.hoverMonth
-						&& this.name === 'to'
-						&& this.hoverMonth.index > selectedMonth
-
-			return {
-				[`${CELL}__range-month`]: this.month.isRangeMonth,
-				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
-				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
-				[`${CELL}__before-first-range-month`]: this.month.isBeforeFirstRangeMonth,
-				[`${CELL}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
-			}
-		},
-		setClassCellHoverMonth() {
-			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
-
-			const CELL = 'test'
-				,	{ index: hoverMonth } = this.hoverMonth
-				,	{ index: currMonth, selectedMonth } = this.month
-				,	{
-					_month: toSelectedMonth
-				} = splitDate(this.cList.to.selectedDate)
-				,	{
-					_month: fromSelectedMonth
-				} = splitDate(this.cList.from.selectedDate)
-				,	isFromHoverRangeMonth = this.name === 'from'
-						&& hoverMonth !== selectedMonth
-						&& currMonth >= hoverMonth
-						&& (
-							fromSelectedMonth === toSelectedMonth
-								? currMonth <= selectedMonth
-								: currMonth < selectedMonth
-						)
-				,	isFirstFromHoverRangeMonth = this.name === 'from'
-						&& currMonth === hoverMonth
-						&& currMonth < selectedMonth
-				,	isToHoverRangeMonth = this.name === 'to'
-						&& hoverMonth !== selectedMonth
-						&& currMonth <= hoverMonth
-						&& (
-							toSelectedMonth === fromSelectedMonth
-								? currMonth >= selectedMonth
-								: currMonth > selectedMonth
-						)
-				,	isLastToHoverRangeMonth = this.name === 'to'
-						&& currMonth === hoverMonth
-						&& currMonth > selectedMonth
-
-			return {
-				[`${CELL}__from-hover-range-month`]: isFromHoverRangeMonth,
-				[`${CELL}__first-from-hover-range-month`]: isFirstFromHoverRangeMonth,
-				[`${CELL}__to-hover-range-month`]: isToHoverRangeMonth,
-				[`${CELL}__last-to-hover-range-month`]: isLastToHoverRangeMonth,
-			}
-		},
-		setClassCellMonths() {
-			if (!this.isMarkedDay) return null
-
-			const CELL = 'test'
-				,	{ selectedMonth } = this.month
-				,	isFromHoverRangeMonth = this.hoverMonth
-						&& this.name === 'from'
-						&& this.hoverMonth.index < selectedMonth
-				,	isToHoverRangeMonth = this.hoverMonth
-						&& this.name === 'to'
-						&& this.hoverMonth.index > selectedMonth
-
-			return {
-				[`${CELL}__range-month`]: this.month.isRangeMonth,
-				[`${CELL}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
-				[`${CELL}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
-				[`${CELL}__before-first-range-month`]: this.month.isBeforeFirstRangeMonth,
-				[`${CELL}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
-			}
-		},
-		setClassCellMonthsContent() {
-			if (!this.isMarkedDay) return null
-
-			const CELL_CONTENT = 'v2dp-cell-months-content'
+			const CELL_CONTENT = 'v2dp-cell-content'
 
 			return {
 				[`${CELL_CONTENT}__event-month`]: this.month.isEventMonth,
@@ -200,17 +83,17 @@ export default {
 				[`${CELL_CONTENT}__event-selected-month`]: this.month.isEventSelectedMonth,
 			}
 		},
-		setClassCellSubMonth() {
+		setClassCellTitle() {
 			if (!this.isMarkedDay) return null
 
-			const CELL_MONTH = 'v2dp-cell-sub-months'
+			const CELL_TITLE = 'v2dp-cell-title'
 
 			return {
-				[`${CELL_MONTH}__empty-month`]: this.month.isEmptyMonth,
-				[`${CELL_MONTH}__current-month`]: this.month.isCurrentMonth,
-				[`${CELL_MONTH}__selected-month`]: this.month.isSelectedMonth,
-				[`${CELL_MONTH}__event-selected-month`]: this.month.isEventSelectedMonth,
-				[`${CELL_MONTH}__range-month`]: this.month.isRangeMonth && !this.month.isCurrentMonth,
+				[`${CELL_TITLE}__empty-month`]: this.month.isEmptyMonth,
+				[`${CELL_TITLE}__current-month`]: this.month.isCurrentMonth,
+				[`${CELL_TITLE}__selected-month`]: this.month.isSelectedMonth,
+				[`${CELL_TITLE}__event-selected-month`]: this.month.isEventSelectedMonth,
+				[`${CELL_TITLE}__range-month`]: this.month.isRangeMonth && !this.month.isCurrentMonth,
 			}
 		}
 	},
@@ -224,8 +107,68 @@ export default {
 			if (!this.month.isDisabledToRangeMonth) {
 				this.$emit('over-month')
 			}
-		}
+		},
 
+		setClassRange(root) {
+			if (!this.isMarkedDay) return null
+
+			const { selectedMonth } = this.month
+				,	isFromHoverRangeMonth = this.hoverMonth
+						&& this.name === 'from'
+						&& this.hoverMonth.index < selectedMonth
+				,	isToHoverRangeMonth = this.hoverMonth
+						&& this.name === 'to'
+						&& this.hoverMonth.index > selectedMonth
+
+			return {
+				[`${root}__range-month`]: this.month.isRangeMonth,
+				[`${root}__last-range-month`]: this.month.isLastRangeMonth && this.isRangeMode && !isToHoverRangeMonth,
+				[`${root}__first-range-month`]: this.month.isFirstRangeMonth && this.isRangeMode && !isFromHoverRangeMonth,
+				[`${root}__before-first-range-month`]: this.month.isBeforeFirstRangeMonth,
+				[`${root}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
+			}
+		},
+		setClassRangeHover(root) {
+			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
+
+			const { index: hoverMonth } = this.hoverMonth
+				,	{ index: currMonth, selectedMonth } = this.month
+				,	{
+					_month: toSelectedMonth
+				} = splitDate(this.cList.to.selectedDate)
+				,	{
+					_month: fromSelectedMonth
+				} = splitDate(this.cList.from.selectedDate)
+				,	isFromHoverRangeMonth = this.name === 'from'
+						&& hoverMonth !== selectedMonth
+						&& currMonth >= hoverMonth
+						&& (
+							fromSelectedMonth === toSelectedMonth
+								? currMonth <= selectedMonth
+								: currMonth < selectedMonth
+						)
+				,	isFirstFromHoverRangeMonth = this.name === 'from'
+						&& currMonth === hoverMonth
+						&& currMonth < selectedMonth
+				,	isToHoverRangeMonth = this.name === 'to'
+						&& hoverMonth !== selectedMonth
+						&& currMonth <= hoverMonth
+						&& (
+							toSelectedMonth === fromSelectedMonth
+								? currMonth >= selectedMonth
+								: currMonth > selectedMonth
+						)
+				,	isLastToHoverRangeMonth = this.name === 'to'
+						&& currMonth === hoverMonth
+						&& currMonth > selectedMonth
+
+			return {
+				[`${root}__from-hover-range-month`]: isFromHoverRangeMonth,
+				[`${root}__first-from-hover-range-month`]: isFirstFromHoverRangeMonth,
+				[`${root}__to-hover-range-month`]: isToHoverRangeMonth,
+				[`${root}__last-to-hover-range-month`]: isLastToHoverRangeMonth,
+			}
+		},
 	}
 }
 
@@ -240,7 +183,7 @@ export default {
 </script>
 
 <style lang="scss">
-	.v2dp-cell-months {
+	.v2dp-cell {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
 		display: flex;
@@ -248,7 +191,7 @@ export default {
 		align-items: center;
 		font-size: var(--font-size-month);
 		position: relative;
-		cursor: pointer;
+		transition: border-right .1s;
 
 		&:not(:nth-child(3n)) {
 			border-right: 1px solid #B7B7CC;
@@ -262,22 +205,28 @@ export default {
 		&__to-hover-range-month,
 		&__before-first-range-month {
 			&:not(:nth-child(3n)) {
-				// border-right: none;
 				border-right: 1px solid transparent;
 			}
 
-			&:not(:nth-last-child(-n + 3)) {
-				// border-bottom: 1px solid transparent;
-			}
+			// &:not(:nth-last-child(-n + 3)) {
+			// 	border-bottom: 1px solid transparent;
+			// }
+		}
+
+		&__disabled-range-month {
+			cursor: no-drop;
 		}
 	}
 
-	.test {
+	.v2dp-cell-container {
 		width: 100%;
 		height: var(--height-range);
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		position: absolute;
+		box-sizing: content-box;
+		cursor: pointer;
 
 		&__first-range-month,
 		&__first-from-hover-range-month  {
@@ -292,21 +241,22 @@ export default {
 
 		&__range-month {
 			background: #4bbac5;
+			border: 1px solid #4bbac5;
 		}
 
 		&__from-hover-range-month,
 		&__to-hover-range-month {
-			transition: background-color .2s;
 			background: #b9e6eb;
-			opacity: .8;
+			border: 1px solid transparent;
 		}
 
 		&__disabled-range-month {
 			opacity: .4;
+			cursor: no-drop;
 		}
 	}
 
-	.v2dp-cell-months-content {
+	.v2dp-cell-content {
 		width: var(--width-content);
 		height: var(--height-content);
 		border-radius: var(--border-radius);
@@ -333,12 +283,11 @@ export default {
 		&__disabled-range-month {
 			&:hover {
 				box-shadow: none;
-				cursor: no-drop;
 			}
 		}
 	}
 
-	.v2dp-cell-sub-months {
+	.v2dp-cell-title {
 		width: 100%;
 		height: 100%;
 		border-radius: var(--border-radius);
@@ -375,7 +324,7 @@ export default {
 		}
 	}
 
-	.v2dp-slot-months-complete {
+	.v2dp-slot-container {
 		width: 100%;
 		height: 100%;
 		position: absolute;
