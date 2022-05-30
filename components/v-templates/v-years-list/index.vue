@@ -2,9 +2,11 @@
 	<div class="v2dp-years-list"
 		ref="v2dp-years-list"
 		:style="{
+			'--padding-top': paddingTop,
 			'--height-cell': heightCell,
+			'--height-slot': heightSlot,
+			'--height-range': heightRange,
 			'--border-width': borderWidth,
-			'--margin-bottom': marginBottom,
 			'--border-radius': borderRadius,
 			'--width-content': widthContent,
 			'--height-content': heightContent,
@@ -105,11 +107,13 @@ export default {
 		}
 	},
 	data: () => ({
+		paddingTop: 0,
 		heightCell: 0,
+		heightSlot: 0,
+		heightRange: 0,
 		borderWidth: 0,
 		borderRadius: 0,
 		widthContent: 0,
-		marginBottom: 0,
 		heightContent: 0,
 		fontSizeYear: 0,
 
@@ -247,15 +251,19 @@ export default {
 			if (yearList) {
 				const containerWidth = yearList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
-					,	height = Math.floor(width / 1.8)
-
+					,	height = Math.floor(width / 1.15)
+					,	heightRange = Math.floor(height / 1.6)
+					,	widthContent = Math.floor(width / 1.09)
+				
 				this.heightCell = `${height}px`
+				this.heightSlot = `${height / 1.3}px`
 				this.borderRadius = `${height}px`
+				this.heightRange = `${heightRange}px`
+				this.widthContent = `${widthContent}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeYear = `${Math.floor(width * .15)}px`
-				this.widthContent = `${Math.floor(width / 1.09)}px`
-				this.heightContent = `${Math.floor(height / 1.12)}px`
-				this.marginBottom = `${Math.floor(width - (width / 1.4))}px`
+				this.paddingTop = `${Math.floor(containerWidth * .04)}px`
+				this.heightContent = `${Math.floor(heightRange - (width - widthContent))}px`
 			}
 		},
 	},
@@ -284,5 +292,6 @@ export default {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+		padding-top: var(--padding-top);
 	}
 </style>

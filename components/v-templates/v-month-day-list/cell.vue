@@ -1,7 +1,8 @@
 <template>
-	<div class="v2dp-cell-month-day"
-		:class="[setClassCellMonth, setClassHoverRangeDay]"
-	>
+	<div class="v2dp-cell-month-day">
+		<div class="v2dp-cell-month-day-container"
+			:class="[setClassCellMonth, setClassHoverRangeDay]"
+		>
 			<div class="v2dp-cell-month-day-content"
 				:class="setClassCellMonthContent"
 				@click="select"
@@ -27,6 +28,7 @@
 
 				<slot v-bind="date" />
 			</div>
+		</div>
 	</div>
 </template>
 
@@ -68,7 +70,7 @@ export default {
 		setClassHoverRangeDay() {
 			if (!this.isMarkedDay || !this.hoverDateRage || !this.isRangeMode) return null
 
-			const CELL = 'v2dp-cell-month-day'
+			const CELL = 'v2dp-cell-month-day-container'
 				,	{
 					_dateString: toSelectedDayString,
 				} = splitDate(this.cList.to.selectedDate)
@@ -121,7 +123,7 @@ export default {
 		setClassCellMonth() {
 			if (!this.isMarkedDay) return null
 			
-			const CELL = 'v2dp-cell-month-day'
+			const CELL = 'v2dp-cell-month-day-container'
 			const isFromHoverRangeDay = this.hoverDateRage
 					&& this.name === 'from'
 					&& this.hoverDateRage < this.selectedDate
@@ -188,6 +190,19 @@ export default {
 	align-items: center;
 	position: relative;
 	
+
+	&__offset-day {
+		opacity: .6;
+	}
+}
+
+.v2dp-cell-month-day-container {
+	width: 100%;
+	height: var(--height-range);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
 	&__first-range-day,
 	&__first-from-hover-range-day  {
 		border-top-left-radius: var(--height-cell);
@@ -210,9 +225,6 @@ export default {
 		transition: background-color .2s;
 		background: #b9e6eb;
 		opacity: .8;
-	}
-	&__offset-day {
-		opacity: .6;
 	}
 }
 

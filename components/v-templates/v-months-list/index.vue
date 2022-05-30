@@ -2,7 +2,9 @@
 	<div class="v2dp-months-list"
 		ref="v2dp-months-list"
 		:style="{
+			'--padding-top': paddingTop,
 			'--height-cell': heightCell,
+			'--height-slot': heightSlot,
 			'--height-range': heightRange,
 			'--border-width': borderWidth,
 			'--border-radius': borderRadius,
@@ -105,7 +107,9 @@ export default {
 		}
 	},
 	data: () => ({
+		paddingTop: 0,
 		heightCell: 0,
+		heightSlot: 0,
 		heightRange: 0,
 		borderWidth: 0,
 		borderRadius: 0,
@@ -267,16 +271,18 @@ export default {
 			if (monthList) {
 				const containerWidth = monthList.offsetWidth
 					,	width = Math.floor(containerWidth / 3)
-					,	height = Math.floor(width / 1.12)
+					,	height = Math.floor(width / 1.15)
 					,	heightRange = Math.floor(height / 1.6)
 					,	widthContent = Math.floor(width / 1.09)
-
+				
 				this.heightCell = `${height}px`
+				this.heightSlot = `${height / 1.3}px`
 				this.borderRadius = `${height}px`
 				this.heightRange = `${heightRange}px`
 				this.widthContent = `${widthContent}px`
 				this.borderWidth = `${Math.floor(width * .03)}px`
 				this.fontSizeMonth = `${Math.floor(width * .15)}px`
+				this.paddingTop = `${Math.floor(containerWidth * .04)}px`
 				this.heightContent = `${Math.floor(heightRange - (width - widthContent))}px`
 			}
 		},
@@ -298,5 +304,6 @@ export default {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+		padding-top: var(--padding-top);
 	}
 </style>

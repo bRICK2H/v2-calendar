@@ -1,23 +1,23 @@
 <template>
-  <div class="v2dp-cell"
+  <div class="v2dp-cell-months"
 		:class="[
-			setClassRange('v2dp-cell'),
-			setClassRangeHover('v2dp-cell')
+			setClassCellMonthsRange('v2dp-cell-months'),
+			setClassCellMonthsRangeHover('v2dp-cell-months')
 		]"
   	>
-		<div class="v2dp-cell-container"
+		<div class="v2dp-cell-months-container"
 			:class="[
-				setClassRange('v2dp-cell-container'),
-				setClassRangeHover('v2dp-cell-container')
+				setClassCellMonthsRange('v2dp-cell-months-container'),
+				setClassCellMonthsRangeHover('v2dp-cell-months-container')
 			]"
 		>
-			<div class="v2dp-cell-content"
-				:class="setClassCellContent"
+			<div class="v2dp-cell-months-content"
+				:class="setClassCellMonthsContent"
 				@click="select"
 				@mouseenter="over"
 			>
-				<span class="v2dp-cell-title"
-					:class="setClassCellTitle"
+				<span class="v2dp-cell-months-title"
+					:class="setClassCellMonthsTitle"
 				>
 					<slot name="clear" v-bind="month">
 						{{ month.title }}
@@ -26,7 +26,7 @@
 			</div>
 		</div>
 
-		<div class="v2dp-slot-container"
+		<div class="v2dp-slot-months-container"
 			:class="month.classes.parent"
 		>
 			<div v-for="name of month.classes.children"
@@ -71,10 +71,10 @@ export default {
 		},
 	},
 	computed: {
-		setClassCellContent() {
+		setClassCellMonthsContent() {
 			if (!this.isMarkedDay) return null
 
-			const CELL_CONTENT = 'v2dp-cell-content'
+			const CELL_CONTENT = 'v2dp-cell-months-content'
 
 			return {
 				[`${CELL_CONTENT}__event-month`]: this.month.isEventMonth,
@@ -83,10 +83,10 @@ export default {
 				[`${CELL_CONTENT}__event-selected-month`]: this.month.isEventSelectedMonth,
 			}
 		},
-		setClassCellTitle() {
+		setClassCellMonthsTitle() {
 			if (!this.isMarkedDay) return null
 
-			const CELL_TITLE = 'v2dp-cell-title'
+			const CELL_TITLE = 'v2dp-cell-months-title'
 
 			return {
 				[`${CELL_TITLE}__empty-month`]: this.month.isEmptyMonth,
@@ -109,7 +109,7 @@ export default {
 			}
 		},
 
-		setClassRange(root) {
+		setClassCellMonthsRange(root) {
 			if (!this.isMarkedDay) return null
 
 			const { selectedMonth } = this.month
@@ -128,7 +128,7 @@ export default {
 				[`${root}__disabled-range-month`]: this.month.isDisabledToRangeMonth,
 			}
 		},
-		setClassRangeHover(root) {
+		setClassCellMonthsRangeHover(root) {
 			if (!this.isMarkedDay || !this.hoverMonth || !this.isRangeMode) return null
 
 			const { index: hoverMonth } = this.hoverMonth
@@ -172,18 +172,10 @@ export default {
 	}
 }
 
-/**
- * 1. Разобратся со всеми стилями, кому какие нужны.
- * 2. Переименовать и сократить
- * 3. Именить index
- * 4. Перенести все измененное для years
- * 5. Поправить так же высоты для month-days and week (заменить бордер высотой)
- */
-
 </script>
 
 <style lang="scss">
-	.v2dp-cell {
+	.v2dp-cell-months {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
 		display: flex;
@@ -218,7 +210,7 @@ export default {
 		}
 	}
 
-	.v2dp-cell-container {
+	.v2dp-cell-months-container {
 		width: 100%;
 		height: var(--height-range);
 		display: flex;
@@ -256,7 +248,7 @@ export default {
 		}
 	}
 
-	.v2dp-cell-content {
+	.v2dp-cell-months-content {
 		width: var(--width-content);
 		height: var(--height-content);
 		border-radius: var(--border-radius);
@@ -287,7 +279,7 @@ export default {
 		}
 	}
 
-	.v2dp-cell-title {
+	.v2dp-cell-months-title {
 		width: 100%;
 		height: 100%;
 		border-radius: var(--border-radius);
@@ -311,8 +303,8 @@ export default {
 			color: #fff;
 			background: #1f1f33;
 
-			.v2dp-cell-week-name,
-			.v2dp-cell-week-month {
+			.v2dp-cell-months-week-name,
+			.v2dp-cell-months-week-month {
 				color: #fff;
 			}
 		}
@@ -324,11 +316,12 @@ export default {
 		}
 	}
 
-	.v2dp-slot-container {
+	.v2dp-slot-months-container {
 		width: 100%;
-		height: 100%;
+		height: var(--height-slot);
 		position: absolute;
-		top: 0;
+		top: 50%;
 		left: 0;
+		transform: translateY(-50%);
 	}
 </style>

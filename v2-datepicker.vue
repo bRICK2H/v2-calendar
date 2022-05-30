@@ -5,6 +5,7 @@
 			'--margin': margin,
 			'--font-size': fontSize,
 			'--border-width': borderWidth,
+			'--height-control': heightControl,
 			'--size-circle-toggle': sizeCircleToggle,
 			'--size-circle-current': sizeCircleCurrent,
 		}"
@@ -370,6 +371,7 @@
 			margin: 0,
 			fontSize: 0,
 			borderWidth: 0,
+			heightControl: 0,
 			sizeCircleToggle: 0,
 			sizeCircleCurrent: 0,
 
@@ -771,8 +773,9 @@
 						,	width = Math.floor(item?.offsetWidth / 2)
 
 					this.margin = `${Math.floor(width * .1)}px`
-					this.borderWidth = `${Math.floor(width / 3  * .06)}px`
 					this.fontSize = `${Math.floor((width) * .12)}px`
+					this.heightControl = `${Math.floor(width * .16)}px`
+					this.borderWidth = `${Math.floor(width / 3  * .06)}px`
 					this.sizeCircleToggle = `${Math.floor(width * .15)}px`
 					this.sizeCircleCurrent = `${Math.floor(width * .13)}px`
 				}

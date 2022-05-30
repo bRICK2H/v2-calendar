@@ -1,22 +1,32 @@
 <template>
   <div class="v2dp-cell-years"
-	:class="[setClassCellYears, setClassCellhoverYear]"
-  >
-		<div class="v2dp-cell-years-content"
-			:class="setClassCellYearsContent"
-			@click="select"
-			@mouseenter="over"
+		:class="[
+			setClassCellYearsRange('v2dp-cell-years'),
+			setClassCellYearsRangeHover('v2dp-cell-years')
+		]"
+  	>
+		<div class="v2dp-cell-years-container"
+			:class="[
+				setClassCellYearsRange('v2dp-cell-years-container'),
+				setClassCellYearsRangeHover('v2dp-cell-years-container')
+			]"
 		>
-			<div class="v2dp-cell-sub-years"
-				:class="setClassCellSubYear"
+			<div class="v2dp-cell-years-content"
+				:class="setClassCellYearsContent"
+				@click="select"
+				@mouseenter="over"
 			>
-				<slot name="clear" v-bind="year">
-					{{ year.title }}
-				</slot>
+				<span class="v2dp-cell-years-title"
+					:class="setClassCellYearsTitle"
+				>
+					<slot name="clear" v-bind="year">
+						{{ year.title }}
+					</slot>
+				</span>
 			</div>
 		</div>
 
-		<div class="v2dp-slot-years-complete"
+		<div class="v2dp-slot-years-container"
 			:class="year.classes.parent"
 		>
 			<div v-for="name of year.classes.children"
@@ -26,6 +36,7 @@
 		
 			<slot v-bind="year" />
 		</div>
+
   </div>
 </template>
 
@@ -60,11 +71,131 @@ export default {
 		},
 	},
 	computed: {
-		setClassCellhoverYear() {
+		// setClassCellhoverYear() {
+		// 	if (!this.isMarkedDay || !this.hoverYear || !this.isRangeMode) return null
+
+		// 	const CELL = 'v2dp-cell-years'
+		// 		,	{ title: hoverYear } = this.hoverYear
+		// 		,	{ title: currYear, selectedYear } = this.year
+		// 		,	{
+		// 			_year: toSelectedYear
+		// 		} = splitDate(this.cList.to.selectedDate)
+		// 		,	{
+		// 			_year: fromSelectedYear
+		// 		} = splitDate(this.cList.from.selectedDate)
+		// 		,	isFromHoverRangeYear = this.name === 'from'
+		// 				&& hoverYear !== selectedYear
+		// 				&&	currYear >= hoverYear
+		// 				&& (
+		// 					fromSelectedYear === toSelectedYear
+		// 						? currYear <= selectedYear
+		// 						: currYear < selectedYear
+		// 				)
+		// 		,	isFirstFromHoverRangeYear = this.name === 'from'
+		// 				&&	currYear === hoverYear
+		// 				&& currYear < selectedYear
+		// 		,	isToHoverRangeYear = this.name === 'to'
+		// 				&& hoverYear !== selectedYear
+		// 				&&	currYear <= hoverYear
+		// 				&& (
+		// 					toSelectedYear === fromSelectedYear
+		// 						? currYear >= selectedYear
+		// 						: currYear > selectedYear
+		// 				)
+		// 		,	isLastToHoverRangeYear = this.name === 'to'
+		// 				&& currYear === hoverYear
+		// 				&& currYear > selectedYear
+
+		// 	return {
+		// 		[`${CELL}__from-hover-range-year`]: isFromHoverRangeYear,
+		// 		[`${CELL}__first-from-hover-range-year`]: isFirstFromHoverRangeYear,
+		// 		[`${CELL}__to-hover-range-year`]: isToHoverRangeYear,
+		// 		[`${CELL}__last-to-hover-range-year`]: isLastToHoverRangeYear,
+		// 	}
+		// },
+		// setClassCellYears() {
+		// 	if (!this.isMarkedDay) return null
+
+		// 	const CELL = 'v2dp-cell-years'
+		// 		,	{ selectedYear } = this.year
+		// 		,	isFromHoverRangeYear = this.hoverYear
+		// 				&& this.name === 'from'
+		// 				&& this.hoverYear.title < selectedYear
+		// 		,	isToHoverRangeYear = this.hoverYear
+		// 				&& this.name === 'to'
+		// 				&& this.hoverYear.title > selectedYear
+
+		// 	return {
+		// 		[`${CELL}__future-day`]: this.year.isFutureYear,
+		// 		[`${CELL}__range-year`]: this.year.isRangeYear,
+		// 		[`${CELL}__last-range-year`]: this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
+		// 		[`${CELL}__first-range-year`]: this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
+		// 		[`${CELL}__before-first-range-year`]: this.year.isBeforeFirstRangeYear,
+		// 		[`${CELL}__disabled-range-year`]: this.year.isDisabledToRangeYear,
+		// 	}
+		// },
+		setClassCellYearsContent() {
+			if (!this.isMarkedDay) return null
+
+			const CELL_CONTENT = 'v2dp-cell-years-content'
+
+			return {
+				[`${CELL_CONTENT}__event-year`]: this.year.isEventYear,
+				[`${CELL_CONTENT}__selected-year`]: this.year.isSelectedYear,
+				[`${CELL_CONTENT}__disabled-range-year`]: this.year.isDisabledToRangeYear,
+				[`${CELL_CONTENT}__event-selected-year`]: this.year.isEventSelectedYear,
+			}
+		},
+		setClassCellYearsTitle() {
+			if (!this.isMarkedDay) return null
+
+			const CELL_TITLE = 'v2dp-cell-years-title'
+
+			return {
+				[`${CELL_TITLE}__empty-year`]: this.year.isEmptyYear,
+				[`${CELL_TITLE}__current-year`]: this.year.isCurrentYear,
+				[`${CELL_TITLE}__selected-year`]: this.year.isSelectedYear,
+				[`${CELL_TITLE}__event-selected-year`]: this.year.isEventSelectedYear,
+				[`${CELL_TITLE}__range-year`]: this.year.isRangeYear && !this.year.isCurrentYear,
+			}
+		}
+	},
+	methods: {
+		select() {
+			if (!this.year.isDisabledToRangeYear) {
+				this.$emit('select-year')
+			}
+		},
+		over() {
+			if (!this.year.isDisabledToRangeYear) {
+				this.$emit('over-year')
+			}
+		},
+
+		setClassCellYearsRange(root) {
+			if (!this.isMarkedDay) return null
+
+			const { selectedYear } = this.year
+				,	isFromHoverRangeYear = this.hoverYear
+						&& this.name === 'from'
+						&& this.hoverYear.title < selectedYear
+				,	isToHoverRangeYear = this.hoverYear
+						&& this.name === 'to'
+						&& this.hoverYear.title > selectedYear
+
+			return {
+				[`${root}__future-day`]: this.year.isFutureYear,
+				[`${root}__range-year`]: this.year.isRangeYear,
+				[`${root}__last-range-year`]: this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
+				[`${root}__first-range-year`]: this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
+				[`${root}__before-first-range-year`]: this.year.isBeforeFirstRangeYear,
+				[`${root}__disabled-range-year`]: this.year.isDisabledToRangeYear,
+			}
+		},
+		setClassCellYearsRangeHover(root) {
 			if (!this.isMarkedDay || !this.hoverYear || !this.isRangeMode) return null
 
-			const CELL = 'v2dp-cell-years'
-				,	{ title: hoverYear } = this.hoverYear
+			const { title: hoverYear } = this.hoverYear
 				,	{ title: currYear, selectedYear } = this.year
 				,	{
 					_year: toSelectedYear
@@ -96,68 +227,10 @@ export default {
 						&& currYear > selectedYear
 
 			return {
-				[`${CELL}__from-hover-range-year`]: isFromHoverRangeYear,
-				[`${CELL}__first-from-hover-range-year`]: isFirstFromHoverRangeYear,
-				[`${CELL}__to-hover-range-year`]: isToHoverRangeYear,
-				[`${CELL}__last-to-hover-range-year`]: isLastToHoverRangeYear,
-			}
-		},
-		setClassCellYears() {
-			if (!this.isMarkedDay) return null
-
-			const CELL = 'v2dp-cell-years'
-				,	{ selectedYear } = this.year
-				,	isFromHoverRangeYear = this.hoverYear
-						&& this.name === 'from'
-						&& this.hoverYear.title < selectedYear
-				,	isToHoverRangeYear = this.hoverYear
-						&& this.name === 'to'
-						&& this.hoverYear.title > selectedYear
-
-			return {
-				[`${CELL}__future-day`]: this.year.isFutureYear,
-				[`${CELL}__range-year`]: this.year.isRangeYear,
-				[`${CELL}__last-range-year`]: this.year.isLastRangeYear && this.isRangeMode && !isToHoverRangeYear,
-				[`${CELL}__first-range-year`]: this.year.isFirstRangeYear && this.isRangeMode && !isFromHoverRangeYear,
-				[`${CELL}__before-first-range-year`]: this.year.isBeforeFirstRangeYear,
-				[`${CELL}__disabled-range-year`]: this.year.isDisabledToRangeYear,
-			}
-		},
-		setClassCellYearsContent() {
-			if (!this.isMarkedDay) return null
-
-			const CELL_CONTENT = 'v2dp-cell-years-content'
-
-			return {
-				[`${CELL_CONTENT}__event-year`]: this.year.isEventYear,
-				[`${CELL_CONTENT}__selected-year`]: this.year.isSelectedYear,
-				[`${CELL_CONTENT}__disabled-range-year`]: this.year.isDisabledToRangeYear,
-				[`${CELL_CONTENT}__event-selected-year`]: this.year.isEventSelectedYear,
-			}
-		},
-		setClassCellSubYear() {
-			if (!this.isMarkedDay) return null
-
-			const CELL_YEAR = 'v2dp-cell-sub-years'
-
-			return {
-				[`${CELL_YEAR}__empty-year`]: this.year.isEmptyYear,
-				[`${CELL_YEAR}__current-year`]: this.year.isCurrentYear,
-				[`${CELL_YEAR}__selected-year`]: this.year.isSelectedYear,
-				[`${CELL_YEAR}__event-selected-year`]: this.year.isEventSelectedYear,
-				[`${CELL_YEAR}__range-year`]: this.year.isRangeYear && !this.year.isCurrentYear,
-			}
-		}
-	},
-	methods: {
-		select() {
-			if (!this.year.isDisabledToRangeYear) {
-				this.$emit('select-year')
-			}
-		},
-		over() {
-			if (!this.year.isDisabledToRangeYear) {
-				this.$emit('over-year')
+				[`${root}__from-hover-range-year`]: isFromHoverRangeYear,
+				[`${root}__first-from-hover-range-year`]: isFirstFromHoverRangeYear,
+				[`${root}__to-hover-range-year`]: isToHoverRangeYear,
+				[`${root}__last-to-hover-range-year`]: isLastToHoverRangeYear,
 			}
 		}
 
@@ -169,36 +242,47 @@ export default {
 	.v2dp-cell-years {
 		flex: 1 1 calc(100% / 3);
 		height: var(--height-cell);
-		font-size: var(--font-size-year);
-		position: relative;
-		cursor: pointer;
-
-		&:not(:nth-child(3n)) {
-			&::before {
-				content: '';
-				height: 100%;
-				width: 1px;
-				background: #B7B7CC;
-				position: absolute;
-				right: 0;
-			}
-		}
-		&:not(:nth-last-child(-n + 3)) {
-			margin-bottom: var(--margin-bottom);
-
-			&::after {
-				content: '';
-				height: 1px;
-				width: 100%;
-				background: #B7B7CC;
-				position: absolute;
-				bottom: calc(var(--margin-bottom) / -2);
-			}
-		}
-
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		font-size: var(--font-size-year);
+		position: relative;
+		transition: border-right .1s;
+
+		&:not(:nth-child(3n)) {
+			border-right: 1px solid #B7B7CC;
+		}
+		&:not(:nth-last-child(-n + 3)) {
+			border-bottom: 1px solid #B7B7CC;
+		}
+
+		&__range-year,
+		&__from-hover-range-year,
+		&__to-hover-range-year,
+		&__before-first-range-year {
+			&:not(:nth-child(3n)) {
+				border-right: 1px solid transparent;
+			}
+
+			// &:not(:nth-last-child(-n + 3)) {
+			// 	border-bottom: 1px solid transparent;
+			// }
+		}
+
+		&__disabled-range-year {
+			cursor: no-drop;
+		}
+	}
+
+	.v2dp-cell-years-container {
+		width: 100%;
+		height: var(--height-range);
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		position: absolute;
+		box-sizing: content-box;
+		cursor: pointer;
 
 		&__first-range-year,
 		&__first-from-hover-range-year  {
@@ -213,38 +297,18 @@ export default {
 
 		&__range-year {
 			background: #4bbac5;
-		}
-		
-		&__from-hover-range-year,
-		&__to-hover-range-year {
-			transition: background-color .2s;
-			background: #b9e6eb;
-			opacity: .8;
+			border: 1px solid #4bbac5;
 		}
 
-		&__future-day {
-			opacity: .6;
+		&__from-hover-range-year,
+		&__to-hover-range-year {
+			background: #b9e6eb;
+			border: 1px solid transparent;
 		}
 
 		&__disabled-range-year {
 			opacity: .4;
-		}
-
-		&__range-year,
-		&__from-hover-range-year,
-		&__to-hover-range-year,
-		&__before-first-range-year {
-			&:not(:nth-child(3n)) {
-				&::before {
-					background: transparent;
-				}
-			}
-
-			&:not(:nth-last-child(-n + 3)) {
-				&::after {
-					background: transparent;
-				}
-			}
+			cursor: no-drop;
 		}
 	}
 
@@ -275,12 +339,11 @@ export default {
 		&__disabled-range-year {
 			&:hover {
 				box-shadow: none;
-				cursor: no-drop;
 			}
 		}
 	}
 
-	.v2dp-cell-sub-years {
+	.v2dp-cell-years-title {
 		width: 100%;
 		height: 100%;
 		border-radius: var(--border-radius);
@@ -317,11 +380,12 @@ export default {
 		}
 	}
 
-	.v2dp-slot-years-complete {
+	.v2dp-slot-years-container {
 		width: 100%;
-		height: 100%;
+		height: var(--height-slot);
 		position: absolute;
-		top: 0;
+		top: 50%;
 		left: 0;
+		transform: translateY(-50%);
 	}
 </style>

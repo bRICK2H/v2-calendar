@@ -232,6 +232,7 @@ export default {
 
 <style lang="scss">
 	.v2dp-controls {
+		height: var(--height-control);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;

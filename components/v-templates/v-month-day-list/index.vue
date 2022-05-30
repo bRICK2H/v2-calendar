@@ -1,8 +1,10 @@
 <template>
 	<div class="v2dp-month-container"
 		:style="{
-			'--height-cell': heightCell,
 			'--size-day': sizeDay,
+			'--height-cell': heightCell,
+			'--height-week': heightWeek,
+			'--height-range': heightRange,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
@@ -119,6 +121,8 @@ export default {
 	data: () => ({
 		sizeDay: 0,
 		heightCell: 0,
+		heightWeek: 0,
+		heightRange: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
 		fontSizeDayWeek: 0,
@@ -303,9 +307,12 @@ export default {
 
 			if (monthList) {
 				const width = Math.floor(monthList.offsetWidth / 7)
-
-				this.heightCell = `${width}px`
+					,	height = Math.floor(width * 1.3)
+				
+				this.heightCell = `${height}px`
+				this.heightRange = `${width}px`
 				this.sizeDay = `${Math.floor(width / 1.13)}px`
+				this.heightWeek = `${Math.floor(height / 2)}px`
 				this.fontSizeDay = `${Math.floor(width * .36)}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`
 				this.fontSizeDayWeek = `${Math.floor(width * .26)}px`
@@ -327,7 +334,7 @@ export default {
 
 <style lang="scss">
 	.v2dp-week-names {
-		height: calc(var(--height-cell) / 1.5);
+		height: var(--height-week);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
