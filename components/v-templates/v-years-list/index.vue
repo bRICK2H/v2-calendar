@@ -45,6 +45,7 @@
 import V2YearsListCell from './cell'
 import {
 	splitDate,
+	getResetedDateString
 } from '../../../functions'
 
 export default {
@@ -143,6 +144,7 @@ export default {
 				.reduceRight((acc, _, i) => {
 					const year = (TODAY_YEAR - i) + this.offsetYear
 						,	id = `${this.name}:${year}`
+						,	dateString = getResetedDateString(new Date(year, 0, 1))
 						,	eventDate = eventDates.find(({ _year }) => year === _year)
 						,	isCurrentYear = todayYear === year
 						, 	isSelectedYear = selectedYear === year
@@ -177,6 +179,7 @@ export default {
 							id,
 							index: i,
 							classes,
+							dateString,
 							title: year,
 							selectedYear,
 							isRangeYear,
@@ -273,12 +276,17 @@ export default {
 		},
 		getYearsList: {
 			immediate: true,
-			handler(years) {
+			handler(dates) {
 				if (this.isRangeMode) {
-					this.cList[this.name].firstYearGrid = years[0].name
+					this.cList[this.name].firstYearGrid = dates[0].name
 				}
+
+				this.$emit('visible-dates', {
+					name: this.name,
+					dates: dates
+				})
 			}
-		}
+		},
 	},
 	mounted() {
 		this.сalculatedSizes()

@@ -58,7 +58,8 @@
 import {
 	splitDate,
 	calcDayWeek,
-	calcDayOffset
+	calcDayOffset,
+	getResetedDateString,
 } from '../../../functions'
 
 import VMonthDayRow from './row'
@@ -195,6 +196,7 @@ export default {
 				} = splitDate(date)
 				,	id = `${this.name}:${_dateString}`
 				,	name = this.weeks[calcDayWeek(date)]
+				,	dateResetString = getResetedDateString(date)
 				,	eventDate = eventDates.find(({ date }) => date === _dateString)
 				,	isVisibleCurrentMonth = this.currMonth === month
 				,	isEventDay = Boolean(eventDate)
@@ -243,12 +245,14 @@ export default {
 
 				return {
 					id,
-					date,
 					year,
 					name,
+					date,
 					month,
-					title: day,
 					classes,
+					title: day,
+					dateString: dateResetString,
+					
 					isEmptyDay,
 					isEventDay,
 					isRangeDay,
@@ -324,6 +328,15 @@ export default {
 		width() {
 			this.сalculatedSizes()
 		},
+		getMonthDays: {
+			immediate: true,
+			handler(dates) {
+				this.$emit('visible-dates', {
+					name: this.name,
+					dates: dates.flat()
+				})
+			}
+		}
 	},
 	mounted() {
 		this.сalculatedSizes()

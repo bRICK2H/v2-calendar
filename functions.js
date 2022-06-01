@@ -34,11 +34,29 @@ const getDayWeekLast = date => {
 	)
 }
 
+const getLastDay = date => {
+	const {
+		_year,
+		_month
+	} = splitDate(new Date(date))
+
+	return new Date(_year, _month + 1, 0)
+}
+
+const getResetedDateString = date => {
+	const d = new Date(date)
+		,	tz = d.getTimezoneOffset() * 1000 * 60
+
+	return new Date(d - tz).toJSON()
+}
+
 export {
 	splitDate,
+	getLastDay,
 	calcDayWeek,
 	resetDateTime,
 	calcDayOffset,
 	getDayWeekLast,
-	getDayWeekFirst
+	getDayWeekFirst,
+	getResetedDateString
 }

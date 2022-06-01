@@ -1,14 +1,14 @@
 <template>
 	<div v-if="isOpenDatePicker"
 		class="v2dp-wrapper"
-		:style="{
+		:style="[{
 			'--margin': margin,
 			'--font-size': fontSize,
 			'--border-width': borderWidth,
 			'--height-control': heightControl,
 			'--size-circle-toggle': sizeCircleToggle,
 			'--size-circle-current': sizeCircleCurrent,
-		}"
+		}, setStyleMaxWidth]"
 	>
 
 		<!-- Input -->
@@ -29,7 +29,7 @@
 
 				<div v-for="(options, key) in cList"
 					class="v2dp-calendar-list"
-					ref="v2dp-calendar-list"
+					:ref="calendarListRef"
 					:key="key"
 					:style="{ maxWidth: `${width}px` }"
 				>
@@ -58,6 +58,7 @@
 						<template v-if="subMode === 'week' && !options.isAdditionalMode">
 							<V2WeekDayList
 								v-bind="options"
+								:cList="cList"
 								:width="width"
 								:weeks="weeks"
 								:selectedDates="dates"
@@ -65,6 +66,7 @@
 								:isMarkedDay="isMarkedDay"
 
 								@select-date="selectDate"
+								@visible-dates="setVisibleDates"
 							>
 
 								<template v-slot:clear="data">
@@ -92,6 +94,7 @@
 								:isRangeMode="isRangeMode"
 
 								@select-date="selectDate"
+								@visible-dates="setVisibleDates"
 							>
 
 								<template v-slot:clear="data">
@@ -117,6 +120,7 @@
 								:isRangeMode="isRangeMode"
 
 								@select-month="month => selectMonth(options, month)"
+								@visible-dates="setVisibleDates"
 							>
 
 								<template v-slot:clear="data">
@@ -141,6 +145,7 @@
 								:isRangeMode="isRangeMode"
 
 								@select-year="year => selectYear(options, year)"
+								@visible-dates="setVisibleDates"
 							>
 
 								<template v-slot:clear="data">
@@ -165,10 +170,12 @@
 <script>
 	import {
 		splitDate,
+		getLastDay,
 		resetDateTime,
 		calcDayOffset,
 		getDayWeekLast,
-		getDayWeekFirst
+		getDayWeekFirst,
+		getResetedDateString
 	} from './functions'
 
 	import V2Input from './components/v-input'
@@ -321,6 +328,7 @@
 			 * ? Event
 			 * 1. v-model работает в обычном режиме
 			 * 2. Возвращаемый event работает как для @input так и для @select (на выбор)
+			 * 3. @visible-rage возвращает диапозон первой и послделней видимой даты (Array)
 			 
 			 * ? Slots
 			 * Реализовано 2 вида слотов
@@ -367,6 +375,10 @@
 					isAdditionalMode: false
 				},
 			},
+			dateList: {
+				from: [],
+				to: [],
+			},
 
 			margin: 0,
 			fontSize: 0,
@@ -388,6 +400,8 @@
 				'Июль', 'Август', 'Сентябрь',
 				'Окрябрь', 'Ноябрь', 'Декабрь'
 			],
+			
+			calendarListRef: '',
 		}),
 		computed: {
 			isWeekSubMode() {
@@ -412,6 +426,13 @@
 			setClassCalendarAbsolutePosition() {
 				return {
 					'v2dp-calendar-container--absolute': this.isInput && this.isAbsoluteCalendarPosition
+				}
+			},
+			setStyleMaxWidth() {
+				return {
+					maxWidth: this.isRangeMode
+						? `${(this.width * 2) + 5}px`
+						: `${this.width}px`
 				}
 			}
 		},
@@ -765,10 +786,9 @@
 
 			},
 			сalculatedSizes() {
-				const calendarList = this.$refs['v2dp-calendar-list']
+				const calendarList = this.$refs[this.calendarListRef]
 				
 				if (calendarList && calendarList.length) {
-
 					const [item] = calendarList
 						,	width = Math.floor(item?.offsetWidth / 2)
 
@@ -788,9 +808,55 @@
 				if (from) fields.push(from)
 				if (to) fields.push(to)
 
-
 				return fields
 			},
+			setVisibleDates({ name, dates }) {
+				this.dateList[name] = dates
+			},
+			getVisibleRange({ from, to }) {
+				const {
+					from: fromList,
+					to: toList
+				} = this.cList
+				,	getLastAdditionalDay = (mode, date) => {
+						switch (mode) {
+							case 'months': {
+								return getResetedDateString(getLastDay(date))
+							}
+
+							case 'years': {
+								const {
+									_day,
+									_year,
+								} = splitDate(new Date(last))
+								,	dt = new Date(_year, 11, _day)
+
+								return getResetedDateString(getLastDay(dt))
+							}
+						}
+				}
+				let first = from[0].dateString,
+					last = this.isRangeMode
+						? to[to.length - 1].dateString
+						: from[from.length - 1].dateString
+
+				
+
+				if (this.isRangeMode) {
+					if (toList.isAdditionalMode) {
+						last = getLastAdditionalDay(toList.additionalMode, last)
+					}
+				} else {
+					if (fromList.isAdditionalMode) {
+						last = getLastAdditionalDay(fromList.additionalMode, last)
+					}
+				}
+
+				return [first, last]
+			},
+			getRandom() {
+				return String(Math.random()).slice(2, 10)
+			}
 		},
 		watch: {
 			async width() {
@@ -852,18 +918,32 @@
 						, findedListener = defaultListeners.find(name => listeners.includes(name))
 	
 					if (this.isInput) this.setInputDate(date)
+
+					if (Array.isArray(date) && !this.isRangeMode) {
+						const [single] = date
+						
+						date = single
+					}
+
 					this.$emit(findedListener ?? 'input', date)
 				}
 
 				this.isAllowEventChanges = true
+			},
+			dateList: {
+				deep: true,
+				handler(dates) {
+					this.$emit('visible-rage', this.getVisibleRange(dates))
+				}
 			}
 		},
 		created() {
 			this.initDate()
+			this.calendarListRef = `calendar-list:${this.getRandom()}`
 
 			/**
-			 * 1. Дополнить параметрами input (width, height как минимум)
-			 * 2. Поработать над стилями высоты row mode years/months
+			 * 1. mode-name:select не работает
+			 * 2. Дополнить параметрами input (width, height как минимум)
 			 * 3. Разобраться с watch mode и проверить остальные
 			 * 4. Набор даты (в последнюю очередь create mask) будет включать в себя mask.
 			 */
@@ -888,13 +968,11 @@
 	}
 
 	html {
-		font-family: 'Inter',
-			sans-serif;
+		font-family: 'Inter', sans-serif;
 	}
 
 	.v2dp-wrapper {
 		min-width: 240px;
-		margin: auto;
 		user-select: none;
 		position: relative;
 
@@ -910,16 +988,18 @@
 		width: 100%;
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: space-between;
+		margin-top: 4px;
 
 		&--absolute {
 			position: absolute;
 			top: 48px;
 			left: 0;
+			margin-top: 0;
 		}
 	}
 	.v2dp-calendar-list {
-		width: calc(100% - 10px);
-		margin: 5px;
+		width: 100%;
 		padding: 16px;
 		position: relative;
 		border-radius: 12px;

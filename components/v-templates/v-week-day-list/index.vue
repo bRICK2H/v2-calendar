@@ -36,7 +36,8 @@
 
 import {
 	splitDate,
-	calcDayOffset
+	calcDayOffset,
+	getResetedDateString
 } from '../../../functions'
 
 import VWeekCell from './cell'
@@ -58,6 +59,10 @@ export default {
 		weeks: {
 			type: Array,
 			require: true
+		},
+		cList: {
+			type: Object,
+			default: () => ({})
 		},
 		todaysDate: {
 			type: Date,
@@ -116,6 +121,7 @@ export default {
 				} = splitDate(date)
 				,	title = day
 				,	name = this.weeks[i]
+				,	dateResetString = getResetedDateString(date)
 				,	id = `${this.name}:${_dateString}`
 				,	isVisibleCurrentWeek = this.currMonth === month
 				,	eventDate = eventDates.find(({ date }) => date === _dateString)
@@ -131,9 +137,9 @@ export default {
 
 				return {
 					id,
-					date,
 					year,
 					name,
+					date,
 					title,
 					month,
 					classes,
@@ -142,7 +148,8 @@ export default {
 					isCurrentDay,
 					isSelectedDay,
 					isEventSelectedDay,
-					isVisibleCurrentWeek
+					isVisibleCurrentWeek,
+					dateString: dateResetString,
 				}
 			})
 		}
@@ -198,6 +205,15 @@ export default {
 		width() {
 			this.сalculatedSizes()
 		},
+		getWeekDays: {
+			immediate: true,
+			handler(dates) {
+				this.$emit('visible-dates', {
+					name: this.name,
+					dates: dates
+				})
+			}
+		}
 	},
 	mounted() {
 		this.сalculatedSizes()

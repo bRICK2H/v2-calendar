@@ -50,8 +50,7 @@ export default {
 
 <style lang="scss">
 	.v2dp-input-container {
-		// max-width: 300px;
-		margin: 5px;
+		width: 100%;
 		display: flex;
 		align-items: center;
 		position: relative;

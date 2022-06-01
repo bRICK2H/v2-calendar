@@ -45,6 +45,7 @@
 import V2MonthsListCell from './cell'
 import {
 	splitDate,
+	getResetedDateString
 } from '../../../functions'
 
 export default {
@@ -145,8 +146,9 @@ export default {
 			,	isRange = this.isRangeMode && toSelected && toDate
 
 			return this.months.map((month, i) => {
-				const date = new Date(this.currYear, i, selectedDay)
-					,	id = `${this.name}:${month}`
+				const id = `${this.name}:${month}`
+					,	date = new Date(this.currYear, i, selectedDay)
+					,	dateString = getResetedDateString(new Date(this.currYear, i, 1))
 					,	eventDate = eventDates.find(({ _month, _year }) => {
 						return i === _month && this.currYear === _year
 					})
@@ -198,8 +200,10 @@ export default {
 
 				return {
 					id,
+					date,
 					classes,
 					index: i,
+					dateString,
 					title: month,
 					selectedMonth,
 					isRangeMonth,
@@ -291,6 +295,15 @@ export default {
 		width() {
 			this.сalculatedSizes()
 		},
+		getMonthsList: {
+			immediate: true,
+			handler(dates) {
+				this.$emit('visible-dates', {
+					name: this.name,
+					dates: dates
+				})
+			}
+		}
 	},
 	mounted() {
 		this.сalculatedSizes()

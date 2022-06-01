@@ -1,5 +1,7 @@
 <template>
-	<div class="v2dp-cell-month-day">
+	<div class="v2dp-cell-month-day"
+		:class="seClassCellMonthDay"
+	>
 		<div class="v2dp-cell-month-day-container"
 			:class="[setClassCellMonth, setClassHoverRangeDay]"
 		>
@@ -67,6 +69,14 @@ export default {
 		hoverDateRage: null
 	},
 	computed: {
+		seClassCellMonthDay() {
+			if (!this.isMarkedDay) return null
+			const CELL = 'v2dp-cell-month-day'
+			
+			return {
+				[`${CELL}__offset-day`]: !this.date.isVisibleCurrentMonth,
+			}
+		},
 		setClassHoverRangeDay() {
 			if (!this.isMarkedDay || !this.hoverDateRage || !this.isRangeMode) return null
 
@@ -135,7 +145,6 @@ export default {
 				[`${CELL}__range-day`]: this.date.isRangeDay,
 				[`${CELL}__last-range-day`]: this.date.isLastRangeDay && this.isRangeMode && !isToHoverRangeDay,
 				[`${CELL}__first-range-day`]: this.date.isFirstRangeDay && this.isRangeMode && !isFromHoverRangeDay,
-				[`${CELL}__offset-day`]: !this.date.isVisibleCurrentMonth,
 				[`${CELL}__hidden-range-to-prev-day`]: this.date.isHiddenRangeToPrevDay,
 				[`${CELL}__hidden-range-from-next-day`]: this.date.isHiddenRangeFromNextDay,
 			}
@@ -190,7 +199,6 @@ export default {
 	align-items: center;
 	position: relative;
 	
-
 	&__offset-day {
 		opacity: .6;
 	}
