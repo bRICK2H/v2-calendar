@@ -2,37 +2,34 @@
 	<div class="v2dp-cell-week"
 		:class="setClassCellWeek"
 	>
-		<div class="v2dp-cell-week-container">
-			<div class="v2dp-cell-week-content"
-				:class="setClassCellWeekContent"
-				@click="$emit('select-date')"
+		<div class="v2dp-cell-week-content"
+			:class="setClassCellWeekContent"
+			@click="$emit('select-date')"
+		>
+			<div class="v2dp-cell-week-date"
+				:class="setClassCellWeekDate"
 			>
-				<div class="v2dp-cell-week-date"
-					:class="setClassCellWeekDate"
-				>
-					<slot name="clear" v-bind="date">
-						<span class="v2dp-cell-week-name">
-							{{ date.name }}
-						</span>
-						<span class="v2dp-cell-week-day">
-							{{ date.title }}
-						</span>
-					</slot>
-				</div>
-			</div>
-
-			<div class="v2dp-slot-week-container"
-				:class="date.classes.parent"
-			>
-				<div v-for="name of date.classes.children"
-					:key="`${name}`"
-					:class="name"
-				></div>
-				
-				<slot v-bind="date" />
+				<slot name="clear" v-bind="date">
+					<span class="v2dp-cell-week-name">
+						{{ date.name }}
+					</span>
+					<span class="v2dp-cell-week-day">
+						{{ date.title }}
+					</span>
+				</slot>
 			</div>
 		</div>
 
+		<div class="v2dp-slot-week-complete"
+			:class="date.classes.parent"
+		>
+			<div v-for="name of date.classes.children"
+				:key="`${name}`"
+				:class="name"
+			></div>
+			
+			<slot v-bind="date" />
+		</div>
 	</div>
 </template>
 
@@ -95,15 +92,8 @@ export default {
 		position: relative;
 
 		&__offset-day {
-			opacity: .6;
+			opacity: .5;
 		}
-	}
-	.v2dp-cell-week-container {
-		width: 100%;
-		height: var(--height-range);
-		display: flex;
-		justify-content: center;
-		align-items: center;
 	}
 	.v2dp-cell-week-content {
 		width: var(--width-day);
@@ -177,7 +167,7 @@ export default {
 		color: #1f1f33;
 	}
 
-	.v2dp-slot-week-container {
+	.v2dp-slot-week-complete {
 		width: 100%;
 		height: 100%;
 		position: absolute;

@@ -20,7 +20,7 @@
 				</span>
 			</div>
 
-			<div class="v2dp-slot-month-day-complete"
+			<div class="v2dp-slot-month-day-container"
 				:class="date.classes.parent"
 			>
 				<div v-for="name of date.classes.children"
@@ -304,7 +304,7 @@ export default {
 	}
 }
 
-.v2dp-slot-month-day-complete {
+.v2dp-slot-month-day-container {
 	width: 100%;
 	height: 100%;
 	position: absolute;

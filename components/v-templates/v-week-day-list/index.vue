@@ -5,6 +5,7 @@
 			'--width-day': widthDay,
 			'--height-day': heightDay,
 			'--height-cell': heightCell,
+			'--height-range': heightRange,
 			'--border-width': borderWidth,
 			'--font-size-day': fontSizeDay,
 			'--font-size-day-week': fontSizeDayWeek,
@@ -93,6 +94,7 @@ export default {
 		widthDay: 0,
 		heightDay: 0,
 		heightCell: 0,
+		heightRange: 0,
 		borderWidth: 0,
 		fontSizeDay: 0,
 		fontSizeDayWeek: 0,
@@ -193,7 +195,8 @@ export default {
 			if (weekList) {
 				const width = Math.floor(weekList.offsetWidth / 7)
 
-				this.heightCell = `${Math.floor(width * 1.9)}px`
+				this.heightCell = `${Math.floor(width * 2)}px`
+				this.heightRange = `${Math.floor(width * 1.8)}px`
 				this.widthDay = `${Math.floor(width / 1.13)}px`
 				this.fontSizeDay = `${Math.floor(width * .36)}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`
