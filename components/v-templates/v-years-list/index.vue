@@ -224,12 +224,12 @@ export default {
 			return [
 				...new Set(
 					eventDates
-						.map(({ _month, _year }) => ({ _month, _year }))
+						.map(({ _year }) => ({ _year }))
 						.map(JSON.stringify)
 				)
 			].map(curr => {
-				const { _month, _year } = JSON.parse(curr)
-					,	condition = el => el._month === _month && el._year === _year
+				const { _year } = JSON.parse(curr)
+					,	condition = el => el._year === _year
 					,	uniqueDates = eventDates.filter(item => condition(item))
 					,	parent = [
 						...new Set(
@@ -277,15 +277,17 @@ export default {
 		},
 		getYearsList: {
 			immediate: true,
-			handler(dates) {
+			handler(dates, old) {
 				if (this.isRangeMode) {
 					this.cList[this.name].firstYearGrid = dates[0].name
 				}
 
-				this.$emit('visible-dates', {
-					name: this.name,
-					dates: dates
-				})
+				if (JSON.stringify(dates) !== JSON.stringify(old)) {
+					this.$emit('visible-dates', {
+						name: this.name,
+						dates: dates
+					})
+				}
 			}
 		},
 	},

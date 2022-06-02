@@ -332,11 +332,15 @@ export default {
 		},
 		getMonthDays: {
 			immediate: true,
-			handler(dates) {
-				this.$emit('visible-dates', {
-					name: this.name,
-					dates: dates.flat()
-				})
+			handler(dates, old) {
+
+				if (JSON.stringify(dates) !== JSON.stringify(old)) {
+					this.$emit('visible-dates', {
+						name: this.name,
+						dates: dates.flat()
+					})
+				}
+
 			}
 		}
 	},

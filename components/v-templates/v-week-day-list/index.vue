@@ -130,9 +130,9 @@ export default {
 				,	eventDate = eventDates.find(({ date }) => date === _dateString)
 				,	isEventDay = Boolean(eventDate)
 				,	classes = {
-					parent: eventDate?.parent ?? null,
-					children: eventDate?.children ?? []
-				}
+						parent: eventDate?.parent ?? null,
+						children: eventDate?.children ?? []
+					}
 				,	isSelectedDay	= selectedDay === day && selectedMonth === month && selectedYear === year
 				,	isEventSelectedDay = isSelectedDay && isEventDay
 				,	isEmptyDay = !isSelectedDay && !isEventDay && !isEventSelectedDay
@@ -211,11 +211,15 @@ export default {
 		},
 		getWeekDays: {
 			immediate: true,
-			handler(dates) {
-				this.$emit('visible-dates', {
-					name: this.name,
-					dates: dates
-				})
+			handler(dates, old) {
+
+				if (JSON.stringify(dates) !== JSON.stringify(old)) {
+					this.$emit('visible-dates', {
+						name: this.name,
+						dates: dates
+					})
+				}
+				
 			}
 		}
 	},
