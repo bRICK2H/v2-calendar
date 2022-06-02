@@ -1,6 +1,6 @@
 <template>
 	<div class="v2dp-week-day-list"
-		ref="v2dp-week-day-list"
+		:ref="weekDayListRef"
 		:style="{
 			'--width-day': widthDay,
 			'--height-day': heightDay,
@@ -11,7 +11,6 @@
 		}"
 	>
 		
-
 		<VWeekCell v-for="date of getWeekDays"
 			:date="date"
 			:key="date.id"
@@ -37,6 +36,7 @@
 import {
 	splitDate,
 	calcDayOffset,
+	getRandomNumber,
 	getResetedDateString
 } from '../../../functions'
 
@@ -96,6 +96,7 @@ export default {
 		borderWidth: 0,
 		fontSizeDay: 0,
 		fontSizeDayWeek: 0,
+		weekDayListRef: ''
 	}),
 	computed: {
 		getWeekDays() {
@@ -187,7 +188,7 @@ export default {
 			})
 		},
 		сalculatedSizes() {
-			const weekList = this.$refs['v2dp-week-day-list']
+			const weekList = this.$refs[this.weekDayListRef]
 
 			if (weekList) {
 				const width = Math.floor(weekList.offsetWidth / 7)
@@ -214,6 +215,9 @@ export default {
 				})
 			}
 		}
+	},
+	created() {
+		this.weekDayListRef = `week-day-list:${getRandomNumber()}`
 	},
 	mounted() {
 		this.сalculatedSizes()

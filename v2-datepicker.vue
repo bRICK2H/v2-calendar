@@ -175,6 +175,7 @@
 		calcDayOffset,
 		getDayWeekLast,
 		getDayWeekFirst,
+		getRandomNumber,
 		getResetedDateString
 	} from './functions'
 
@@ -857,9 +858,6 @@
 
 				return [first, last]
 			},
-			getRandom() {
-				return String(Math.random()).slice(2, 10)
-			}
 		},
 		watch: {
 			async width() {
@@ -942,7 +940,7 @@
 		},
 		created() {
 			this.initDate()
-			this.calendarListRef = `calendar-list:${this.getRandom()}`
+			this.calendarListRef = `calendar-list:${getRandomNumber()}`
 		},
 		mounted() {
 			this.сalculatedSizes()

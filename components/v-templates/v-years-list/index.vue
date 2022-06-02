@@ -1,6 +1,6 @@
 <template>
 	<div class="v2dp-years-list"
-		ref="v2dp-years-list"
+		:ref="yearsListRef"
 		:style="{
 			'--padding-top': paddingTop,
 			'--height-cell': heightCell,
@@ -45,6 +45,7 @@
 import V2YearsListCell from './cell'
 import {
 	splitDate,
+	getRandomNumber,
 	getResetedDateString
 } from '../../../functions'
 
@@ -117,8 +118,8 @@ export default {
 		widthContent: 0,
 		heightContent: 0,
 		fontSizeYear: 0,
-
 		hoverYear: null,
+		yearsListRef: '',
 	}),
 	computed: {
 		getYearsList() {
@@ -249,7 +250,7 @@ export default {
 			})
 		},
 		сalculatedSizes() {
-			const yearList = this.$refs['v2dp-years-list']
+			const yearList = this.$refs[this.yearsListRef]
 
 			if (yearList) {
 				const containerWidth = yearList.offsetWidth
@@ -287,6 +288,9 @@ export default {
 				})
 			}
 		},
+	},
+	created() {
+		this.yearsListRef = `years-list:${getRandomNumber()}`
 	},
 	mounted() {
 		this.сalculatedSizes()

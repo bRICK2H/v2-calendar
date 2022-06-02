@@ -22,7 +22,7 @@
 		</div>
 
 		<div class="v2dp-month-list"
-			ref="v2dp-month-list"
+			:ref="monthDayListRef"
 			@mouseleave="hoverDateRage = null"
 		>
 		
@@ -59,6 +59,7 @@ import {
 	splitDate,
 	calcDayWeek,
 	calcDayOffset,
+	getRandomNumber,
 	getResetedDateString,
 } from '../../../functions'
 
@@ -128,7 +129,8 @@ export default {
 		fontSizeDay: 0,
 		fontSizeDayWeek: 0,
 		offsetBottomDayWeek: 0,
-		hoverDateRage: null
+		hoverDateRage: null,
+		monthDayListRef: ''
 	}),
 	computed: {
 		firstCurrentDate() {
@@ -307,7 +309,7 @@ export default {
 			})
 		},
 		сalculatedSizes() {
-			const monthList = this.$refs['v2dp-month-list']
+			const monthList = this.$refs[this.monthDayListRef]
 
 			if (monthList) {
 				const width = Math.floor(monthList.offsetWidth / 7)
@@ -337,6 +339,9 @@ export default {
 				})
 			}
 		}
+	},
+	created() {
+		this.monthDayListRef = `month-day-list:${getRandomNumber()}`
 	},
 	mounted() {
 		this.сalculatedSizes()

@@ -43,6 +43,10 @@ const getLastDay = date => {
 	return new Date(_year, _month + 1, 0)
 }
 
+const getRandomNumber = () => {
+	return String(Math.random()).slice(2, 10)
+}
+
 const getResetedDateString = date => {
 	const d = new Date(date)
 		,	tz = d.getTimezoneOffset() * 1000 * 60
@@ -58,5 +62,6 @@ export {
 	calcDayOffset,
 	getDayWeekLast,
 	getDayWeekFirst,
+	getRandomNumber,
 	getResetedDateString
 }

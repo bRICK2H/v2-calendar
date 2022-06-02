@@ -1,6 +1,6 @@
 <template>
 	<div class="v2dp-months-list"
-		ref="v2dp-months-list"
+		:ref="monthsListRef"
 		:style="{
 			'--padding-top': paddingTop,
 			'--height-cell': heightCell,
@@ -45,6 +45,7 @@
 import V2MonthsListCell from './cell'
 import {
 	splitDate,
+	getRandomNumber,
 	getResetedDateString
 } from '../../../functions'
 
@@ -117,8 +118,8 @@ export default {
 		widthContent: 0,
 		heightContent: 0,
 		fontSizeMonth: 0,
-
 		hoverMonth: null,
+		monthsListRef: '',
 	}),
 	computed: {
 		getMonthsList() {
@@ -270,7 +271,7 @@ export default {
 			})
 		},
 		сalculatedSizes() {
-			const monthList = this.$refs['v2dp-months-list']
+			const monthList = this.$refs[this.monthsListRef]
 
 			if (monthList) {
 				const containerWidth = monthList.offsetWidth
@@ -304,6 +305,9 @@ export default {
 				})
 			}
 		}
+	},
+	created() {
+		this.monthsListRef = `months-list:${getRandomNumber()}`
 	},
 	mounted() {
 		this.сalculatedSizes()
