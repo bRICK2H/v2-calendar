@@ -1,6 +1,7 @@
 <template>
 	<div v-if="isOpenDatePicker"
-		class="v2dp-wrapper"
+		class="v2dp-calendar-wrapper"
+		:ref="calendarWrapperRef"
 		:style="[{
 			'--margin': margin,
 			'--font-size': fontSize,
@@ -403,6 +404,8 @@
 			],
 			
 			calendarListRef: '',
+			calendarWrapperRef: '',
+			widthProp: 'width'
 		}),
 		computed: {
 			isWeekSubMode() {
@@ -431,9 +434,9 @@
 			},
 			setStyleMaxWidth() {
 				return {
-					maxWidth: this.isRangeMode
+					[this.widthProp]: this.isRangeMode
 						? `${(this.width * 2) + 5}px`
-						: `${this.width}px`
+						: `${this.width}px`,
 				}
 			}
 		},
@@ -804,9 +807,17 @@
 
 			},
 			сalculatedSizes() {
-				const calendarList = this.$refs[this.calendarListRef]
+				const calendarWrapper = this.$refs[this.calendarWrapperRef]
+					,	calendarList = this.$refs[this.calendarListRef]
+			
+				if (calendarWrapper) {
+					const calendarParent = calendarWrapper.parentNode
+						,	{ display } = getComputedStyle(calendarParent)
+
+					this.widthProp = display === 'flex' ? 'width' : 'maxWidth'
+				}
 				
-				if (calendarList && calendarList.length) {
+				if (calendarList?.length) {
 					const [item] = calendarList
 						,	width = Math.floor(item?.offsetWidth / 2)
 
@@ -953,10 +964,12 @@
 		created() {
 			this.initDate()
 			this.calendarListRef = `calendar-list:${getRandomNumber()}`
+			this.calendarWrapperRef = `calendar-wrapper:${getRandomNumber()}`
 		},
 		mounted() {
 			this.сalculatedSizes()
 			window.addEventListener('resize', this.сalculatedSizes)
+
 		}
 
 	}
@@ -976,7 +989,7 @@
 		font-family: 'Inter', sans-serif;
 	}
 
-	.v2dp-wrapper {
+	.v2dp-calendar-wrapper {
 		min-width: 240px;
 		user-select: none;
 		position: relative;
