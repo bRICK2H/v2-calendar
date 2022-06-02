@@ -193,7 +193,7 @@ export default {
 			if (weekList) {
 				const width = Math.floor(weekList.offsetWidth / 7)
 
-				this.heightCell = `${Math.floor(width * 1.7)}px`
+				this.heightCell = `${Math.floor(width * 1.9)}px`
 				this.widthDay = `${Math.floor(width / 1.13)}px`
 				this.fontSizeDay = `${Math.floor(width * .36)}px`
 				this.borderWidth = `${Math.floor(width * .06)}px`

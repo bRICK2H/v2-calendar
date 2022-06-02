@@ -6,7 +6,7 @@
 					setClassAdditionalMode,
 					setClassControlsMonth,
 				]"
-				@click="openAdditionalMode('months')"
+				@click="toggle('months')"
 			>
 				{{ getMonth }}
 			</span>
@@ -16,7 +16,7 @@
 					setClassAdditionalMode,
 					setClassControlsYear,
 				]"
-				@click="openAdditionalMode('years')"
+				@click="toggle('years')"
 			>
 				{{ currYear }}
 			</span>
@@ -221,9 +221,9 @@ export default {
 
 			this.$emit('offset', { side, days, name, mode })
 		},
-		openAdditionalMode(mode) {
+		toggle(mode) {
 			if (this.isOuterAdditionalMode) {
-				this.$emit('open-additional-mode', this.name, mode)
+				this.$emit('toggle-additional-mode', mode)
 			}
 		}
 	}

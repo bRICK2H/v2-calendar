@@ -50,7 +50,7 @@
 						:isOuterAdditionalMode="isAdditionalMode"
 
 						@offset="offset"
-						@open-additional-mode="openAdditionalMode"
+						@toggle-additional-mode="mode => toggleAdditionalMode(options, mode)"
 					/>
 					<transition name="toggle-multiple" mode="out-in">
 
@@ -713,14 +713,21 @@
 
 				options.isAdditionalMode = false
 			},
-			openAdditionalMode(name, mode) {
-				const calendar = this.cList[name]
+			toggleAdditionalMode(options, mode) {
+				const {
+					additionalMode,
+					isAdditionalMode
+				} = options
 				
-				calendar.isAdditionalMode = calendar.additionalMode !== mode
+				options.isAdditionalMode = additionalMode !== mode
 					? true
-					: !calendar.isAdditionalMode
+					: !isAdditionalMode
 
-				calendar.additionalMode = mode
+				options.additionalMode = mode
+
+				if (this.additionalMods.includes(additionalMode)) {
+					this.subMode = 'month-day'
+				}
 			},
 			multipleToggle(name) {
 				const calendar = this.cList[name]
@@ -742,16 +749,21 @@
 				this.splitedSubMode = subMode
 
 				if (Object.keys(defaultMods).includes(commonMode)) {
-					if (commonMode === 'range') {
-						this.subMode = defaultMods[commonMode]
-					} else if (subMode) {
-						if (this.subMods.includes(subMode)) {
-							this.subMode = subMode
-						} else {
+					switch (commonMode) {
+						case 'range':
+						case 'single':
+						case 'multiple': {
+							if (!subMode) {
+								this.subMode = defaultMods[commonMode]
+							} else {
+								this.subMode = subMode
+							}
+						}
+							break
+					
+						default: {
 							this.subMode = defaultMods[commonMode]
 						}
-					} else {
-						this.subMode = defaultMods[commonMode]
 					}
 				} else {
 					this.subMode = ''
