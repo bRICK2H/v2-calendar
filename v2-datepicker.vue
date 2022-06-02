@@ -119,7 +119,7 @@
 								:isMarkedDay="isMarkedDay"
 								:isRangeMode="isRangeMode"
 
-								@select-month="month => selectMonth(options, month)"
+								@select-month="month => selectAdditional(options, month)"
 								@visible-dates="setVisibleDates"
 							>
 
@@ -144,7 +144,7 @@
 								:isMarkedDay="isMarkedDay"
 								:isRangeMode="isRangeMode"
 
-								@select-year="year => selectYear(options, year)"
+								@select-year="year => selectAdditional(options, year)"
 								@visible-dates="setVisibleDates"
 							>
 
@@ -677,31 +677,36 @@
 					this.isShowCalendar = !this.isCloseAfterSelect
 				}
 			},
-			selectMonth(options, month) {
+			selectAdditional(options, value) {
 				const {
 					name,
 					currYear,
-					currMonth
+					currMonth,
+					additionalMode
 				} = options
+				
+				let date = null,
+					isCurrentDate = false
 
-				if (month !== currMonth) {
-					const date = new Date(currYear, month, 1)
+				switch (additionalMode) {
+					case 'months': {
+						isCurrentDate = value === currMonth
+						date = new Date(currYear, value, 1)
+					}
+						break
 
-					this.updateOffset({ date, name, isCurrentMonth: false })
+					case 'years': {
+						isCurrentDate = value === currYear
+						date = new Date(value, currMonth, 1)
+					}
+						break
 				}
 
-				options.isAdditionalMode = false
-			},
-			selectYear(options, year) {
-				const {
-					name,
-					currYear,
-					currMonth
-				} = options
+				if (this.additionalMods.includes(additionalMode)) {
+					this.subMode = 'month-day'
+				}
 
-				if (year !== currYear) {
-					const date = new Date(year, currMonth, 1)
-
+				if (!isCurrentDate) {
 					this.updateOffset({ date, name, isCurrentMonth: false })
 				}
 
@@ -840,8 +845,6 @@
 						? to[to.length - 1].dateString
 						: from[from.length - 1].dateString
 
-				
-
 				if (this.isRangeMode) {
 					if (toList.isAdditionalMode) {
 						last = getLastAdditionalDay(toList.additionalMode, last)
@@ -940,14 +943,6 @@
 		created() {
 			this.initDate()
 			this.calendarListRef = `calendar-list:${this.getRandom()}`
-
-			/**
-			 * 1. mode-name:select не работает
-			 * 2. Дополнить параметрами input (width, height как минимум)
-			 * 3. Разобраться с watch mode и проверить остальные
-			 * 4. Набор даты (в последнюю очередь create mask) будет включать в себя mask.
-			 */
-
 		},
 		mounted() {
 			this.сalculatedSizes()
