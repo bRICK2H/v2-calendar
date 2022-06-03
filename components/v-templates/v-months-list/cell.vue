@@ -1,10 +1,10 @@
 <template>
-  <div class="v2dp-cell-months"
+	<div class="v2dp-cell-months"
 		:class="[
 			setClassCellMonthsRange('v2dp-cell-months'),
 			setClassCellMonthsRangeHover('v2dp-cell-months')
 		]"
-  	>
+	>
 		<div class="v2dp-cell-months-container"
 			:class="[
 				setClassCellMonthsRange('v2dp-cell-months-container'),

@@ -1,10 +1,10 @@
 <template>
-  <div class="v2dp-cell-years"
+	<div class="v2dp-cell-years"
 		:class="[
 			setClassCellYearsRange('v2dp-cell-years'),
 			setClassCellYearsRangeHover('v2dp-cell-years')
 		]"
-  	>
+	>
 		<div class="v2dp-cell-years-container"
 			:class="[
 				setClassCellYearsRange('v2dp-cell-years-container'),

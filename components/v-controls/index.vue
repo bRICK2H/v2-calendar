@@ -90,11 +90,11 @@ export default {
 		},
 		currMonth: {
 			type: Number,
-			default: ''
+			default: 0
 		},
 		currYear: {
 			type: Number,
-			default: ''
+			default: 0
 		},
 		todaysDate: {
 			type: Date,
@@ -244,7 +244,7 @@ export default {
 		font-size: var(--font-size);
 		font-weight: 700;
 		display: flex;
-    	align-items: flex-end;
+		align-items: flex-end;
 	}
 
 	.v2dp-controls-month {
