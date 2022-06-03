@@ -751,28 +751,28 @@
 				this.commonMode = commonMode
 				this.splitedSubMode = subMode
 
-				if (Object.keys(defaultMods).includes(commonMode)) {
-					switch (commonMode) {
-						case 'range':
-						case 'single':
-						case 'multiple': {
-							if (!subMode) {
-								this.subMode = defaultMods[commonMode]
-							} else {
-								this.subMode = subMode
-							}
-						}
-							break
-					
-						default: {
+				switch (commonMode) {
+					case 'range':
+					case 'single':
+					case 'multiple': {
+						if (!subMode) {
 							this.subMode = defaultMods[commonMode]
+						} else {
+							this.subMode = subMode
 						}
 					}
-				} else {
-					this.subMode = ''
+						break
+				}
+
+				if (!Object.keys(defaultMods).includes(commonMode)) {
 					console.warn(`[v2-datepicker]: Вы допустили ошибку в названии выбранного режима - "${commonMode}", уточните допустимое имя в документации.`)
 				}
+
+				if (subMode && !this.subMods.includes(subMode)) {
+					console.warn(`[v2-datepicker]: Вы допустили ошибку в названии режима по умолчанию - "${subMode}", уточните допустимое имя в документации.`)
+				}
 			},
+
 			setInputDate(dates) {
 				const formatDate = dates.map(date => {
 					const splitedDate = splitDate(date)
@@ -804,7 +804,6 @@
 				})
 
 				this.inputValue = formatDate.join(` ${this.betweenRange} `)
-
 			},
 			сalculatedSizes() {
 				const calendarWrapper = this.$refs[this.calendarWrapperRef]
