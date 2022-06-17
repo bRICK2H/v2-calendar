@@ -931,6 +931,12 @@
 				handler(isImmediate) {
 					if (this.isInput) {
 						this.isShowCalendar = isImmediate
+
+						if (!isImmediate) {
+							setTimeout(() => {
+								this.setInputDate(this.getSelectedDays)
+							})
+						}
 					}
 				}
 			},
@@ -968,7 +974,6 @@
 		mounted() {
 			this.сalculatedSizes()
 			window.addEventListener('resize', this.сalculatedSizes)
-
 		}
 
 	}
