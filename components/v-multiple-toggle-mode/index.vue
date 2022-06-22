@@ -28,7 +28,7 @@ export default {
 		width: 100%;
 		display: flex;
 		justify-content: center;
-		margin-bottom: calc(var(--margin) / 2);
+		// margin-bottom: calc(var(--margin) / 2);
 	}
 
 	.v2dp-controls-icon-mode-toggle {

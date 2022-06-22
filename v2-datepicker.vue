@@ -41,7 +41,7 @@
 					/>
 
 					<!-- Controls -->
-					<V2Controls
+					<V2Controls v-show="isToggleControlPanel"
 						v-bind="options"
 						:cList="cList"
 						:months="months"
@@ -263,6 +263,15 @@
 			},
 
 			/**
+			 * Получить дату только после ее обновления (в противном случае и по загрузке)
+			 */
+
+			isImmediateGetDate: {
+				type: Boolean,
+				default: false,
+			},
+
+			/**
 			 * Показать инпут. Вызов календаря происходит непосредственно из него. 
 			 */
 
@@ -290,12 +299,21 @@
 			},
 
 			/**
-			 * Скрыть (при инициализации) календарь при ключеном инпуте
+			 * Скрыть/показать календарь
 			 */
 
-			isImmediateOpen: {
+			isToggleCalendar: {
 				type: Boolean,
 				default: false
+			},
+
+			/**
+			 * Показать/скрыть панель управления
+			 */
+
+			isToggleControlPanel: {
+				type: Boolean,
+				default: true
 			},
 
 			/**
@@ -926,10 +944,10 @@
 					this.isShowCalendar = !isShowCalendar
 				}
 			},
-			isImmediateOpen: {
+			isToggleCalendar: {
 				immediate: true,
 				handler(isImmediate) {
-					if (this.isInput) {
+					// if (this.isInput) {
 						this.isShowCalendar = isImmediate
 
 						if (!isImmediate) {
@@ -937,10 +955,12 @@
 								this.setInputDate(this.getSelectedDays)
 							})
 						}
-					}
+					// }
 				}
 			},
-			getSelectedDays(date) {
+			getSelectedDays(date, old) {
+				this.isAllowEventChanges = this.isImmediateGetDate
+				
 				if (this.isAllowEventChanges) {
 					const defaultListeners = ['input', 'select']
 						, listeners = Object.keys(this.$listeners)
@@ -949,12 +969,16 @@
 					if (this.isInput) this.setInputDate(date)
 
 					if (Array.isArray(date) && !this.isRangeMode) {
-						const [single] = date
-						
-						date = single
+						date = date[0]
+						old = old[0]
 					}
 
-					this.$emit(findedListener ?? 'input', date)
+					const curr = JSON.stringify(date)
+						,	prev = JSON.stringify(old)
+
+					if (curr !== prev) {
+						this.$emit(findedListener ?? 'input', date)
+					}
 				}
 
 				this.isAllowEventChanges = true
@@ -974,14 +998,13 @@
 		mounted() {
 			this.сalculatedSizes()
 			window.addEventListener('resize', this.сalculatedSizes)
+
 		}
 
 	}
 </script>
 
 <style lang="scss">
-	@import url('assets/fonts/inter/index.scss');
-
 	* {
 		margin: 0;
 		padding: 0;
