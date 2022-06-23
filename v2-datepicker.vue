@@ -821,6 +821,8 @@
 
 				})
 
+				console.log('setInput', formatDate)
+
 				this.inputValue = formatDate.join(` ${this.betweenRange} `)
 			},
 			сalculatedSizes() {
@@ -959,7 +961,9 @@
 				}
 			},
 			getSelectedDays(date, old) {
-				this.isAllowEventChanges = this.isImmediateGetDate
+				if (!this.isAllowEventChanges) {
+					this.isAllowEventChanges = this.isImmediateGetDate
+				}
 				
 				if (this.isAllowEventChanges) {
 					const defaultListeners = ['input', 'select']
