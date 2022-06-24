@@ -821,8 +821,6 @@
 
 				})
 
-				console.log('setInput', formatDate)
-
 				this.inputValue = formatDate.join(` ${this.betweenRange} `)
 			},
 			сalculatedSizes() {
