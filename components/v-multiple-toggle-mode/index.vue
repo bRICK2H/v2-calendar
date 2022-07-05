@@ -29,7 +29,7 @@ export default {
 		display: flex;
 		justify-content: center;
 		position: relative;
-   	bottom: -15px;
+		bottom: -15px;
 	}
 
 	.v2dp-controls-icon-mode-toggle {
