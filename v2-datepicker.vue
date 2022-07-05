@@ -395,7 +395,8 @@
 					isAdditionalMode: false
 				},
 			},
-			dateList: {
+			prevRangeList: [],
+			currRangeList: {
 				from: [],
 				to: [],
 			},
@@ -821,8 +822,6 @@
 
 				})
 
-				console.log('setInput', formatDate)
-
 				this.inputValue = formatDate.join(` ${this.betweenRange} `)
 			},
 			сalculatedSizes() {
@@ -859,7 +858,7 @@
 				return fields
 			},
 			setVisibleDates({ name, dates }) {
-				this.dateList[name] = dates
+				this.currRangeList[name] = dates
 			},
 			getVisibleRange({ from, to }) {
 				const {
@@ -987,10 +986,19 @@
 
 				this.isAllowEventChanges = true
 			},
-			dateList: {
+			currRangeList: {
 				deep: true,
 				handler(dates) {
-					this.$emit('visible-rage', this.getVisibleRange(dates))
+					const currRangeList = this.getVisibleRange(dates)
+						,	curr = JSON.stringify(currRangeList)
+						,	prev = JSON.stringify(this.prevRangeList)
+
+					if (curr !== prev) {
+						this.$emit('visible-rage', currRangeList)
+					}
+
+					this.prevRangeList = currRangeList
+					
 				}
 			}
 		},
