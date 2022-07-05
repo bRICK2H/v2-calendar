@@ -377,6 +377,7 @@
 		data: () => ({
 			subMode: '',
 			commonMode: '',
+			initSubMode: '',
 			splitedSubMode: '',
 			additionalMods: ['months', 'years'],
 			subMods: ['month-day', 'week', 'months', 'years'],
@@ -727,7 +728,7 @@
 				}
 
 				if (this.additionalMods.includes(additionalMode)) {
-					this.subMode = 'month-day'
+					this.subMode = this.initSubMode
 				}
 
 				if (!isCurrentDate) {
@@ -776,9 +777,9 @@
 					case 'single':
 					case 'multiple': {
 						if (!subMode) {
-							this.subMode = defaultMods[commonMode]
+							this.subMode = this.initSubMode = defaultMods[commonMode]
 						} else {
-							this.subMode = subMode
+							this.subMode = this.initSubMode = subMode
 						}
 					}
 						break
