@@ -34,11 +34,6 @@
 					:key="key"
 					:style="{ maxWidth: `${width}px` }"
 				>
-					<!-- Multiple toggle mode -->
-					<V2MultipleToggle v-if="isMultipleMode"
-						:icon="getIconMultipleMode"
-						@multiple-toggle="multipleToggle(key)"
-					/>
 
 					<!-- Controls -->
 					<V2Controls v-show="isToggleControlPanel"
@@ -161,6 +156,12 @@
 						</template>
 
 					</transition>
+
+					<!-- Multiple toggle mode -->
+					<V2MultipleToggle v-if="isMultipleMode"
+						:icon="getIconMultipleMode"
+						@multiple-toggle="multipleToggle(key)"
+					/>
 
 				</div>
 			</div>

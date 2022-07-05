@@ -34,6 +34,7 @@ export default {
 	.v2dp-controls-icon-mode-toggle {
 		width: var(--size-circle-toggle);
 		height: var(--size-circle-toggle);
+		transform: rotate(180deg);
 		transition: filter .2s;
 
 		&:hover {
