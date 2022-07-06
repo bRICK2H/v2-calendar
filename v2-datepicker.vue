@@ -908,7 +908,7 @@
 				this.сalculatedSizes()
 			},
 			async isShowCalendar(isShow) {
-				if (this.isInput && isShow) {
+				if (this.isInput || isShow) {
 					this.setInputDate(this.getSelectedDays)
 
 					await this.$nextTick()
