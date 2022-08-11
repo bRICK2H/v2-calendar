@@ -1,6 +1,7 @@
 <template>
 	<div class="v2dp-input-container"
 		:style="setStyleInput"
+		@click="$emit('toggle-calendar')"
 	>
 
 		<input class="v2dp-input-item"
@@ -14,7 +15,6 @@
 		<button class="v2dp-calendar-call"
 			:class="{ 'v2dp-calendar-call__disabled': isDisabledCalendarToggle }"
 			:disabled="isDisabledCalendarToggle"
-			@click="$emit('toggle-calendar')"
 		>
 			<img src="../../assets/img/svg/calendar.svg"
 				alt="calendar"
